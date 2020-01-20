@@ -1,0 +1,97 @@
+<?php
+namespace vettich\sp3\db;
+
+use vettich\sp3\Module;
+
+class Posts extends \vettich\devform\data\ArrayList
+{
+	private $filter = [];
+	private $inited = false;
+
+	public function __construct($args = [])
+	{
+		$args['on afterSave'] = [$this, 'afterSave'];
+		$args['on afterFillValues'] = [$this, 'afterFillValues'];
+		parent::__construct($args);
+		if (isset($args['filter'])) {
+			$this->filter = $args['filter'];
+		} elseif (!empty($_GET['id'])) {
+			$this->filter = ['id' => $_GET['id']];
+		}
+	}
+
+	public function get($name, $default=null)
+	{
+		if (!$this->inited) {
+			if (empty($this->filter['id'])) {
+				return $default;
+			}
+			$res = Module::api()->getPost($this->filter['id']);
+			$res = Module::convertToSiteCharset($res);
+			$this->values = $res;
+			$this->inited = true;
+		}
+		if (!$this->exists($name)) {
+			return $default;
+		}
+		if ($this->trimPrefix) {
+			$name = $this->trim($name);
+		}
+		return self::arrayChain($this->values, self::strToChain($name), $default);
+	}
+
+	public function getList($params=[])
+	{
+		$queries = [];
+		if (!empty($params['order'])) {
+			foreach ($params['order'] as $by => $order) {
+				$queries['sort.by'] = $by;
+				$queries['sort.order'] = strtoupper($order);
+			}
+		}
+		$res = Module::api()->postsList($queries);
+		$res = Module::convertToSiteCharset($res);
+		$posts = $res['posts'];
+		return $posts;
+	}
+
+	public function afterFillValues($obj, $arValues)
+	{
+		if (empty($this->values['networks']['accounts'])) {
+			return ['error' => Module::m('ERROR_ACCOUNTS_EMPTY')];
+		}
+		if (!empty($this->values['fields']['images'])) {
+			$images = [];
+			foreach ($this->values['fields']['images'] as $image) {
+				$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image["tmp_name"]);
+				$fileID = Module::api()->uploadFile($pathinfo['tmp_name'], $image['name']);
+				if ($fileID != false) {
+					$images[] = $fileID;
+				}
+				DeleteDirFilesEx(dirname($pathinfo['tmp_name']));
+			}
+			$this->values['fields']['images'] = $images;
+		}
+		$this->values['publish_at'] = date(\DateTime::RFC3339_EXTENDED, strtotime($this->values['publish_at']));
+	}
+
+	public function afterSave($obj, $arValues)
+	{
+		Module::log($this->values);
+		$utf8Values = Module::convertToUtf8($this->values);
+		if (empty($utf8Values['id'])) {
+			$res = Module::api()->createPost($utf8Values);
+		} else {
+			$res = Module::api()->updatePost($utf8Values);
+		}
+		if ($res['success']) {
+			return true;
+		}
+		return $res;
+	}
+
+	public function delete($name, $value)
+	{
+		Module::api()->deletePost($id=$value);
+	}
+}

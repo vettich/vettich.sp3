@@ -1,0 +1,325 @@
+<?php
+namespace vettich\sp3;
+
+IncludeModuleLangFile(__FILE__);
+
+/**
+ * api for service
+ */
+class Api
+{
+	private $configFile = '';
+	private $config = [];
+
+	public function __construct($configFile)
+	{
+		$this->configFile = $configFile;
+		$this->readConfig();
+	}
+
+	public function readConfig()
+	{
+		$data = file_get_contents($this->configFile);
+		$conf = json_decode($data, true);
+		if (!empty($conf)) {
+			$this->config = $conf;
+		}
+	}
+
+	public function saveConfig()
+	{
+		$data = json_encode($this->config, JSON_PRETTY_PRINT);
+		file_put_contents($this->configFile, $data);
+	}
+
+	public function userId()
+	{
+		return $this->config['user_id'];
+	}
+
+	public function token()
+	{
+		return $this->config['token'];
+	}
+
+	private function setUserData($userId, $token)
+	{
+		$this->config['user_id'] = $userId;
+		$this->config['token'] = $token;
+		$this->saveConfig();
+	}
+
+	private static function errorMsg($key, $msg)
+	{
+		Module::log("$key.$msg");
+		$langMess = Module::m("$key.$msg");
+		if (empty($langMess)) {
+			return $msg;
+		}
+		return $langMess;
+	}
+
+	private function buildEndpoint($endpoint)
+	{
+		$url = $this->config['api_uri'];
+		$url .= '/'.$this->config['api_version'];
+		$url .= '/'.$endpoint;
+		return $url;
+	}
+
+	private function buildCurl($url, $needAuth, $headers=[])
+	{
+		if ($needAuth == true) {
+			$token = $this->token();
+			if (empty($token)) {
+				return false;
+			}
+		}
+		if (!function_exists('curl_init')) {
+			return false;
+		}
+		$c = curl_init();
+		if (!$c) {
+			return false;
+		}
+		curl_setopt($c, CURLOPT_URL, $url);
+		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($c, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_setopt($c, CURLOPT_SSL_VERIFYHOST, 0);
+		#curl_setopt($c, CURLOPT_VERBOSE, true);
+		#curl_setopt($c, CURLOPT_STDERR, VETTICH_SP3_DIR.'/logerr.txt');
+		#curl_setopt($c, CURLINFO_HEADER_OUT, true);
+		if ($needAuth == true) {
+			$headers[] = 'Grpc-Metadata-token: '.$this->token();
+		}
+		if (!empty($headers)) {
+			curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
+		}
+		return $c;
+	}
+
+	private function callGet($endpoint, $queries=[], $needAuth=true, $options=[])
+	{
+		$url = $this->buildEndpoint($endpoint);
+		if (is_array($queries)) {
+			$queries = http_build_query($queries);
+		}
+		if (!empty($queries)) {
+			$url .= '?'.$queries;
+		}
+		$c = $this->buildCurl($url, $needAuth);
+		if (!$c) {
+			return false;
+		}
+		$result = curl_exec($c);
+		curl_close($c);
+		return json_decode($result, true);
+	}
+
+	private function callPost($endpoint, $data=[], $needAuth=true)
+	{
+		$url = $this->buildEndpoint($endpoint);
+		$c = $this->buildCurl($url, $needAuth, ['Content-Type: application/json']);
+		if (!$c) {
+			return false;
+		}
+		$dataEnc = json_encode($data);
+		curl_setopt($c, CURLOPT_POST, true);
+		curl_setopt($c, CURLOPT_POSTFIELDS, $dataEnc);
+		$result = curl_exec($c);
+		curl_close($c);
+		return json_decode($result, true);
+	}
+
+	private function callDelete($endpoint, $queries=[], $needAuth=true)
+	{
+		$url = $this->buildEndpoint($endpoint);
+		$url .= '?'.http_build_query($queries);
+		$c = $this->buildCurl($url, $needAuth);
+		if (!$c) {
+			return false;
+		}
+		curl_setopt($c, CURLOPT_CUSTOMREQUEST, 'DELETE');
+		$result = curl_exec($c);
+		curl_close($c);
+		return json_decode($result, true);
+	}
+
+	private static function filenameWrapper($filepath, $filename)
+	{
+		if (version_compare(PHP_VERSION, '5.6.0', '<')) {
+			return '@'.$filepath;
+		}
+		return new \CURLFile($filepath, mime_content_type($filepath), $filename);
+	}
+
+	private static function resultWrapper($res)
+	{
+		Module::log($res, ['traceN' => 3]);
+		if (!is_array($res)) {
+			return ['success' => false];
+		}
+		if ($res['error']) {
+			$res['success'] = false;
+		} else {
+			$res['success'] = true;
+		}
+		return $res;
+	}
+
+	public function login($username, $password)
+	{
+		$queries = [
+			'username' => $username,
+			'password' => $password,
+		];
+		$response = $this->callPost('tokens', $queries, false);
+		Module::log($response);
+		if (empty($response['token'])) {
+			return ['success' => false, 'error' => self::errorMsg('USER', $response['error'])];
+		}
+
+		$this->setUserData($response['id'], $response['token']);
+		return ['success' => true];
+	}
+
+	public function signup($username, $password)
+	{
+		$queries = [
+			'username' => $username,
+			'password' => $password,
+		];
+		$response = $this->callPost('users', $queries, false);
+		Module::log($response);
+		if (empty($response['token'])) {
+			return ['success' => false, 'error' => self::errorMsg('USER', $response['error'])];
+		}
+		$this->setUserData($response['id'], $response['token']);
+		return ['success' => true];
+	}
+
+	public function validateToken()
+	{
+		$token = $this->token();
+		if (empty($token)) {
+			return ['success' => false];
+		}
+		$response = $this->callGet("tokens/$token/valid", [], false);
+		Module::log($response);
+		if ($response['valid'] == true) {
+			return ['success' => true];
+		}
+		$this->setUserData("", "");
+		return ['success' => false];
+	}
+
+	public function me()
+	{
+		$user = $this->callGet('me');
+		return self::resultWrapper($user);
+	}
+
+	public function logout()
+	{
+		$token = $this->token();
+		if (empty($token)) {
+			return ['success' => true];
+		}
+		$res = $this->callDelete("tokens/$token", [], false);
+		Module::log($res);
+		if ($res['error']) {
+			return ['success' => false];
+		}
+		$this->setUserData("", "");
+		return ['success' => true];
+	}
+
+	public function connectUrl($accType, $callback)
+	{
+		$queries = [
+			'type' => $accType,
+			'callback' => $callback,
+		];
+		$res = $this->callGet('connect_url', $queries);
+		return self::resultWrapper($res);
+	}
+
+	public function accountsList()
+	{
+		$res = $this->callGet('accounts');
+		return self::resultWrapper($res);
+	}
+
+	public function deleteAccount($id)
+	{
+		$res = $this->callDelete('accounts/'.$id);
+		return self::resultWrapper($res);
+	}
+
+	public function postsList($queries=[])
+	{
+		$queries['from'] = 'BITRIX';
+		$res = $this->callGet('posts', $queries);
+		return self::resultWrapper($res);
+	}
+
+	public function createPost($post)
+	{
+		$post['from'] = 'BITRIX';
+		$res = $this->callPost('posts', $post);
+		return self::resultWrapper($res);
+	}
+
+	public function updatePost($post)
+	{
+		$post['from'] = 'BITRIX';
+		$res = $this->callPost('posts/'.$post['id'], $post);
+		return self::resultWrapper($res);
+	}
+
+	public function getPost($id)
+	{
+		$res = $this->callGet('posts/'.$id);
+		return self::resultWrapper($res);
+	}
+
+	public function deletePost($id)
+	{
+		$res = $this->callDelete('posts/'.$id);
+		return self::resultWrapper($res);
+	}
+
+	public function uploadFile($filepath, $filename)
+	{
+		$res = $this->callGet('file_upload_url', ['type' => 'IMAGE', 'filename' => $filename]);
+		Module::log($res);
+		$fileID = $res['id'];
+		$uploadUrl = $res['url'];
+		$data = ['file' => self::filenameWrapper($filepath, $filename)];
+		$c = $this->buildCurl($uploadUrl, $needAuth=true, ['Content-Type:multipart/form-data']);
+		if (!$c) {
+			return false;
+		}
+		curl_setopt($c, CURLOPT_POST, true);
+		curl_setopt($c, CURLOPT_POSTFIELDS, $data);
+		$result = curl_exec($c);
+		curl_close($c);
+		$res = json_decode($result, true);
+		Module::log([$result, $res, empty($res['error']), $fileID]);
+		if (empty($res['error'])) {
+			return $fileID;
+		}
+	}
+
+	public function getFilesURL($fileIDs)
+	{
+		$queries = [];
+		foreach ($fileIDs as $id) {
+			$queries[] = 'ids='.$id;
+		}
+		$queries = implode('&', $queries);
+		$res = $this->callGet('files_url', $queries);
+		return self::resultWrapper($res);
+	}
+}
