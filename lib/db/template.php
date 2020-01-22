@@ -16,6 +16,7 @@ class TemplateTable extends OrmBase
 
 	public static function getMap()
 	{
+		global $USER;
 		$arMap = [
 			new Entity\IntegerField('ID', [
 				'primary' => true,
@@ -42,13 +43,13 @@ class TemplateTable extends OrmBase
 			]))->configureSerializationPhp()
 				->addValidator(new LengthValidator(0, 2000)),
 
-			new Entity\StringField('DOMAIN', [
+			(new Entity\StringField('DOMAIN', [
 				'default_value' => ''
-			])->addValidator(new LengthValidator(0, 1000)),
+			]))->addValidator(new LengthValidator(0, 1000)),
 
-			new Entity\TextField('URL_PARAMS', [
+			(new Entity\TextField('URL_PARAMS', [
 				'default_value' => ''
-			])->addValidator(new LengthValidator(0, 1000)),
+			]))->addValidator(new LengthValidator(0, 1000)),
 
 			(new ArrayField('CONDITIONS', [
 				'default_value' => []

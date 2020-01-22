@@ -1,6 +1,8 @@
 <?php
 namespace vettich\sp3;
 
+use \vettich\devform\Module as DevFormModule;
+
 IncludeModuleLangFile(__FILE__);
 
 define('VETTICH_SP3_DIR', __DIR__);
@@ -18,6 +20,7 @@ class Module
 	const MID = 'vettich.sp3';
 	const LOG_FILE = 'log.txt';
 	private static $_apiInstance = null;
+	private static $_version = null;
 
 	/**
 	 * функция возвращает языковой текст
@@ -32,7 +35,6 @@ class Module
 		return $m;
 	}
 
-	private static $_version = null;
 	public static function version()
 	{
 		if (self::$_version === null) {

@@ -49,8 +49,14 @@ if (Module::isAuth()) {
 		'text'		=> Module::m('MENU_POSTS'),
 		'url'		=> '/bitrix/admin/vettich.sp3.posts_list.php',
 		'more_url' => [
-			'/bitrix/admin/vettich.sp3.posts_add.php',
 			'/bitrix/admin/vettich.sp3.posts_edit.php',
+		]
+	];
+	$aMenu['items'][] = [
+		'text'		=> Module::m('MENU_TEMPLATES'),
+		'url'		=> '/bitrix/admin/vettich.sp3.templates_list.php',
+		'more_url' => [
+			'/bitrix/admin/vettich.sp3.templates_edit.php',
 		]
 	];
 //$aMenu['items'][] = [
