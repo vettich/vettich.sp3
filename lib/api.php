@@ -110,7 +110,7 @@ class Api
 		return $c;
 	}
 
-	private function callGet($endpoint, $queries=[], $needAuth=true, $options=[])
+	private function callGet($endpoint, $queries=[], $needAuth=true)
 	{
 		Module::log([$endpoint, $queries]);
 		$url = $this->buildEndpoint($endpoint);
