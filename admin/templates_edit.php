@@ -2,6 +2,7 @@
 require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
+use vettich\sp3\IBlockHelpers;
 use vettich\devform\types;
 
 CModule::IncludeModule('iblock');
@@ -131,7 +132,7 @@ if (!$iblock_id) {
 				'field' => [
 					'type' => 'select',
 					'title' => '',
-					'options' => Module::allPropsFor($iblock_id),
+					'options' => IBlockHelpers::allPropsFor($iblock_id),
 					'params' => ['style' => 'max-width: 25em'],
 				],
 				'cmp' => [
@@ -182,28 +183,28 @@ if (!$iblock_id) {
 			'type' => $individ ? 'hidden' : 'select',
 			'title' => '#.PUBLISH_MAIN_PICTURE#',
 			'help' => '#.PUBLISH_MAIN_PICTURE_HELP#',
-			'options' => Module::allPropsFor($iblock_id),
+			'options' => IBlockHelpers::allPropsFor($iblock_id),
 			'default_value' => 'DETAIL_PICTURE',
 		],
 		'_PUBLISH[COMMON][OTHER_PICTURE]' => [
 			'type' => $individ ? 'hidden' : 'select',
 			'title' => '#.PUBLISH_OTHER_PICTURE#',
 			'help' => '#.PUBLISH_OTHER_PICTURE_HELP#',
-			'options' => Module::allPropsFor($iblock_id),
+			'options' => IBlockHelpers::allPropsFor($iblock_id),
 			'default_value' => 'PROPERTY_MORE_PICTURES',
 		],
 		'_PUBLISH[COMMON][LINK]' => [
 			'type' => $individ ? 'hidden' : 'select',
 			'title' => '#.PUBLISH_LINK#',
 			'help' => '#.PUBLISH_LINK_HELP#',
-			'options' => Module::allPropsFor($iblock_id),
+			'options' => IBlockHelpers::allPropsFor($iblock_id),
 			'default_value' => 'DETAIL_PAGE_URL',
 		],
 		'_PUBLISH[COMMON][TEXT]' => [
 			'type' => $individ ? 'hidden' : 'textarea',
 			'title' => '#.PUBLISH_TEXT#',
 			'help' => '#.PUBLISH_TEXT_HELP#',
-			'items' => Module::allPropsMacrosFor($iblock_id),
+			'items' => IBlockHelpers::allPropsMacrosFor($iblock_id),
 			'default_value' => "#NAME##BR#\n#BR#\n#PREVIEW_TEXT#",
 			'params' => ['rows' => 6],
 		],

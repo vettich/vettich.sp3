@@ -3,8 +3,6 @@ require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
 
-$user = Module::api()->me();
-
 (new \vettich\devform\AdminForm('devform', [
 	'pageTitle' => '#.ACCOUNTS_ADD_PAGE#',
 	'tabs' => [

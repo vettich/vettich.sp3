@@ -5,9 +5,9 @@ use vettich\sp3\Module;
 
 $issetID = !empty($_GET['id']);
 
-$res = Module::api()->accountsList();
+$res = vettich\sp3\db\Accounts::getList();
 $accountsMap = [];
-foreach ($res['accounts'] as $account) {
+foreach ($res as $account) {
 	$accountsMap[$account['id']] = $account['name'];
 }
 $accountsMap = Module::convertToSiteCharset($accountsMap);

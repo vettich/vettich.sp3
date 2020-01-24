@@ -28,7 +28,7 @@ class Posts extends \vettich\devform\data\ArrayList
 			}
 			$res = Module::api()->getPost($this->filter['id']);
 			$res = Module::convertToSiteCharset($res);
-			$this->values = $res;
+			$this->values = $res['response'];
 			$this->inited = true;
 		}
 		if (!$this->exists($name)) {
@@ -42,16 +42,17 @@ class Posts extends \vettich\devform\data\ArrayList
 
 	public function getList($params=[])
 	{
-		$queries = [];
+		$queries = ['sort' => []];
 		if (!empty($params['order'])) {
 			foreach ($params['order'] as $by => $order) {
-				$queries['sort.by'] = $by;
-				$queries['sort.order'] = strtoupper($order);
+				$queries['sort'][$by] = $order;
+				/* $queries['sort.by'] = $by; */
+				/* $queries['sort.order'] = strtoupper($order); */
 			}
 		}
 		$res = Module::api()->postsList($queries);
 		$res = Module::convertToSiteCharset($res);
-		$posts = $res['posts'];
+		$posts = $res['response']['posts'];
 		return $posts;
 	}
 
@@ -64,8 +65,8 @@ class Posts extends \vettich\devform\data\ArrayList
 			$images = [];
 			foreach ($this->values['fields']['images'] as $image) {
 				$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image["tmp_name"]);
-				$fileID = Module::api()->uploadFile($pathinfo['tmp_name'], $image['name']);
-				if ($fileID != false) {
+				$res = Module::api()->uploadFile($pathinfo['tmp_name'], $image['name']);
+				if (empty($res['error'])) {
 					$images[] = $fileID;
 				}
 				DeleteDirFilesEx(dirname($pathinfo['tmp_name']));
@@ -84,10 +85,10 @@ class Posts extends \vettich\devform\data\ArrayList
 		} else {
 			$res = Module::api()->updatePost($utf8Values);
 		}
-		if ($res['success']) {
+		if (empty($res['error'])) {
 			return true;
 		}
-		return $res;
+		return ['error' => $res['error']['msg']];
 	}
 
 	public function delete($name, $value)

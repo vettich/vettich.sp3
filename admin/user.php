@@ -3,7 +3,8 @@ require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
 
-$user = Module::api()->me();
+$res = Module::api()->me();
+$user = $res['response'] ?: [];
 
 (new \vettich\devform\AdminForm('devform', [
 	'pageTitle' => '#.USER_INFO#',

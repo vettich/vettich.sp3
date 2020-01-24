@@ -36,12 +36,12 @@ switch ($_GET['method']) {
 		break;
 
 	case 'vkLogin':
-		$type = 'VK';
+		$type = 'vk';
 		$callback = $_GET['callback'];
 		$res = Module::api()->connectUrl($type, $callback);
 		_result($res);
 		break;
 
 	default:
-		_result(['success' => false, 'error' => 'method not found']);
+		_result(['error' => ['msg' => 'method not found']]);
 }

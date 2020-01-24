@@ -6,7 +6,7 @@ CModule::IncludeModule('vettich.sp3');
 use vettich\sp3\Module;
 
 $validateToken = Module::isAuth(true);
-if ($validateToken['success'] == false) {
+if ($validateToken['response'] == false) {
 	header("Location: /bitrix/admin/vettich.sp3.start_use.php");
 	exit;
 }

@@ -1,6 +1,8 @@
 <?php
 namespace vettich\sp3;
 
+use vettich\devform\Module as DevFormModule;
+
 class IBlockHelpers
 {
 	private static $_allPropsFor = [];
@@ -17,22 +19,22 @@ class IBlockHelpers
 	public static function allPropsFor($iblockId, $isIblockIsset=true)
 	{
 		if ($isIblockIsset && empty($iblockId)) {
-			return ['' => self::m('BEFORE_IBLOCK_SELECT')];
+			return ['' => Module::m('BEFORE_IBLOCK_SELECT')];
 		}
 		if (isset(self::$_allPropsFor[$iblockId])) {
 			return self::$_allPropsFor[$iblockId];
 		}
 		$result = [];
 		$result[] = [
-			'label' => self::m('MAIN_FIELDS'),
+			'label' => Module::m('MAIN_FIELDS'),
 			'items' => self::iblockFields(),
 		];
 		$result[] = [
-			'label' => self::m('PROPERTIES'),
+			'label' => Module::m('PROPERTIES'),
 			'items' => self::iblockProps($iblockId),
 		];
 		$result[] = [
-			'label' => self::m('CATALOG_FIELDS'),
+			'label' => Module::m('CATALOG_FIELDS'),
 			'items'=> self::catalogFiedls($iblockId),
 		];
 		self::$_allPropsFor[$iblockId] = $result;
@@ -45,34 +47,34 @@ class IBlockHelpers
 		if (self::$_iblockFields == null) {
 			self::$_iblockFields = [
 				''                   => 'none',
-				'ID'                 => self::m('PROP_ID'),
-				'CODE'               => self::m('PROP_CODE'),
-				'XML_ID'             => self::m('PROP_XML_ID'),
-				'NAME'               => self::m('PROP_NAME'),
-				'IBLOCK_ID'          => self::m('PROP_IBLOCK_ID'),
-				'IBLOCK_SECTION_ID'  => self::m('PROP_IBLOCK_SECTION_ID'),
-				'IBLOCK_CODE'        => self::m('PROP_IBLOCK_CODE'),
-				'ACTIVE'             => self::m('PROP_ACTIVE'),
-				'DATE_ACTIVE_FROM'   => self::m('PROP_DATE_ACTIVE_FROM'),
-				'DATE_ACTIVE_TO'     => self::m('PROP_DATE_ACTIVE_TO'),
-				'SORT'               => self::m('PROP_SORT'),
-				'PREVIEW_PICTURE'    => self::m('PROP_PREVIEW_PICTURE'),
-				'PREVIEW_TEXT'       => self::m('PROP_PREVIEW_TEXT'),
-				'DETAIL_PICTURE'     => self::m('PROP_DETAIL_PICTURE'),
-				'DETAIL_TEXT'        => self::m('PROP_DETAIL_TEXT'),
-				'DATE_CREATE'        => self::m('PROP_DATE_CREATE'),
-				'CREATED_BY'         => self::m('PROP_CREATED_BY'),
-				'CREATED_USER_NAME'  => self::m('PROP_CREATED_USER_NAME'),
-				'TIMESTAMP_X'        => self::m('PROP_TIMESTAMP_X'),
-				'MODIFIED_BY'        => self::m('PROP_MODIFIED_BY'),
-				'USER_NAME'          => self::m('PROP_USER_NAME'),
-				'LIST_PAGE_URL'      => self::m('PROP_LIST_PAGE_URL'),
-				'DETAIL_PAGE_URL'    => self::m('PROP_DETAIL_PAGE_URL'),
-				'SHOW_COUNTER'       => self::m('PROP_SHOW_COUNTER'),
-				'SHOW_COUNTER_START' => self::m('PROP_SHOW_COUNTER_START'),
-				'WF_COMMENTS'        => self::m('PROP_WF_COMMENTS'),
-				'WF_STATUS_ID'       => self::m('PROP_WF_STATUS_ID'),
-				'TAGS'               => self::m('PROP_TAGS'),
+				'ID'                 => Module::m('PROP_ID'),
+				'CODE'               => Module::m('PROP_CODE'),
+				'XML_ID'             => Module::m('PROP_XML_ID'),
+				'NAME'               => Module::m('PROP_NAME'),
+				'IBLOCK_ID'          => Module::m('PROP_IBLOCK_ID'),
+				'IBLOCK_SECTION_ID'  => Module::m('PROP_IBLOCK_SECTION_ID'),
+				'IBLOCK_CODE'        => Module::m('PROP_IBLOCK_CODE'),
+				'ACTIVE'             => Module::m('PROP_ACTIVE'),
+				'DATE_ACTIVE_FROM'   => Module::m('PROP_DATE_ACTIVE_FROM'),
+				'DATE_ACTIVE_TO'     => Module::m('PROP_DATE_ACTIVE_TO'),
+				'SORT'               => Module::m('PROP_SORT'),
+				'PREVIEW_PICTURE'    => Module::m('PROP_PREVIEW_PICTURE'),
+				'PREVIEW_TEXT'       => Module::m('PROP_PREVIEW_TEXT'),
+				'DETAIL_PICTURE'     => Module::m('PROP_DETAIL_PICTURE'),
+				'DETAIL_TEXT'        => Module::m('PROP_DETAIL_TEXT'),
+				'DATE_CREATE'        => Module::m('PROP_DATE_CREATE'),
+				'CREATED_BY'         => Module::m('PROP_CREATED_BY'),
+				'CREATED_USER_NAME'  => Module::m('PROP_CREATED_USER_NAME'),
+				'TIMESTAMP_X'        => Module::m('PROP_TIMESTAMP_X'),
+				'MODIFIED_BY'        => Module::m('PROP_MODIFIED_BY'),
+				'USER_NAME'          => Module::m('PROP_USER_NAME'),
+				'LIST_PAGE_URL'      => Module::m('PROP_LIST_PAGE_URL'),
+				'DETAIL_PAGE_URL'    => Module::m('PROP_DETAIL_PAGE_URL'),
+				'SHOW_COUNTER'       => Module::m('PROP_SHOW_COUNTER'),
+				'SHOW_COUNTER_START' => Module::m('PROP_SHOW_COUNTER_START'),
+				'WF_COMMENTS'        => Module::m('PROP_WF_COMMENTS'),
+				'WF_STATUS_ID'       => Module::m('PROP_WF_STATUS_ID'),
+				'TAGS'               => Module::m('PROP_TAGS'),
 			];
 		}
 		return self::$_iblockFields;
@@ -110,20 +112,20 @@ class IBlockHelpers
 			$arProps = [];
 			if (\CModule::IncludeModule('catalog')
 				&& \CCatalog::GetByID($iblockId)) {
-				$arProps['CATALOG_QUANTITY'] = self::m('PROP_CAT_QUANTITY');
-				$arProps['CATALOG_WEIGHT'] = self::m('PROP_CAT_WEIGHT');
-				$arProps['CATALOG_WIDTH'] = self::m('PROP_CAT_WIDTH');
-				$arProps['CATALOG_LENGTH'] = self::m('PROP_CAT_LENGTH');
-				$arProps['CATALOG_HEIGHT'] = self::m('PROP_CAT_HEIGHT');
+				$arProps['CATALOG_QUANTITY'] = Module::m('PROP_CAT_QUANTITY');
+				$arProps['CATALOG_WEIGHT'] = Module::m('PROP_CAT_WEIGHT');
+				$arProps['CATALOG_WIDTH'] = Module::m('PROP_CAT_WIDTH');
+				$arProps['CATALOG_LENGTH'] = Module::m('PROP_CAT_LENGTH');
+				$arProps['CATALOG_HEIGHT'] = Module::m('PROP_CAT_HEIGHT');
 
 				$rs = \CCatalogGroup::GetList([], [], false, false, ['ID', 'NAME_LANG']);
 				$arCurrency = [];
 				while ($ar = $rs->Fetch()) {
-					$arProps['CATALOG_PRICE_'.$ar['ID']] = self::m('PROP_CAT_PRICE', [
+					$arProps['CATALOG_PRICE_'.$ar['ID']] = Module::m('PROP_CAT_PRICE', [
 						'#TYPE#' => $ar['NAME_LANG'],
 						'#PRICE_ID#' => $ar['ID'],
 					]);
-					$arCurrency['CATALOG_CURRENCY_'.$ar['ID']] = self::m('PROP_CAT_CURRENCY', [
+					$arCurrency['CATALOG_CURRENCY_'.$ar['ID']] = Module::m('PROP_CAT_CURRENCY', [
 						'#TYPE#' => $ar['NAME_LANG'],
 						'#PRICE_ID#' => $ar['ID'],
 					]);
@@ -132,9 +134,9 @@ class IBlockHelpers
 					$arProps[$key] = $value;
 				}
 
-				$arProps['CATALOG_DISCOUNT_NAME'] = self::m('PROP_CAT_DISCOUNT_NAME');
-				$arProps['CATALOG_DISCOUNT_ACTIVE_FROM'] = self::m('PROP_CAT_DISCOUNT_ACTIVE_FROM');
-				$arProps['CATALOG_DISCOUNT_ACTIVE_TO'] = self::m('PROP_CAT_DISCOUNT_ACTIVE_TO');
+				$arProps['CATALOG_DISCOUNT_NAME'] = Module::m('PROP_CAT_DISCOUNT_NAME');
+				$arProps['CATALOG_DISCOUNT_ACTIVE_FROM'] = Module::m('PROP_CAT_DISCOUNT_ACTIVE_FROM');
+				$arProps['CATALOG_DISCOUNT_ACTIVE_TO'] = Module::m('PROP_CAT_DISCOUNT_ACTIVE_TO');
 				self::$_catalogFields[$iblockId] = $arProps;
 			}
 		}

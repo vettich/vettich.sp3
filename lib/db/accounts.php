@@ -13,8 +13,11 @@ class Accounts extends \vettich\devform\data\ArrayList
 	public function getList()
 	{
 		$res = Module::api()->accountsList();
+		if (!empty($res['error'])) {
+			return [];
+		}
 		$res = Module::convertToSiteCharset($res);
-		$accounts = $res['accounts'];
+		$accounts = $res['response']['accounts'];
 		return $accounts;
 	}
 
