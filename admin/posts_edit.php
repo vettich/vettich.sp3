@@ -33,7 +33,7 @@ if (!$issetID) {
 			$tpl = '<img src="{src}" width=40 height=40 /> ';
 			$res = Module::api()->getFilesURL($value);
 			$value = '';
-			foreach ($res['urls'] as $url) {
+			foreach ($res['response']['urls'] as $url) {
 				$value .= str_replace('{src}', $url, $tpl);
 			}
 			$replaces['{value}'] = $value;

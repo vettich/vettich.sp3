@@ -151,7 +151,7 @@ if (!$iblock_id) {
 				'value' => 'text::params=[size=auto]',
 			],
 		],
-		'heading7' => 'heading:#.QUEUE_SETTINGS#',
+		'heading7' => 'heading:#.BINDING_TO_IBLOCK#',
 		'_QUEUE_ELEMENT_UPDATE' => 'checkbox:#.PENDING_QUEUE_ELEMENT_UPDATE#:Y:help=#.PENDING_QUEUE_ELEMENT_UPDATE_HELP#',
 		'_QUEUE_ELEMENT_DELETE' => 'checkbox:#.PENDING_QUEUE_ELEMENT_DELETE#:Y:help=#.PENDING_QUEUE_ELEMENT_DELETE_HELP#',
 		'_QUEUE_DUPLICATE' => 'checkbox:#.PENDING_QUEUE_DUPLICATE#:N:help=#.PENDING_QUEUE_DUPLICATE_HELP#',
@@ -160,13 +160,13 @@ if (!$iblock_id) {
 	$individ = ($_POST['_PUBLISH']['COMMON']['INDIVIDUAL_SETTINGS'] == 'Y'
 		or $data->get('_PUBLISH[COMMON][INDIVIDUAL_SETTINGS]') == 'Y');
 
-	$res = Module::api()->accountsList();
+	$res = vettich\sp3\db\Accounts::getList();
 	$accountsMap = [];
-	foreach ($res['accounts'] as $account) {
+	foreach ($res as $account) {
 		$accountsMap[$account['id']] = $account['name'];
 	}
 	$accountsMap = Module::convertToSiteCharset($accountsMap);
-	$params[] = new \vettich\devform\types\checkbox($paramid, [
+	$params[] = new \vettich\devform\types\checkbox('_ACCOUNTS', [
 		'title' => '#.POST_ACCOUNTS#',
 		'options' => $accountsMap,
 		'multiple' => true,
@@ -179,6 +179,27 @@ if (!$iblock_id) {
 		// 'none_acc' => 'plaintext::'.vettich\devform\Module::m('#.NONE_ACCOUNTS#'),
 		'heading5' => 'heading:#.COMMON_DESCRIPTION#',
 		/* '_PUBLISH[COMMON][INDIVIDUAL_SETTINGS]' => 'checkbox:#.PUBLISH_INDIVIDUAL_SETTINGS#:N:help=#.PUBLISH_INDIVIDUAL_SETTINGS_HELP#:refresh=Y', */
+		'_PUBLISH[COMMON][TEXT]' => [
+			'type' => $individ ? 'hidden' : 'textarea',
+			'title' => '#.PUBLISH_TEXT#',
+			'help' => '#.PUBLISH_TEXT_HELP#',
+			'items' => IBlockHelpers::allPropsMacrosFor($iblock_id),
+			'default_value' => "#NAME##BR#\n#BR#\n#PREVIEW_TEXT#",
+			'params' => ['rows' => 6],
+		],
+		'_PUBLISH[COMMON][TAGS]' => [
+			'type' => $individ ? 'hidden' : 'select',
+			'title' => '#.PUBLISH_TAGS#',
+			'help' => '#.PUBLISH_TAGS_HELP#',
+			'options' => IBlockHelpers::allPropsFor($iblock_id),
+		],
+		'_PUBLISH[COMMON][LINK]' => [
+			'type' => $individ ? 'hidden' : 'select',
+			'title' => '#.PUBLISH_LINK#',
+			'help' => '#.PUBLISH_LINK_HELP#',
+			'options' => IBlockHelpers::allPropsFor($iblock_id),
+			'default_value' => 'DETAIL_PAGE_URL',
+		],
 		'_PUBLISH[COMMON][MAIN_PICTURE]' => [
 			'type' => $individ ? 'hidden' : 'select',
 			'title' => '#.PUBLISH_MAIN_PICTURE#',
@@ -193,21 +214,9 @@ if (!$iblock_id) {
 			'options' => IBlockHelpers::allPropsFor($iblock_id),
 			'default_value' => 'PROPERTY_MORE_PICTURES',
 		],
-		'_PUBLISH[COMMON][LINK]' => [
-			'type' => $individ ? 'hidden' : 'select',
-			'title' => '#.PUBLISH_LINK#',
-			'help' => '#.PUBLISH_LINK_HELP#',
-			'options' => IBlockHelpers::allPropsFor($iblock_id),
-			'default_value' => 'DETAIL_PAGE_URL',
-		],
-		'_PUBLISH[COMMON][TEXT]' => [
-			'type' => $individ ? 'hidden' : 'textarea',
-			'title' => '#.PUBLISH_TEXT#',
-			'help' => '#.PUBLISH_TEXT_HELP#',
-			'items' => IBlockHelpers::allPropsMacrosFor($iblock_id),
-			'default_value' => "#NAME##BR#\n#BR#\n#PREVIEW_TEXT#",
-			'params' => ['rows' => 6],
-		],
+		'heading6' => 'heading:#.POST_VK_TITLE#',
+		'_PUBLISH[VK][FROM_GROUP]' => 'checkbox:#.POST_VK_FROM_GROUP#:Y:help=#.POST_VK_FROM_GROUP_HELP#',
+		'_PUBLISH[VK][SIGNED]' => 'checkbox:#.POST_VK_SIGNED#:help=#.POST_VK_SIGNED_HELP#',
 	];
 }
 

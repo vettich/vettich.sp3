@@ -49,7 +49,7 @@ class vettich_sp3 extends CModule
 			return;
 		}
 		if (!file_exists($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/vettich.devform/install/index.php')) {
-			CopyDirFiles($this->MODULE_ROOT_DIR.'/install/bitrix/modules', $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules', true, true);
+			CopyDirFiles($this->MODULE_ROOT_DIR.'/install/modules', $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules', true, true);
 		}
 		include $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/vettich.devform/install/index.php';
 		if (class_exists('vettich_devform')) {
@@ -99,11 +99,21 @@ class vettich_sp3 extends CModule
 
 	public function InstallEvents()
 	{
+		RegisterModuleDependences('main', 'OnBeforeProlog', 'vettich.sp3', '\vettich\sp3\Events', 'beforePrologHandler');
+		RegisterModuleDependences('main', 'OnAdminListDisplay', 'vettich.sp3', '\vettich\sp3\Events', 'adminListDisplayHandler');
+		RegisterModuleDependences('iblock', 'OnAfterIblockElementAdd', 'vettich.sp3', '\vettich\sp3\Events', 'afterIblockElementAddHandler');
+		RegisterModuleDependences('iblock', 'OnAfterIBlockElementUpdate', 'vettich.sp3', '\vettich\sp3\Events', 'afterIBlockElementUpdateHandler');
+		RegisterModuleDependences('iblock', 'OnAfterIBlockElementDelete', 'vettich.sp3', '\vettich\sp3\Events', 'afterIBlockElementDeleteHandler');
 		return true;
 	}
 
 	public function UnInstallEvents()
 	{
+		UnRegisterModuleDependences('main', 'OnBeforeProlog', 'vettich.sp3', '\vettich\sp3\Events', 'beforePrologHandler');
+		UnRegisterModuleDependences('main', 'OnAdminListDisplay', 'vettich.sp3', '\vettich\sp3\Events', 'adminListDisplayHandler');
+		UnRegisterModuleDependences('iblock', 'OnAfterIblockElementAdd', 'vettich.sp3', '\vettich\sp3\Events', 'afterIblockElementAddHandler');
+		UnRegisterModuleDependences('iblock', 'OnAfterIBlockElementUpdate', 'vettich.sp3', '\vettich\sp3\Events', 'afterIBlockElementUpdateHandler');
+		UnRegisterModuleDependences('iblock', 'OnAfterIBlockElementDelete', 'vettich.sp3', '\vettich\sp3\Events', 'afterIBlockElementDeleteHandler');
 		return true;
 	}
 

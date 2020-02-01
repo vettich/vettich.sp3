@@ -393,4 +393,76 @@ class IBlockHelpers
 		}
 		return self::$_iblockSections[$id];
 	}
+
+	public static function cmpFields($fields, $conditions=false)
+	{
+		if ($fields['PUBLISH']['CONDITIONS']['ACTIVE'] == 'Y' && $fields['ACTIVE'] != 'Y') {
+			return false;
+		}
+		if (!$conditions) {
+			$conditions = $fields['CONDITIONS'];
+		}
+		if ($conditions) {
+			foreach ((array)$conditions as $cond) {
+				$field = TextProcessor::macroValue($cond['field'], $fields);
+				switch ($cond['cmp']) {
+				case '>=':
+					if (!($field >= $cond['value'])) {
+						return false;
+					}
+					break;
+				case '<=':
+					if (!($field <= $cond['value'])) {
+						return false;
+					}
+					break;
+				case '=':
+				case '==':
+					if (!($field == $cond['value'])) {
+						return false;
+					}
+					break;
+				case '!=':
+					if (!($field != $cond['value'])) {
+						return false;
+					}
+					break;
+				case 'include':
+					if (strpos($field, $cond['value']) === false
+						or (empty($cond['value']) && !empty($field))) {
+						return false;
+					}
+					break;
+				case 'notinclude':
+					if (strpos($field, $cond['value']) !== false
+						or (empty($cond['value']) && empty($field))) {
+						return false;
+					}
+					break;
+			}
+			}
+		}
+		return true;
+	}
+
+	public static function inSections($fields)
+	{
+		$isFound = true;
+		if ($fields['IS_SECTIONS'] == 'Y'
+			&& !empty($fields['IBLOCK_SECTIONS'])) {
+			$isFound = false;
+			$rsSect = \CIBlockSection::GetNavChain(
+				IntVal($fields['IBLOCK_ID']),
+				IntVal($fields['IBLOCK_SECTION_ID']),
+				['ID']
+			);
+			while ($arSect = $rsSect->GetNext()) {
+				if (in_array($arSect['ID'], $fields['IBLOCK_SECTIONS'])) {
+					$isFound = true;
+					break;
+				}
+			}
+		}
+		return $isFound;
+	}
 }

@@ -7,10 +7,10 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_befo
 CModule::IncludeModule('vettich.sp3');
 
 use vettich\sp3\Module;
+use vettich\sp3\TemplateHelpers;
 
 function _result($data)
 {
-	//$data = Module::convert($data);
 	echo json_encode($data);
 	exit;
 }
@@ -39,6 +39,34 @@ switch ($_GET['method']) {
 		$type = 'vk';
 		$callback = $_GET['callback'];
 		$res = Module::api()->connectUrl($type, $callback);
+		_result($res);
+		break;
+
+	case 'listTemplates':
+		$res = TemplateHelpers::listTemplates($_GET['IBLOCK_ID']);
+		$res = Module::convertToUtf8($res);
+		_result($res);
+		break;
+
+	case 'publishWithTemplate':
+		$arFilter = ['IBLOCK_ID' => $_GET['IBLOCK_ID']];
+		$arFilterLogic = ['LOGIC' => 'OR'];
+		if (!empty($_GET['ELEMS'])) {
+			$arFilterLogic[] = ['ID' => $_GET['ELEMS']];
+		}
+		if (!empty($_GET['SECTIONS'])) {
+			$arFilterLogic[] = [
+				'SECTION_ID' => $_GET['SECTIONS'],
+				'INCLUDE_SUBSECTIONS' => true
+			];
+		}
+		if (count($arFilterLogic) == 1) {
+			_result(['error' => ['msg' => 'ELEMS and SECTIONS are empty']]);
+			break;
+		}
+		$arFilter[] = $arFilterLogic;
+		Module::log([$arFilter, $_GET['TEMPLATES']]);
+		$res = TemplateHelpers::publishWithTemplate($arFilter, $_GET['TEMPLATES']);
 		_result($res);
 		break;
 

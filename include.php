@@ -9,7 +9,7 @@ define('VETTICH_SP3_DIR', __DIR__);
 
 \CJSCore::RegisterExt('vettich_sp3_script', [
 	'js' => '/bitrix/js/vettich.sp3/script.js',
-	'rel' => ['jquery'],
+	'rel' => ['popup'],
 ]);
 
 /**
@@ -51,19 +51,24 @@ class Module
 
 	public static function log($data, $params=[])
 	{
-		ob_start();
-		var_dump($data);
-		$text = ob_get_contents();
-		ob_end_clean();
+		/* ini_set('xdebug.var_display_max_children', $params['max_children'] ?: 5); */
+		/* ini_set('xdebug.var_display_max_data', $params['max_data'] ?: 24); */
+		/* ini_set('xdebug.var_display_max_depth', $params['max_depth'] ?: 4); */
+		/* ini_set('xdebug.cli_color', 0); */
+		/* ob_start(); */
+		/* var_dump($data); */
+		/* $text = ob_get_contents(); */
+		/* ob_end_clean(); */
+		$text = var_export($data, true);
 		$date = date('Y/m/d H:i:s');
-		$traceN = $params['traceN']?:2;
-		$trace = debug_backtrace(2, $traceN);
+		$tracen = $params['trace_n'] ?: 2;
+		$trace = debug_backtrace(2, $tracen);
 		$filename = $trace[0]['file'];
 		$filename = str_replace(VETTICH_SP3_DIR, '', $filename);
 		$filename = str_replace($_SERVER['DOCUMENT_ROOT'], '', $filename);
-		$line = $trace[$traceN-2]['line'];
-		$funcname = $trace[$traceN-1]['function'];
-		$text = "[$date] $filename($line) in $funcname:\n$text";
+		$line = $trace[$tracen-2]['line'];
+		$funcname = $trace[$tracen-1]['function'];
+		$text = "[$date] $filename($line) in $funcname:\n$text\n";
 		error_log($text, 3, VETTICH_SP3_DIR.'/'.self::LOG_FILE);
 	}
 

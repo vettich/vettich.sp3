@@ -11,10 +11,10 @@ if ($validateToken['response'] == false) {
 	exit;
 }
 
-\CJSCore::Init(['vettich_sp3_script']);
-
 if ($prolog_admin_after !== false) {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 }
+
+\CJSCore::Init(['vettich_sp3_script']);
 
 \vettich\devform\Module::pushMessPrefix('VETTICH_SP3_');

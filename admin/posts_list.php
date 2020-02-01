@@ -31,8 +31,11 @@ use vettich\sp3\Module;
 			'on renderView' => function (&$obj, &$value) {
 				$tpl = '<img src="{value}" width=40 height=40 /> ';
 				$res = Module::api()->getFilesURL($value);
+				if (!empty($res['error'])) {
+					return;
+				}
 				$value = '';
-				foreach ($res['urls'] as $url) {
+				foreach ($res['response']['urls'] as $url) {
 					$value .= str_replace('{value}', $url, $tpl);
 				}
 			},

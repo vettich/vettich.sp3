@@ -43,6 +43,14 @@ class Api
 		return $this->config['token'];
 	}
 
+	public static function toTime($strtime)
+	{
+		if (empty($strtime)) {
+			$strtime = 'now';
+		}
+		return date(\DateTime::RFC3339_EXTENDED, strtotime($strtime));
+	}
+
 	private function setUserData($userId, $token)
 	{
 		$this->config['user_id'] = $userId;
@@ -67,7 +75,7 @@ class Api
 		$url .= '/'.$endpoint;
 		return $url;
 	}
-	
+
 	private function buildQuery($data)
 	{
 		if (empty($data)) {
@@ -112,7 +120,7 @@ class Api
 
 	private function callGet($endpoint, $queries=[], $needAuth=true)
 	{
-		Module::log([$endpoint, $queries]);
+		Module::log(['endpoint' => $endpoint, 'queries' => $queries], ['trace_n' => 3]);
 		$url = $this->buildEndpoint($endpoint);
 		$q = $this->buildQuery($queries);
 		if (!empty($q)) {
@@ -129,7 +137,7 @@ class Api
 
 	private function callPost($endpoint, $data=[], $needAuth=true)
 	{
-		Module::log([$endpoint, $data]);
+		Module::log(['endpoint' => $endpoint, 'data' => $data], ['trace_n' => 3]);
 		$url = $this->buildEndpoint($endpoint);
 		$c = $this->buildCurl($url, $needAuth, ['Content-Type: application/json']);
 		if (!$c) {
@@ -145,7 +153,7 @@ class Api
 
 	private function callDelete($endpoint, $queries=[], $needAuth=true)
 	{
-		Module::log([$endpoint, $queries]);
+		Module::log(['endpoint' => $endpoint, 'queries' => $queries], ['trace_n' => 3]);
 		$url = $this->buildEndpoint($endpoint);
 		$q = $this->buildQuery($queries);
 		if (!empty($q)) {
@@ -171,7 +179,7 @@ class Api
 
 	private static function resultWrapper($res)
 	{
-		Module::log($res, ['traceN' => 3]);
+		Module::log($res, ['trace_n' => 3]);
 		if (!is_array($res)) {
 			return ['error' => ['msg' => 'result is empty']];
 		}
@@ -320,6 +328,7 @@ class Api
 		if (empty($res['error'])) {
 			return ['response' => ['file_id' => $fileID]];
 		}
+		return $res;
 	}
 
 	public function getFilesURL($fileIDs)

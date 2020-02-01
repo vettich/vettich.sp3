@@ -123,7 +123,7 @@ class TextProcessor
 		return explode('.', $tmp);
 	}
 
-	protected static function macroValue($macro, $fields, $isCreateLink=true, $raw=false)
+	public static function macroValue($macro, $fields, $isCreateLink=true, $raw=false)
 	{
 		if (!is_array($macro)) {
 			$macro = [$macro];
@@ -211,24 +211,31 @@ class TextProcessor
 				if ($isMulti) {
 					$result = [];
 					foreach ((array)$elems as $ar) {
-						$result[] = self::macroValue(array_slice($macro, 2), $ar, $isCreateLink);
+						$result[] = self::macroValue(array_slice($macro, 2), $ar, $isCreateLink, $raw);
 					}
-					return implode(', ', $result);
+					if ($raw) {
+						return $result;
+					} else {
+						return implode(', ', $result);
+					}
 				} else {
-					return self::macroValue(array_slice($macro, 2), $elems, $isCreateLink);
+					return self::macroValue(array_slice($macro, 2), $elems, $isCreateLink, $raw);
 				}
 			} elseif (!empty($macro[1]) && isset($fields[$macro[0]][$macro[1]])) {
 				return $fields[$macro[0]][$macro[1]];
 			} else {
-				return $fields[$macro[0]]['VALUES'] ?
-					implode(', ', $fields[$macro[0]]['VALUES'])
-					: $fields[$macro[0]]['VALUE'];
+				$res = $fields[$macro[0]]['VALUES'] ? $fields[$macro[0]]['VALUES'] : $fields[$macro[0]]['VALUE'];
+				if ($raw) {
+					return $res;
+				} else {
+					return is_array($res) ? implode(', ', $res) : $res;
+				}
 			}
 		}
 
-		$k = isset($macro[1]) ? $macro[1] : 'VALUE';
 		if ($type == 'F') {
-			if ($k == 'VALUE') {
+			$k = isset($macro[1]) ? $macro[1] : 'VALUE';
+			if ($k == 'VALUE' || $k == 'VALUES') {
 				if ($isMulti) {
 					$res = [];
 					foreach ((array)$fields[$macro[0]]['VALUES'] as $val) {
@@ -238,7 +245,11 @@ class TextProcessor
 							$res[] = \CFile::GetPath($val);
 						}
 					}
-					return implode(' ', $res);
+					if ($raw) {
+						return $res;
+					} else {
+						return implode(' ', $res);
+					}
 				}
 				if ($isCreateLink) {
 					return self::createLink(\CFile::GetPath($fields[$macro[0]]['VALUE']), $fields);

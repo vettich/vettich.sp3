@@ -2,6 +2,7 @@
 namespace vettich\sp3\db;
 
 use vettich\sp3\Module;
+use vettich\sp3\Api;
 
 class Posts extends \vettich\devform\data\ArrayList
 {
@@ -67,13 +68,13 @@ class Posts extends \vettich\devform\data\ArrayList
 				$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image["tmp_name"]);
 				$res = Module::api()->uploadFile($pathinfo['tmp_name'], $image['name']);
 				if (empty($res['error'])) {
-					$images[] = $fileID;
+					$images[] = $res['response']['file_id'];
 				}
 				DeleteDirFilesEx(dirname($pathinfo['tmp_name']));
 			}
 			$this->values['fields']['images'] = $images;
 		}
-		$this->values['publish_at'] = date(\DateTime::RFC3339_EXTENDED, strtotime($this->values['publish_at']));
+		$this->values['publish_at'] = Api::toTime($this->values['publish_at']);
 	}
 
 	public function afterSave($obj, $arValues)
