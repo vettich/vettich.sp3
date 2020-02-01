@@ -16,6 +16,14 @@ $GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/vettich.sp3/script.js');
 				'vk_login_res' => 'html::',
 			],
 		],
+		[
+			'name' => '#.OK#',
+			'title' => '#.OK_ADD_TITLE#',
+			'params' => [
+				'ok_login' => 'divbutton::#.OK_LOGIN_BTN#:onclick=VettichSP3.okLogin()',
+				'ok_login_res' => 'html::',
+			],
+		],
 	],
 	'data' => null,
 ]))->render();

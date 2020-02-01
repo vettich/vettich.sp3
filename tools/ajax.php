@@ -42,6 +42,13 @@ switch ($_GET['method']) {
 		_result($res);
 		break;
 
+	case 'okLogin':
+		$type = 'ok';
+		$callback = $_GET['callback'];
+		$res = Module::api()->connectUrl($type, $callback);
+		_result($res);
+		break;
+
 	case 'listTemplates':
 		$res = TemplateHelpers::listTemplates($_GET['IBLOCK_ID']);
 		$res = Module::convertToUtf8($res);

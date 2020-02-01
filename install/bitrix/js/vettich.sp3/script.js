@@ -122,6 +122,23 @@ VettichSP3.vkLogin = function() {
 	});
 }
 
+VettichSP3.okLogin = function() {
+	var rresult = document.getElementById('ok_login_res');
+	var show = BX.showWait("FORM_devform");
+	var callback = location.origin + '/bitrix/admin/vettich.sp3.accounts_list.php';
+	var queries = '?method=okLogin&callback=' + callback;
+	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
+		var dataJson = JSON.parse(data)
+		if(!dataJson.error) {
+			VettichSP3.setResult(rresult, VettichSP3.langs.success, 'green');
+			window.location = dataJson.response.url;
+		} else {
+			VettichSP3.setResult(rresult, dataJson.error.msg, 'red');
+			BX.closeWait("FORM_devform", show);
+		}
+	});
+}
+
 VettichSP3.MenuSendWithTemplate = function (query) {
 	var show = BX.showWait('adm-workarea');
 	// VettichSP3.fixClosePopupMenu();

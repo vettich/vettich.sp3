@@ -157,15 +157,12 @@ if (!$iblock_id) {
 		'_QUEUE_DUPLICATE' => 'checkbox:#.PENDING_QUEUE_DUPLICATE#:N:help=#.PENDING_QUEUE_DUPLICATE_HELP#',
 		'heading4' => 'heading:#.CHOOSE_POST_ACCOUNTS#',
 	];
-	$individ = ($_POST['_PUBLISH']['COMMON']['INDIVIDUAL_SETTINGS'] == 'Y'
-		or $data->get('_PUBLISH[COMMON][INDIVIDUAL_SETTINGS]') == 'Y');
 
 	$res = vettich\sp3\db\Accounts::getList();
 	$accountsMap = [];
 	foreach ($res as $account) {
 		$accountsMap[$account['id']] = $account['name'];
 	}
-	$accountsMap = Module::convertToSiteCharset($accountsMap);
 	$params[] = new \vettich\devform\types\checkbox('_ACCOUNTS', [
 		'title' => '#.POST_ACCOUNTS#',
 		'options' => $accountsMap,
@@ -174,13 +171,12 @@ if (!$iblock_id) {
 		/* 'params' => $params, */
 	]);
 
-	/* $params += (array) Module::socialAccountsForDevForm('_ACCOUNTS', $individ ? ['onclick' => 'Vettich.Devform.Refresh(this);'] : []); */
 	$templateDataParams = [
 		// 'none_acc' => 'plaintext::'.vettich\devform\Module::m('#.NONE_ACCOUNTS#'),
 		'heading5' => 'heading:#.COMMON_DESCRIPTION#',
 		/* '_PUBLISH[COMMON][INDIVIDUAL_SETTINGS]' => 'checkbox:#.PUBLISH_INDIVIDUAL_SETTINGS#:N:help=#.PUBLISH_INDIVIDUAL_SETTINGS_HELP#:refresh=Y', */
 		'_PUBLISH[COMMON][TEXT]' => [
-			'type' => $individ ? 'hidden' : 'textarea',
+			'type' => 'textarea',
 			'title' => '#.PUBLISH_TEXT#',
 			'help' => '#.PUBLISH_TEXT_HELP#',
 			'items' => IBlockHelpers::allPropsMacrosFor($iblock_id),
@@ -188,27 +184,27 @@ if (!$iblock_id) {
 			'params' => ['rows' => 6],
 		],
 		'_PUBLISH[COMMON][TAGS]' => [
-			'type' => $individ ? 'hidden' : 'select',
+			'type' => 'select',
 			'title' => '#.PUBLISH_TAGS#',
 			'help' => '#.PUBLISH_TAGS_HELP#',
 			'options' => IBlockHelpers::allPropsFor($iblock_id),
 		],
 		'_PUBLISH[COMMON][LINK]' => [
-			'type' => $individ ? 'hidden' : 'select',
+			'type' => 'select',
 			'title' => '#.PUBLISH_LINK#',
 			'help' => '#.PUBLISH_LINK_HELP#',
 			'options' => IBlockHelpers::allPropsFor($iblock_id),
 			'default_value' => 'DETAIL_PAGE_URL',
 		],
 		'_PUBLISH[COMMON][MAIN_PICTURE]' => [
-			'type' => $individ ? 'hidden' : 'select',
+			'type' => 'select',
 			'title' => '#.PUBLISH_MAIN_PICTURE#',
 			'help' => '#.PUBLISH_MAIN_PICTURE_HELP#',
 			'options' => IBlockHelpers::allPropsFor($iblock_id),
 			'default_value' => 'DETAIL_PICTURE',
 		],
 		'_PUBLISH[COMMON][OTHER_PICTURE]' => [
-			'type' => $individ ? 'hidden' : 'select',
+			'type' => 'select',
 			'title' => '#.PUBLISH_OTHER_PICTURE#',
 			'help' => '#.PUBLISH_OTHER_PICTURE_HELP#',
 			'options' => IBlockHelpers::allPropsFor($iblock_id),
@@ -239,54 +235,6 @@ if ($iblock_id) {
 		'title' => '#.TEMPLATE_DATA_SETTINGS#',
 		'params' => $templateDataParams,
 	];
-}
-
-if ($individ
-	&& (($accounts = array_keys($_POST['_ACCOUNTS']))
-		or (empty($_POST) && $accounts = $data->get('_ACCOUNTS')))) {
-	$show_types = [];
-	foreach ($accounts as $key => $v) {
-		$social = Module::socialForId($v);
-		if (empty($social)
-			|| in_array($social['id'], $show_types)) {
-			continue;
-		}
-		$show_types[] = $social['id'];
-		$_params = $social['class']->publishParams($iblock_id, '_PUBLISH['.$social['class']::$socialid.']');
-		/**
-		 * отображение условий публикаций в соц. сеть
-		 */
-		$_params['heading_cond_'.$social['class']::$socialid] = 'heading:#.CONDITIONS_POST#';
-		$_params['_PUBLISH['.$social['class']::$socialid.'][CONDITIONS]'] = [
-			'type' => 'group',
-			'title' => '#.CONDITIONS#',
-			'options' => [
-				'field' => [
-					'type' => 'select',
-					'title' => '',
-					'options' => Module::allPropsFor($iblock_id),
-				],
-				'cmp' => [
-					'type' => 'select',
-					'title' => '',
-					'options' => [
-						'==' => '#.==#',
-						'!=' => '#.!=#',
-						'<=' => '#.<=#',
-						'>=' => '#.>=#',
-						'include' => '#.COND_INCLUDE#',
-						'notinclude' => '#.COND_NOTINCLUDE#',
-					],
-				],
-				'value' => 'text::params=[size=auto]',
-			],
-		];
-		$tabs[] = [
-			'name' => $social['name'],
-			'title' => '#.SETTINGS_FOR# '.$social['name'],
-			'params' => $_params,
-		];
-	}
 }
 
 (new \vettich\devform\AdminForm('devform', [
