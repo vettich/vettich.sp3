@@ -72,4 +72,9 @@ if (!Module::isAuth()) {
 	//];
 }
 
+$aMenu['items'][] = [
+	'text'		=> Module::m('MENU_HELP_PAGE'),
+	'url'		=> '/bitrix/admin/vettich.sp3.help.php',
+];
+
 return $aMenu;

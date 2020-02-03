@@ -9,3 +9,4 @@ $MESS['VETTICH_SP3_MENU_POSTS'] = 'Посты';
 $MESS['VETTICH_SP3_MENU_START_USE'] = 'Начать';
 $MESS['VETTICH_SP3_MENU_USER'] = 'Пользователь';
 $MESS['VETTICH_SP3_MENU_TEMPLATES'] = 'Шаблоны';
+$MESS['VETTICH_SP3_MENU_HELP_PAGE'] = 'Помощь';
