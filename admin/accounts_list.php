@@ -10,6 +10,14 @@ use vettich\sp3\Module;
 	'idKey' => 'id',
 	'params' => [
 		'id' => 'plaintext:ID',
+		'photo' => [
+			'type' => 'html',
+			'title' => '#.ACCOUNT_PHOTO#',
+			'on renderView' => function (&$obj, &$value) {
+				$tpl = '<img src="{value}" width=30 height=30 />';
+				$value = str_replace('{value}', $value, $tpl);
+			},
+		],
 		'name' => [
 			'type' => 'html',
 			'title' => '#.ACCOUNT_NAME#',
@@ -19,19 +27,18 @@ use vettich\sp3\Module;
 				$value = str_replace(['{href}', '{value}'], [$href, $value], $tpl);
 			},
 		],
-		'photo' => [
-			'type' => 'html',
-			'title' => '#.ACCOUNT_PHOTO#',
-			'on renderView' => function (&$obj, &$value) {
-				$tpl = '<img src="{value}" width=30 height=30 />';
-				$value = str_replace('{value}', $value, $tpl);
-			},
-		],
 		'type' => [
 			'type' => 'plaintext',
 			'title' => '#.ACCOUNT_TYPE#',
 			'on renderView' => function (&$obj, &$value) {
-				$value = Module::m('ACCOUNT_'.$value);
+				$value = Module::m(strtoupper($value));
+			},
+		],
+		'link' => [
+			'type' => 'plaintext',
+			'title' => '#.ACCOUNT_LINK#',
+			'on renderView' => function (&$obj, &$value) {
+				$value = "<a href=\"$value\" target=\"_blank\">$value</a>";
 			},
 		],
 	],
