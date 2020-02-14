@@ -47,9 +47,14 @@ class TemplateTable extends OrmBase
 				'default_value' => ''
 			]))->addValidator(new LengthValidator(0, 1000)),
 
-			(new Entity\TextField('URL_PARAMS', [
-				'default_value' => ''
-			]))->addValidator(new LengthValidator(0, 1000)),
+			new Entity\BooleanField('NEED_UTM', [
+				'values'=>['N', 'Y'],
+				'default_value' => 'Y'
+			]),
+
+			/* (new Entity\TextField('URL_PARAMS', [ */
+			/* 	'default_value' => '' */
+			/* ]))->addValidator(new LengthValidator(0, 1000)), */
 
 			(new ArrayField('CONDITIONS', [
 				'default_value' => []
