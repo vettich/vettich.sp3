@@ -134,19 +134,18 @@ $params += [
 /* $individ = ($_POST['_PUBLISH']['COMMON']['INDIVIDUAL_SETTINGS'] == 'Y' */
 /* 	or $data->get('_PUBLISH[COMMON][INDIVIDUAL_SETTINGS]') == 'Y'); */
 
-$res = vettich\sp3\db\Accounts::getList();
-$accountsMap = [];
-foreach ($res as $account) {
-	$accountsMap[$account['id']] = $account['name'];
+$accList = (new vettich\sp3\db\Accounts())->getListType();
+foreach ($accList as $t => $accType) {
+	$accountsMap = [];
+	foreach ($accType as $account) {
+		$accountsMap[$account['id']] = $account['name'];
+	}
+	$params[] = new \vettich\devform\types\checkbox('_ACCOUNTS', [
+		'title' => Module::m(strtoupper($t)),
+		'options' => $accountsMap,
+		'multiple' => true,
+	]);
 }
-$accountsMap = Module::convertToSiteCharset($accountsMap);
-$params[] = new \vettich\devform\types\checkbox('_ACCOUNTS', [
-	'title' => '#.POST_ACCOUNTS#',
-	'options' => $accountsMap,
-	'multiple' => true,
-	// 'refresh' => true,
-	/* 'params' => $params, */
-]);
 
 /* $params += (array) Module::socialAccountsForDevForm('_ACCOUNTS', $individ ? ['onclick' => 'Vettich.Devform.Refresh(this);'] : []); */
 $templateDataParams = [
@@ -188,6 +187,13 @@ $templateDataParams = [
 		'help' => '#.PUBLISH_OTHER_PICTURE_HELP#',
 		'options' => IBlockHelpers::allPropsFor($iblock_id),
 		'default_value' => 'PROPERTY_MORE_PICTURES',
+	],
+	'_PUBLISH[COMMON][PUBLISH_AT]' => [
+		'type' => 'select',
+		'title' => '#.POST_PUBLISH_AT#',
+		'help' => '#.POST_PUBLISH_AT_HELP#',
+		'options' => IBlockHelpers::allPropsFor($iblock_id),
+		'default_value' => 'DATE_ACTIVE_FROM',
 	],
 	'heading6' => 'heading:#.POST_VK_TITLE#',
 	'_PUBLISH[VK][FROM_GROUP]' => 'checkbox:#.POST_VK_FROM_GROUP#:Y:help=#.POST_VK_FROM_GROUP_HELP#',
