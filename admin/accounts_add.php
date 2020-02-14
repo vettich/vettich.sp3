@@ -12,7 +12,7 @@ $GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/vettich.sp3/script.js');
 			'name' => '#.VK#',
 			'title' => '#.VK_ADD_TITLE#',
 			'params' => [
-				'vk_login' => 'divbutton::#.VK_LOGIN_BTN#:onclick=VettichSP3.vkLogin()',
+				'vk_login' => 'divbutton::#.VK_LOGIN_BTN#:onclick=VettichSP3.connectAccount("vk")',
 				'vk_login_res' => 'html::',
 			],
 		],
@@ -20,8 +20,16 @@ $GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/vettich.sp3/script.js');
 			'name' => '#.OK#',
 			'title' => '#.OK_ADD_TITLE#',
 			'params' => [
-				'ok_login' => 'divbutton::#.OK_LOGIN_BTN#:onclick=VettichSP3.okLogin()',
+				'ok_login' => 'divbutton::#.OK_LOGIN_BTN#:onclick=VettichSP3.connectAccount("ok")',
 				'ok_login_res' => 'html::',
+			],
+		],
+		[
+			'name' => '#.FB#',
+			'title' => '#.FB_ADD_TITLE#',
+			'params' => [
+				'fb_login' => 'divbutton::#.FB_LOGIN_BTN#:onclick=VettichSP3.connectAccount("fb")',
+				'fb_login_res' => 'html::',
 			],
 		],
 	],
