@@ -258,9 +258,15 @@ class Api
 		return self::resultWrapper($res);
 	}
 
-	public function accountsList()
+	public function accountsList($filter=[])
 	{
-		$res = $this->callGet('accounts');
+		$res = $this->callGet('accounts', ['filter' => $filter]);
+		return self::resultWrapper($res);
+	}
+
+	public function getAccount($id)
+	{
+		$res = $this->callGet('accounts/'.$id);
 		return self::resultWrapper($res);
 	}
 
@@ -305,6 +311,7 @@ class Api
 
 	public function uploadFile($filepath, $filename)
 	{
+		Module::log([$filepath, $filename]);
 		$res = $this->callGet('file_upload_url', ['type' => 'image', 'filename' => $filename]);
 		Module::log($res);
 		if (!empty($res['error'])) {
