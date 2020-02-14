@@ -174,7 +174,7 @@ class TemplateHelpers
 	{
 		$fields = $arFields + $arTemplate;
 		$images = self::prepareImages($arTemplate['PUBLISH']['COMMON']['MAIN_PICTURE'], $fields);
-		$images += self::prepareImages($arTemplate['PUBLISH']['COMMON']['OTHER_PICTURE'], $fields);
+		$images = array_merge($images, self::prepareImages($arTemplate['PUBLISH']['COMMON']['OTHER_PICTURE'], $fields));
 		$post = [
 			'fields' => [
 				'text' => self::prepareText($arTemplate['PUBLISH']['COMMON']['TEXT'], $fields),
@@ -193,6 +193,7 @@ class TemplateHelpers
 			'extra_fields' => [
 				'id' => intval($arFields['ID']),
 				'iblock_id' => intval($arFields['IBLOCK_ID']),
+				'template_id' => intval($arTemplate['ID']),
 			],
 		];
 		return Module::convertToUtf8($post);
@@ -214,6 +215,7 @@ class TemplateHelpers
 		}
 		$images = [];
 		foreach ((array)$files as $filepath) {
+			$filepath = Module::convertToUtf8($filepath);
 			$res = Module::api()->uploadFile($filepath, basename($filepath));
 			if (empty($res['error'])) {
 				$images[] = $res['response']['file_id'];
