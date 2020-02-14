@@ -1,5 +1,9 @@
 <?php
 
+$MESS['VETTICH_SP3_EDIT_TEMPLATE']        = 'Редактирование шаблона';
+$MESS['VETTICH_SP3_ADD_TEMPLATE']         = 'Добавление шаблона';
+$MESS['VETTICH_SP3_TEMPLATES_PAGE_TITLE'] = 'Список шаблонов';
+
 $MESS['VETTICH_SP3_TEMPLATE_GENERAL']          = 'Основное';
 $MESS['VETTICH_SP3_TEMPLATE_GENERAL_SETTINGS'] = 'Настройка основной информации';
 $MESS['VETTICH_SP3_TEMPLATE_DATA']             = 'Данные поста';
@@ -17,14 +21,16 @@ $MESS['VETTICH_SP3_POST_ACCOUNTS']           = 'Аккаунты соц. сетей';
 $MESS['VETTICH_SP3_COMMON_DESCRIPTION']      = 'Общие настройки для соц. сотей';
 $MESS['VETTICH_SP3_NONE_ACCOUNTS']           = 'Еще не создано ни одного аккаунта соц. сети. Создайте, и возвращайтесь на эту страницу!';
 $MESS['VETTICH_SP3_IS_AUTO']                 = 'Автопубликация';
+$MESS['VETTICH_SP3_IS_AUTO_HELP']            = 'При включении данной опции, добавляемые элементы в выбранный инфоблок будут обработаны данным шаблоном';
 $MESS['VETTICH_SP3_IS_MANUALLY_HELP']        = 'Если включено, то при добавлении новой записи в выбранный инфоблок, будет создан пост по этому шаблону';
 $MESS['VETTICH_SP3_IBLOCK_TYPE_SELECT']      = 'Выберите тип инфоблока';
 $MESS['VETTICH_SP3_IBLOCK_TYPE']             = 'Тип инфоблока';
 $MESS['VETTICH_SP3_IBLOCK_ID_SELECT']        = 'Выберите ID инфоблока';
 $MESS['VETTICH_SP3_IBLOCK']                  = 'Инфоблок';
-$MESS['VETTICH_SP3_ELEMS'] = 'Элементы инфоблока';
+$MESS['VETTICH_SP3_ELEMS']                   = 'Элементы инфоблока';
 $MESS['VETTICH_SP3_IBLOCK_IS_SECTIONS']      = 'Выбрать разделы';
-$MESS['VETTICH_SP3_NAME_HELP']               = 'Задайте имя для настройки публикации';
+$MESS['VETTICH_SP3_NAME_HELP']               = 'Задайте имя для шаблона публикации';
+$MESS['VETTICH_SP3_NAME_PLACEHOLDER']        = 'Имя шаблона, подставляется автоматически';
 $MESS['VETTICH_SP3_IS_ENABLE_HELP']          = 'Активность записи';
 $MESS['VETTICH_SP3_IBLOCK_TYPE_HELP']        = 'Выберите тип инфоблока для выбора необходимого инфоблока';
 $MESS['VETTICH_SP3_IBLOCK_HELP']             = 'Выберите инфоблок, с которого будет происходить публикация';
