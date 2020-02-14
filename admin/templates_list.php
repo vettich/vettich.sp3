@@ -4,7 +4,7 @@ require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
 
-(new \vettich\devform\AdminList('#TEMPLATES_PAGE_TITLE#', 'vap_templates_list', [
+(new \vettich\devform\AdminList('#.TEMPLATES_PAGE_TITLE#', 'vap_templates_list', [
 	'dbClass' => 'vettich\sp3\db\template',
 	'params' => [
 		'ID' => 'number',
@@ -20,6 +20,7 @@ use vettich\sp3\Module;
 			/* 'on renderView' => ['Vettich\SP\Module', 'onRenderViewIblockId'], */
 		],
 	],
+	'actions' => ['edit', 'copy', 'delete'],
 	'dontEdit' => ['ID', 'IBLOCK_TYPE', 'IBLOCK_ID'],
 	'dontEditAll' => true,
 	'buttons' => [

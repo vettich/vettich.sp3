@@ -8,6 +8,14 @@ use vettich\devform\types;
 CModule::IncludeModule('iblock');
 
 $issetID = !empty($_GET['ID']);
+$dataArgs = [
+	'dbClass' => 'vettich\sp3\db\template',
+	'prefix' => '_'
+];
+if (!$issetID && isset($_GET['FROM_ID'])) {
+	$dataArgs['filter'] = ['ID' => $_GET['FROM_ID']];
+}
+$data = new vettich\devform\data\orm($dataArgs);
 
 $arIblockTypes = ['' => Module::m('IBLOCK_TYPE_SELECT')];
 $rsIblockTypes = CIBlockType::GetList();
@@ -18,6 +26,7 @@ while ($ar = $rsIblockTypes->Fetch()) {
 }
 
 $params = [
+	/* '_ID' => 'hidden:'.(!$issetID ? '' : 'value=0'), */
 	'_NAME' => 'text:#VDF_NAME#::help=#.NAME_HELP#:params=[placeholder=#.NAME_PLACEHOLDER#]',
 	'NAME_AUTO' => 'hidden::',
 	'_IS_ENABLE' => 'checkbox:#VDF_IS_ENABLE#:Y:help=#.IS_ENABLE_HELP#',
@@ -31,10 +40,9 @@ $params = [
 		'params' => ['onchange' => 'Vettich.Devform.Refresh(this);'],
 	],
 ];
-$data = new vettich\devform\data\orm([
-	'dbClass' => 'vettich\sp3\db\template',
-	'prefix' => '_',
-]);
+if ($issetID) {
+	$params['_ID'] = 'hidden';
+}
 
 $isSections = false;
 $name_auto = '';
@@ -122,7 +130,8 @@ if (!$iblock_id) {
 	$params += [
 		'heading2' => 'heading:#.DOMAIN_HEADING#',
 		'_DOMAIN' => 'text:#.DOMAIN_NAME#:'.$_SERVER['SERVER_NAME'].':help=#.DOMAIN_NAME_HELP#',
-		'_URL_PARAMS' => 'text:#.URL_PARAMS#:utm_source\=#SOCIAL_ID#&utm_medium\=cpc:help=#.URL_PARAMS_HELP#',
+		'_NEED_UTM' => 'checkbox:#.NEED_UTM#:Y',
+		/* '_URL_PARAMS' => 'text:#.URL_PARAMS#:utm_source\=#SOCIAL_ID#&utm_medium\=cpc:help=#.URL_PARAMS_HELP#', */
 		'heading6' => 'heading:#.CONDITIONS_HEADING#',
 		'_PUBLISH[CONDITIONS][ACTIVE]' => 'checkbox:#.PUBLISH_CONDITIONS_ACTIVE#:Y:help=#.PUBLISH_CONDITIONS_ACTIVE_HELP#',
 		'_CONDITIONS' => [
@@ -158,18 +167,18 @@ if (!$iblock_id) {
 		'heading4' => 'heading:#.CHOOSE_POST_ACCOUNTS#',
 	];
 
-	$res = vettich\sp3\db\Accounts::getList();
-	$accountsMap = [];
-	foreach ($res as $account) {
-		$accountsMap[$account['id']] = $account['name'];
+	$accList = (new vettich\sp3\db\Accounts())->getListType();
+	foreach ($accList as $t => $accType) {
+		$accountsMap = [];
+		foreach ($accType as $account) {
+			$accountsMap[$account['id']] = $account['name'];
+		}
+		$params[] = new \vettich\devform\types\checkbox('_ACCOUNTS', [
+			'title' => Module::m(strtoupper($t)),
+			'options' => $accountsMap,
+			'multiple' => true,
+		]);
 	}
-	$params[] = new \vettich\devform\types\checkbox('_ACCOUNTS', [
-		'title' => '#.POST_ACCOUNTS#',
-		'options' => $accountsMap,
-		'multiple' => true,
-		// 'refresh' => true,
-		/* 'params' => $params, */
-	]);
 
 	$templateDataParams = [
 		// 'none_acc' => 'plaintext::'.vettich\devform\Module::m('#.NONE_ACCOUNTS#'),
@@ -210,9 +219,21 @@ if (!$iblock_id) {
 			'options' => IBlockHelpers::allPropsFor($iblock_id),
 			'default_value' => 'PROPERTY_MORE_PICTURES',
 		],
+		'_PUBLISH[COMMON][PUBLISH_AT]' => [
+			'type' => 'select',
+			'title' => '#.POST_PUBLISH_AT#',
+			'help' => '#.POST_PUBLISH_AT_HELP#',
+			'options' => IBlockHelpers::allPropsFor($iblock_id),
+			'default_value' => 'DATE_ACTIVE_FROM',
+		],
+
 		'heading6' => 'heading:#.POST_VK_TITLE#',
 		'_PUBLISH[VK][FROM_GROUP]' => 'checkbox:#.POST_VK_FROM_GROUP#:Y:help=#.POST_VK_FROM_GROUP_HELP#',
 		'_PUBLISH[VK][SIGNED]' => 'checkbox:#.POST_VK_SIGNED#:help=#.POST_VK_SIGNED_HELP#',
+
+		/* 'heading7' => 'heading:#.POST_OK_TITLE#', */
+		/* '_PUBLISH[OK][HIDDEN_POST]' => 'checkbox:#.POST_OK_HIDDEN_POST#:Y:help=#.POST_OK_HIDDEN_POST_HELP#', */
+		/* '_PUBLISH[OK][ADS_POST]' => 'checkbox:#.POST_OK_ADS_POST#:help=#.POST_OK_ADS_POST_HELP#', */
 	];
 }
 
@@ -238,22 +259,14 @@ if ($iblock_id) {
 }
 
 (new \vettich\devform\AdminForm('devform', [
-	'pageTitle' => ($id > 0 ? '#.EDIT_RECORD#' : '#.ADD_RECORD#'),
+	'pageTitle' => ($issetID ? '#.EDIT_TEMPLATE#' : '#.ADD_TEMPLATE#'),
 	'tabs' => $tabs,
 	'buttons' => [
 		'_save' => 'buttons\saveSubmit:#VDF_SAVE#',
 		'_apply' => 'buttons\submit:#VDF_APPLY#',
 	],
 	'data' => $data,
-	'on beforeSave' => function (&$arValues, $args, $obj) {
-		if (isset($arValues['_PERIOD_FROM'])) {
-			$arValues['_PERIOD_FROM'] = Module::timeFromUserTime($arValues['_PERIOD_FROM']);
-		}
-		if (isset($arValues['_PERIOD_TO'])) {
-			$arValues['_PERIOD_TO'] = Module::timeFromUserTime($arValues['_PERIOD_TO']);
-		}
-		return true;
-	},
+	'idKey' => '_ID',
 ]))->render();
 
 require(__DIR__.'/../include/epilog_authorized_page.php');
