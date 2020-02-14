@@ -16,7 +16,7 @@ if ($ex = $APPLICATION->GetException()) {
 }
 ?>
 
-<a href="/bitrix/admin/settings.php?lang=<?=LANG?>&mid=vettich.sp3&mid_menu=1">
+<a href="/bitrix/admin/vettich.sp3.start_use.php">
 	<?=GetMessage('VETTICH_SP3_START_USE')?>
 </a>
 <br><br>
