@@ -3,9 +3,18 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 IncludeModuleLangFile(__FILE__);
 
-CModule::IncludeModule('vettich.devform');
 CModule::IncludeModule('vettich.sp3');
 use vettich\sp3\Module;
+
+if (!CModule::IncludeModule('vettich.devform')) {
+	?>
+	<div class="adm-info-message" style="display:block">
+		<?=Module::m('DEVFORM_NOT_INSTALLED')?>
+	</div>
+	<?php
+	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
+	exit;
+}
 
 $validateToken = Module::isAuth(true);
 if ($validateToken['response'] == true) {

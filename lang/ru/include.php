@@ -14,3 +14,5 @@ $MESS['VETTICH_SP3_FB_LOGIN_BTN'] = 'ѕерейти к добавлению Facebook';
 
 $MESS['VETTICH_SP3_IBLOCK'] = '»нфоблок';
 $MESS['VETTICH_SP3_IBLOCK_ELEM'] = 'Ёлемент инфоблока';
+
+$MESS['VETTICH_SP3_DEVFORM_NOT_INSTALLED'] = 'ƒл€ работы модул€ "јвтопубликации в соц. сети 3.0" требуетс€ установленный модуль vettich.devform. ”становите его, перейд€ в <a href="/bitrix/admin/partner_modules.php">список модулей</a>, либо переустановите данный модуль.';
