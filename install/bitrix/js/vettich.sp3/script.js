@@ -1,18 +1,18 @@
 VettichSP3 = {
 	langs: {
-		success: "Успешно",
-		redirecting: "Перенаправляем...",
-		fillAllFields: "Заполните все поля",
-		passwordsNotMatch: "Пароли не совпадают",
+		success: BX.message('VETTICH_SP3_SUCCESS'),
+		redirecting: BX.message('VETTICH_SP3_REDIRECTING'),
+		fillAllFields: BX.message('VETTICH_SP3_FILL_ALL_FIELDS'),
+		passwordsNotMatch: BX.message('VETTICH_SP3_PASS_NOT_MATCH'),
 	},
 	dialogs: {
 		templatesList: new BX.CDialog({
-			title: 'Список шаблонов',
+			title: BX.message('VETTICH_SP3_LIST_TEMPLATES'),
 			content: '',
 			buttons: [],
 		}),
 		result: new BX.CDialog({
-			title: 'Результат',
+			title: BX.message('VETTICH_SP3_RESULT'),
 			content: '',
 			buttons: [BX.CDialog.prototype.btnClose]
 		}),
@@ -133,11 +133,11 @@ VettichSP3.MenuSendWithTemplate = function (query) {
 			var json = JSON.parse(data);
 			var templatesKeys = Object.keys(json.templates);
 			if (templatesKeys.length == 0) {
-				html = 'Подходящих шаблонов не найдено.';
+				html = BX.message('VETTICH_SP3_TEMPLATES_NOT_FOUND');
 			} else {
 				var checked = templatesKeys.length > 1 ? '' : 'checked="checked"';
 				htmlTemplate = htmlTemplate.split('{id}').join('TEMPLATES');
-				html = 'Выберите шаблон, с помощью которого нужно опубликовать <br/><br/>';
+				html = BX.message('VETTICH_SP3_CHOOSE_TEMPLATE') + ' <br/><br/>';
 				for(var i = 0; i < templatesKeys.length; i++) {
 					inputHtml = htmlTemplate
 						.split('{val}').join(templatesKeys[i])
@@ -147,17 +147,17 @@ VettichSP3.MenuSendWithTemplate = function (query) {
 				}
 			}
 		} catch (e) {
-			html = 'Произошла какая-то ошибка при получении списка шаблонов...';
+			html = BX.message('VETTICH_SP3_SOME_ERROR');
 		}
 		if(!query.ELEMS && !query.SECTIONS) {
 			query = VettichSP3.getSelectedIblockElements(query);
 		}
 		var link = '/bitrix/admin/vettich.sp3.posts_custom.php?' + VettichSP3.queryStringify(query);
-		html += '<br/><br/>Или <a href="{link}" target="_blank" onclick="{onclick}">опубликовать НЕ используя шаблон</a>'
+		html += '<br/><br/><a href="{link}" target="_blank" onclick="{onclick}">' + BX.message('VETTICH_SP3_WITHOUT_TEMPLATE') + '</a>'
 			.split('{link}').join(link)
 			.split('{onclick}').join('VettichSP3.dialogs.templatesList.Close()');
 		var publishBtn = {
-			title: 'Опубликовать',
+			title: BX.message('VETTICH_SP3_PUBLISH'),
 			onclick: 'VettichSP3.MenuSendWithTemplateStep2(' + JSON.stringify(query) + ');',
 		};
 		VettichSP3.dialogs.templatesList.SetContent(html);
@@ -174,7 +174,7 @@ VettichSP3.MenuSendWithTemplateStep2 = function(query) {
 	var show = BX.showWait(prevDialog.DIV.id);
 	var selectedTemplates = prevDialog.PARTS.CONTENT_DATA.querySelectorAll('input:checked');
 	if(selectedTemplates.length == 0) {
-		alert('Выберите шаблон из списка');
+		alert(BX.message('VETTICH_SP3_CHOOSE_TEMPLATE_FROM_LIST'));
 		return;
 	}
 	if(!query.ELEMS && !query.SECTIONS) {
@@ -194,11 +194,11 @@ VettichSP3.MenuSendWithTemplateStep2 = function(query) {
 			if (dataJson.error) {
 				html = dataJson.error.msg;
 			} else {
-				html = 'Было добавлено постов: ' + dataJson.length;
+				html = BX.message('VETTICH_SP3_ADDED_N_POST') + dataJson.length;
 			}
 		} catch(e) {
 			console.log(e);
-			html = 'Произошла какая-то ошибка';
+			html = BX.message('VETTICH_SP3_SOME_ERROR2');
 		}
 		prevDialog.AllowClose();
 		prevDialog.Close();
