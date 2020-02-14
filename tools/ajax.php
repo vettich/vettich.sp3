@@ -35,15 +35,8 @@ switch ($_GET['method']) {
 		_result($res);
 		break;
 
-	case 'vkLogin':
-		$type = 'vk';
-		$callback = $_GET['callback'];
-		$res = Module::api()->connectUrl($type, $callback);
-		_result($res);
-		break;
-
-	case 'okLogin':
-		$type = 'ok';
+	case 'getConnectUrl':
+		$type = $_GET['type'];
 		$callback = $_GET['callback'];
 		$res = Module::api()->connectUrl($type, $callback);
 		_result($res);
