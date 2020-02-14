@@ -1,6 +1,7 @@
 VettichSP3 = {
 	langs: {
 		success: "Успешно",
+		redirecting: "Перенаправляем...",
 		fillAllFields: "Заполните все поля",
 		passwordsNotMatch: "Пароли не совпадают",
 	},
@@ -105,32 +106,15 @@ VettichSP3.logout = function () {
 	});
 }
 
-VettichSP3.vkLogin = function() {
-	var rresult = document.getElementById('vk_login_res');
+VettichSP3.connectAccount = function(type) {
+	var rresult = document.getElementById(type + '_login_res');
 	var show = BX.showWait("FORM_devform");
 	var callback = location.origin + '/bitrix/admin/vettich.sp3.accounts_list.php';
-	var queries = '?method=vkLogin&callback=' + callback;
+	var queries = '?method=getConnectUrl&type=' + type + '&callback=' + callback;
 	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
 		var dataJson = JSON.parse(data)
 		if(!dataJson.error) {
-			VettichSP3.setResult(rresult, VettichSP3.langs.success, 'green');
-			window.location = dataJson.response.url;
-		} else {
-			VettichSP3.setResult(rresult, dataJson.error.msg, 'red');
-			BX.closeWait("FORM_devform", show);
-		}
-	});
-}
-
-VettichSP3.okLogin = function() {
-	var rresult = document.getElementById('ok_login_res');
-	var show = BX.showWait("FORM_devform");
-	var callback = location.origin + '/bitrix/admin/vettich.sp3.accounts_list.php';
-	var queries = '?method=okLogin&callback=' + callback;
-	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
-		var dataJson = JSON.parse(data)
-		if(!dataJson.error) {
-			VettichSP3.setResult(rresult, VettichSP3.langs.success, 'green');
+			VettichSP3.setResult(rresult, VettichSP3.langs.redirecting, 'green');
 			window.location = dataJson.response.url;
 		} else {
 			VettichSP3.setResult(rresult, dataJson.error.msg, 'red');
@@ -186,8 +170,9 @@ VettichSP3.MenuSendWithTemplate = function (query) {
 }
 
 VettichSP3.MenuSendWithTemplateStep2 = function(query) {
-	prevDialod = VettichSP3.dialogs.templatesList
-	var selectedTemplates = prevDialod.PARTS.CONTENT_DATA.querySelectorAll('input:checked');
+	prevDialog = VettichSP3.dialogs.templatesList
+	var show = BX.showWait(prevDialog.DIV.id);
+	var selectedTemplates = prevDialog.PARTS.CONTENT_DATA.querySelectorAll('input:checked');
 	if(selectedTemplates.length == 0) {
 		alert('Выберите шаблон из списка');
 		return;
@@ -202,6 +187,7 @@ VettichSP3.MenuSendWithTemplateStep2 = function(query) {
 	query.method = 'publishWithTemplate';
 	squery = '?' + VettichSP3.queryStringify(query);
 	jQuery.get(VettichSP3.ajaxUrl + squery).always(function(data) {
+		BX.closeWait(prevDialog.DIV.id, show);
 		var html = '';
 		try {
 			var dataJson = JSON.parse(data);
@@ -214,8 +200,8 @@ VettichSP3.MenuSendWithTemplateStep2 = function(query) {
 			console.log(e);
 			html = 'Произошла какая-то ошибка';
 		}
-		prevDialod.AllowClose();
-		prevDialod.Close();
+		prevDialog.AllowClose();
+		prevDialog.Close();
 
 		VettichSP3.dialogs.result.SetContent(html);
 		VettichSP3.dialogs.result.Show();
