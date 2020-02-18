@@ -8,6 +8,7 @@ $MESS['VETTICH_SP3_REG_TITLE'] = 'Введите почту и пароль для регистрации в серви
 $MESS['VETTICH_SP3_USERNAME'] = 'Имя пользователя/Почта';
 $MESS['VETTICH_SP3_PASSWORD'] = 'Ваш пароль';
 $MESS['VETTICH_SP3_PASSWORD_CONFIRM'] = 'Подтвердите введенный пароль';
+$MESS['VETTICH_SP3_PASSGEN_BTN'] = 'Сгенерировать пароль';
 $MESS['VETTICH_SP3_LOGIN_BTN'] = 'Авторизоваться';
 $MESS['VETTICH_SP3_REG_BTN'] = 'Зарегистрироваться';
 $MESS['VETTICH_SP3_PASSWORDS_NOT_MATCH'] = 'Пароли не совпадают';

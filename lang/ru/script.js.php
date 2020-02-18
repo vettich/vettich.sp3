@@ -3,7 +3,9 @@
 $MESS['VETTICH_SP3_SUCCESS']                   = 'Успешно';
 $MESS['VETTICH_SP3_REDIRECTING']               = 'Перенаправляем...';
 $MESS['VETTICH_SP3_FILL_ALL_FIELDS']           = 'Заполните все поля';
+$MESS['VETTICH_SP3_EMAIL_INCORRECT']           = 'Email заполнен некорректно';
 $MESS['VETTICH_SP3_PASS_NOT_MATCH']            = 'Пароли не совпадают';
+$MESS['VETTICH_SP3_PASS_MIN_LEN']              = 'Минимальная длинна пароля 6 символов';
 $MESS['VETTICH_SP3_LIST_TEMPLATES']            = 'Список шаблонов';
 $MESS['VETTICH_SP3_RESULT']                    = 'Результат';
 $MESS['VETTICH_SP3_TEMPLATES_NOT_FOUND']       = 'Подходящих шаблонов не найдено.';

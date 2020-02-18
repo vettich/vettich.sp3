@@ -1,4 +1,5 @@
 VettichSP3 = {
+	re: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
 	langs: {
 		success: BX.message('VETTICH_SP3_SUCCESS'),
 		redirecting: BX.message('VETTICH_SP3_REDIRECTING'),
@@ -57,20 +58,48 @@ VettichSP3.login = function () {
 	});
 }
 
+VettichSP3.passGen = function() {
+	var length = 16,
+		charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$@_-/",
+		retVal = "";
+	for (var i = 0, n = charset.length; i < length; ++i) {
+		var ch = charset.charAt(Math.floor(Math.random() * n));
+		if(i != 0 && retVal[i-1] == ch) {
+			--i;
+			continue;
+		}
+		retVal += ch;
+	}
+	document.getElementById('rpassword').value = retVal;
+	document.getElementById('rpassword2').value = retVal;
+	document.getElementById('rpassword').type = 'text';
+	document.getElementById('rpassword2').type = 'text';
+}
+
 VettichSP3.signup = function () {
 	var username = document.getElementById('rusername').value;
 	var password = document.getElementById('rpassword').value;
 	var password2 = document.getElementById('rpassword2').value;
 	var rresult = document.getElementById('rresult');
 	VettichSP3.clearResult(rresult);
+
 	if (!username.length || !password.length) {
 		VettichSP3.setResult(rresult, VettichSP3.langs.fillAllFields, 'red');
+		return;
+	}
+	if (!VettichSP3.re.test(String(username).toLowerCase())) {
+		VettichSP3.setResult(rresult, BX.message('VETTICH_SP3_EMAIL_INCORRECT'), 'red');
+		return;
+	}
+	if (password.length < 6) {
+		VettichSP3.setResult(rresult, BX.message('VETTICH_SP3_PASS_MIN_LEN'), 'red');
 		return;
 	}
 	if (password != password2) {
 		VettichSP3.setResult(rresult, VettichSP3.langs.passwordsNotMatch, 'red');
 		return;
 	}
+
 	var show = BX.showWait("FORM_devform");
 	var queries = '?method=signup' +
 		'&username=' + username +

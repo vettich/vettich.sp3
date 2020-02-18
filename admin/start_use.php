@@ -58,6 +58,7 @@ $userEmail = $USER->GetEmail();
 			'title' => '#.REG_TITLE#',
 			'params' => [
 				'rusername' => 'text:#.USERNAME#:'.$userEmail,
+				'passgen_btn' => 'divbutton::#.PASSGEN_BTN#:onclick=VettichSP3.passGen()',
 				'rpassword' => 'password:#.PASSWORD#',
 				'rpassword2' => 'password:#.PASSWORD_CONFIRM#',
 				'reg_btn' => 'divbutton::#.REG_BTN#:onclick=VettichSP3.signup()',
