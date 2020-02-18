@@ -9,6 +9,7 @@ IncludeModuleLangFile(__FILE__);
 class Api
 {
 	const FROM = 'bitrix';
+	const SERVER_UNAVAILABLE = -11;
 	private $configFile = '';
 	private $config = [];
 
@@ -86,6 +87,21 @@ class Api
 		return 'query='.$q;
 	}
 
+	private static function decodeResult($res)
+	{
+		$newRes = json_decode($res, true);
+		Module::log([$res, $newRes]);
+		if ($newRes !== null) {
+			return $newRes;
+		}
+		return [
+			'error' => [
+				'msg' => 'server is unavailable',
+				'code' => self::SERVER_UNAVAILABLE,
+			],
+		];
+	}
+
 	private function buildCurl($url, $needAuth, $headers=[])
 	{
 		if ($needAuth == true) {
@@ -132,7 +148,7 @@ class Api
 		}
 		$result = curl_exec($c);
 		curl_close($c);
-		return json_decode($result, true);
+		return self::decodeResult($result);
 	}
 
 	private function callPost($endpoint, $data=[], $needAuth=true)
@@ -148,7 +164,7 @@ class Api
 		curl_setopt($c, CURLOPT_POSTFIELDS, $dataEnc);
 		$result = curl_exec($c);
 		curl_close($c);
-		return json_decode($result, true);
+		return self::decodeResult($result);
 	}
 
 	private function callDelete($endpoint, $queries=[], $needAuth=true)
@@ -166,7 +182,7 @@ class Api
 		curl_setopt($c, CURLOPT_CUSTOMREQUEST, 'DELETE');
 		$result = curl_exec($c);
 		curl_close($c);
-		return json_decode($result, true);
+		return self::decodeResult($result);
 	}
 
 	private static function filenameWrapper($filepath, $filename)
@@ -184,6 +200,12 @@ class Api
 			return ['error' => ['msg' => 'result is empty']];
 		}
 		return $res;
+	}
+
+	public function ping()
+	{
+		$result = $this->callGet('ping', [], false);
+		return $result;
 	}
 
 	public function login($username, $password)

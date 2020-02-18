@@ -16,8 +16,20 @@ if (!CModule::IncludeModule('vettich.devform')) {
 	exit;
 }
 
-$validateToken = Module::isAuth(true);
-if ($validateToken['response'] == true) {
+$pingRes = Module::api()->ping();
+Module::log($pingRes);
+if ($pingRes['response'] != 'pong' ||
+	($pingRes['error'] &&
+		$pingRes['error']['code'] == vettich\sp3\Api::SERVER_UNAVAILABLE)) {
+	?>
+	<div class="adm-info-message" style="display:block">
+		<?=Module::m('SERVER_UNAVAILABLE')?>
+	</div>
+	<?php
+	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
+}
+$validateTokenRes = Module::isAuth(true);
+if ($validateTokenRes['response'] == true) {
 	header("Location: /bitrix/admin/vettich.sp3.user.php");
 	exit;
 }
