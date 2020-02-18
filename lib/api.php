@@ -10,38 +10,15 @@ class Api
 {
 	const FROM = 'bitrix';
 	const SERVER_UNAVAILABLE = -11;
-	private $configFile = '';
-	private $config = [];
 
-	public function __construct($configFile)
+	public static function userId()
 	{
-		$this->configFile = $configFile;
-		$this->readConfig();
+		return Config::get('user_id');
 	}
 
-	public function readConfig()
+	public static function token()
 	{
-		$data = file_get_contents($this->configFile);
-		$conf = json_decode($data, true);
-		if (!empty($conf)) {
-			$this->config = $conf;
-		}
-	}
-
-	public function saveConfig()
-	{
-		$data = json_encode($this->config, JSON_PRETTY_PRINT);
-		file_put_contents($this->configFile, $data);
-	}
-
-	public function userId()
-	{
-		return $this->config['user_id'];
-	}
-
-	public function token()
-	{
-		return $this->config['token'];
+		return Config::get('token');
 	}
 
 	public static function toTime($strtime)
@@ -52,11 +29,12 @@ class Api
 		return date(\DateTime::RFC3339_EXTENDED, strtotime($strtime));
 	}
 
-	private function setUserData($userId, $token)
+	private static function setUserData($userId, $token)
 	{
-		$this->config['user_id'] = $userId;
-		$this->config['token'] = $token;
-		$this->saveConfig();
+		Config::setConfig([
+			'user_id' => $userId,
+			'token' => $token,
+		]);
 	}
 
 	private static function errorMsg($key, $msg)
@@ -69,15 +47,15 @@ class Api
 		return $langMess;
 	}
 
-	private function buildEndpoint($endpoint)
+	private static function buildEndpoint($endpoint)
 	{
-		$url = $this->config['api_uri'];
-		$url .= '/'.$this->config['api_version'];
+		$url = Config::get('api_uri');
+		$url .= '/'.Config::get('api_version');
 		$url .= '/'.$endpoint;
 		return $url;
 	}
 
-	private function buildQuery($data)
+	private static function buildQuery($data)
 	{
 		if (empty($data)) {
 			return '';
@@ -102,10 +80,10 @@ class Api
 		];
 	}
 
-	private function buildCurl($url, $needAuth, $headers=[])
+	private static function buildCurl($url, $needAuth, $headers=[])
 	{
 		if ($needAuth == true) {
-			$token = $this->token();
+			$token = self::token();
 			if (empty($token)) {
 				return false;
 			}
@@ -126,7 +104,7 @@ class Api
 		#curl_setopt($c, CURLOPT_STDERR, VETTICH_SP3_DIR.'/logerr.txt');
 		#curl_setopt($c, CURLINFO_HEADER_OUT, true);
 		if ($needAuth == true) {
-			$headers[] = 'Token: '.$this->token();
+			$headers[] = 'Token: '.self::token();
 		}
 		if (!empty($headers)) {
 			curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
@@ -134,15 +112,15 @@ class Api
 		return $c;
 	}
 
-	private function callGet($endpoint, $queries=[], $needAuth=true)
+	private static function callGet($endpoint, $queries=[], $needAuth=true)
 	{
 		Module::log(['endpoint' => $endpoint, 'queries' => $queries], ['trace_n' => 3]);
-		$url = $this->buildEndpoint($endpoint);
-		$q = $this->buildQuery($queries);
+		$url = self::buildEndpoint($endpoint);
+		$q = self::buildQuery($queries);
 		if (!empty($q)) {
 			$url .= '?'.$q;
 		}
-		$c = $this->buildCurl($url, $needAuth);
+		$c = self::buildCurl($url, $needAuth);
 		if (!$c) {
 			return false;
 		}
@@ -151,11 +129,11 @@ class Api
 		return self::decodeResult($result);
 	}
 
-	private function callPost($endpoint, $data=[], $needAuth=true)
+	private static function callPost($endpoint, $data=[], $needAuth=true)
 	{
 		Module::log(['endpoint' => $endpoint, 'data' => $data], ['trace_n' => 3]);
-		$url = $this->buildEndpoint($endpoint);
-		$c = $this->buildCurl($url, $needAuth, ['Content-Type: application/json']);
+		$url = self::buildEndpoint($endpoint);
+		$c = self::buildCurl($url, $needAuth, ['Content-Type: application/json']);
 		if (!$c) {
 			return false;
 		}
@@ -167,15 +145,15 @@ class Api
 		return self::decodeResult($result);
 	}
 
-	private function callDelete($endpoint, $queries=[], $needAuth=true)
+	private static function callDelete($endpoint, $queries=[], $needAuth=true)
 	{
 		Module::log(['endpoint' => $endpoint, 'queries' => $queries], ['trace_n' => 3]);
-		$url = $this->buildEndpoint($endpoint);
-		$q = $this->buildQuery($queries);
+		$url = self::buildEndpoint($endpoint);
+		$q = self::buildQuery($queries);
 		if (!empty($q)) {
 			$url .= '?'.$q;
 		}
-		$c = $this->buildCurl($url, $needAuth);
+		$c = self::buildCurl($url, $needAuth);
 		if (!$c) {
 			return false;
 		}
@@ -202,139 +180,139 @@ class Api
 		return $res;
 	}
 
-	public function ping()
+	public static function ping()
 	{
-		$result = $this->callGet('ping', [], false);
+		$result = self::callGet('ping', [], false);
 		return $result;
 	}
 
-	public function login($username, $password)
+	public static function login($username, $password)
 	{
 		$queries = [
 			'username' => $username,
 			'password' => $password,
 		];
-		$result = $this->callPost('tokens', $queries, false);
+		$result = self::callPost('tokens', $queries, false);
 		Module::log($result);
 		if (!empty($result['error'])) {
 			return $result;
 		}
 
-		$this->setUserData($result['response']['user_id'], $result['response']['token']);
+		self::setUserData($result['response']['user_id'], $result['response']['token']);
 		return []; // success
 	}
 
-	public function signup($username, $password)
+	public static function signup($username, $password)
 	{
 		$queries = [
 			'username' => $username,
 			'password' => $password,
 		];
-		$result = $this->callPost('users', $queries, false);
+		$result = self::callPost('users', $queries, false);
 		Module::log($result);
 		if (!empty($result['error'])) {
 			return $result;
 		}
-		$this->setUserData($result['response']['user_id'], $result['response']['token']);
+		self::setUserData($result['response']['user_id'], $result['response']['token']);
 		return []; // success
 	}
 
-	public function validateToken()
+	public static function validateToken()
 	{
-		$token = $this->token();
+		$token = self::token();
 		if (empty($token)) {
 			return ['error' => ['msg' => 'token is empty']];
 		}
-		$result = $this->callGet("tokens/$token/valid", [], false);
+		$result = self::callGet("tokens/$token/valid", [], false);
 		Module::log($result);
 		return $result;
 	}
 
-	public function me()
+	public static function me()
 	{
-		$result = $this->callGet('me');
+		$result = self::callGet('me');
 		return self::resultWrapper($result);
 	}
 
-	public function logout()
+	public static function logout()
 	{
-		$token = $this->token();
+		$token = self::token();
 		if (empty($token)) {
 			return ['error' => ['msg' => 'token is empty']];
 		}
-		$res = $this->callDelete("tokens/$token", [], false);
+		$res = self::callDelete("tokens/$token", [], false);
 		Module::log($res);
 		if (empty($res['error'])) {
-			$this->setUserData("", "");
+			self::setUserData("", "");
 		}
 		return $res;
 	}
 
-	public function connectUrl($accType, $callback)
+	public static function connectUrl($accType, $callback)
 	{
 		$queries = [
 			'type' => $accType,
 			'callback' => $callback,
 		];
-		$res = $this->callGet('connect_url', $queries);
+		$res = self::callGet('connect_url', $queries);
 		return self::resultWrapper($res);
 	}
 
-	public function accountsList($filter=[])
+	public static function accountsList($filter=[])
 	{
-		$res = $this->callGet('accounts', ['filter' => $filter]);
+		$res = self::callGet('accounts', ['filter' => $filter]);
 		return self::resultWrapper($res);
 	}
 
-	public function getAccount($id)
+	public static function getAccount($id)
 	{
-		$res = $this->callGet('accounts/'.$id);
+		$res = self::callGet('accounts/'.$id);
 		return self::resultWrapper($res);
 	}
 
-	public function deleteAccount($id)
+	public static function deleteAccount($id)
 	{
-		$res = $this->callDelete('accounts/'.$id);
+		$res = self::callDelete('accounts/'.$id);
 		return self::resultWrapper($res);
 	}
 
-	public function postsList($queries=[])
+	public static function postsList($queries=[])
 	{
 		$queries['filter']['from'] = self::FROM;
-		$res = $this->callGet('posts', $queries);
+		$res = self::callGet('posts', $queries);
 		return self::resultWrapper($res);
 	}
 
-	public function createPost($post)
+	public static function createPost($post)
 	{
 		$post['from'] = self::FROM;
-		$res = $this->callPost('posts', $post);
+		$res = self::callPost('posts', $post);
 		return self::resultWrapper($res);
 	}
 
-	public function updatePost($post)
+	public static function updatePost($post)
 	{
 		$post['from'] = self::FROM;
-		$res = $this->callPost('posts/'.$post['id'], $post);
+		$res = self::callPost('posts/'.$post['id'], $post);
 		return self::resultWrapper($res);
 	}
 
-	public function getPost($id)
+	public static function getPost($id)
 	{
-		$res = $this->callGet('posts/'.$id);
+		$res = self::callGet('posts/'.$id);
 		return self::resultWrapper($res);
 	}
 
-	public function deletePost($id)
+	public static function deletePost($id)
 	{
-		$res = $this->callDelete('posts/'.$id);
+		$res = self::callDelete('posts/'.$id);
 		return self::resultWrapper($res);
 	}
 
-	public function uploadFile($filepath, $filename)
+	public static function uploadFile($filepath, $filename)
 	{
 		Module::log([$filepath, $filename]);
-		$res = $this->callGet('file_upload_url', ['type' => 'image', 'filename' => $filename]);
+		$res = self::callGet('file_upload_url', ['type' => 'image', 'filename' => $filename]);
 		Module::log($res);
 		if (!empty($res['error'])) {
 			return $res;
@@ -343,7 +321,7 @@ class Api
 		$fileID = $res['response']['file_id'];
 		$uploadUrl = $res['response']['url'];
 		$data = ['file' => self::filenameWrapper($filepath, $filename)];
-		$c = $this->buildCurl($uploadUrl, $needAuth=true, ['Content-Type:multipart/form-data']);
+		$c = self::buildCurl($uploadUrl, $needAuth=true, ['Content-Type:multipart/form-data']);
 		if (!$c) {
 			return ['error' => ['msg' => 'failed file upload']];
 		}
@@ -360,13 +338,13 @@ class Api
 		return $res;
 	}
 
-	public function getFilesURL($fileIDs)
+	public static function getFilesURL($fileIDs)
 	{
 		if (empty($fileIDs)) {
 			return [];
 		}
 		$queries = ['ids' => $fileIDs];
-		$res = $this->callGet('files_url', $queries);
+		$res = self::callGet('files_url', $queries);
 		return self::resultWrapper($res);
 	}
 }

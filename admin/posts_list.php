@@ -3,6 +3,7 @@ $prolog_admin_after = false;
 require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
+use vettich\sp3\Api;
 
 CModule::IncludeModule('iblock');
 
@@ -32,7 +33,7 @@ CModule::IncludeModule('iblock');
 			'title' => '#.POST_PICTURE#',
 			'on renderView' => function (&$obj, &$value) {
 				$tpl = '<img src="{value}" width=40 height=40 /> ';
-				$res = Module::api()->getFilesURL($value);
+				$res = Api::getFilesURL($value);
 				if (!empty($res['error'])) {
 					return;
 				}

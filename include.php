@@ -20,7 +20,6 @@ class Module
 {
 	const MID = 'vettich.sp3';
 	const LOG_FILE = 'log.txt';
-	private static $_apiInstance = null;
 	private static $_version = null;
 
 	/**
@@ -52,14 +51,9 @@ class Module
 
 	public static function log($data, $params=[])
 	{
-		/* ini_set('xdebug.var_display_max_children', $params['max_children'] ?: 5); */
-		/* ini_set('xdebug.var_display_max_data', $params['max_data'] ?: 24); */
-		/* ini_set('xdebug.var_display_max_depth', $params['max_depth'] ?: 4); */
-		/* ini_set('xdebug.cli_color', 0); */
-		/* ob_start(); */
-		/* var_dump($data); */
-		/* $text = ob_get_contents(); */
-		/* ob_end_clean(); */
+		if (Config::get('log') != true) {
+			return;
+		}
 		$text = var_export($data, true);
 		$date = date('Y/m/d H:i:s');
 		$tracen = $params['trace_n'] ?: 2;
@@ -76,18 +70,10 @@ class Module
 	public static function isAuth($withValidate=false)
 	{
 		if ($withValidate) {
-			return self::api()->validateToken();
+			return Api::validateToken();
 		}
-		$token = self::api()->token();
+		$token = Api::token();
 		return !empty($token);
-	}
-
-	public static function api(): Api
-	{
-		if (self::$_apiInstance == null) {
-			self::$_apiInstance = new Api(VETTICH_SP3_DIR.'/config.json');
-		}
-		return self::$_apiInstance;
 	}
 
 	public function convertToSiteCharset($data)

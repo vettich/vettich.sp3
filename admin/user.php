@@ -1,9 +1,9 @@
 <?php
 require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
-use vettich\sp3\Module;
+use vettich\sp3\Api;
 
-$res = Module::api()->me();
+$res = Api::me();
 $user = $res['response'] ?: [];
 
 (new \vettich\devform\AdminForm('devform', [
@@ -14,6 +14,7 @@ $user = $res['response'] ?: [];
 			'title' => '#.USER_TITLE#',
 			'params' => [
 				'username' => 'plaintext:#.USERNAME#:'.$user['username'],
+				/* 'balance' => 'plaintext:#.BALANCE#:$999', */
 				'logout_btn' => 'divbutton::#.LOGOUT#:onclick=VettichSP3.logout()',
 				'logout_res' => 'html::',
 			],

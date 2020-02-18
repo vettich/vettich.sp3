@@ -5,6 +5,7 @@ IncludeModuleLangFile(__FILE__);
 
 CModule::IncludeModule('vettich.sp3');
 use vettich\sp3\Module;
+use vettich\sp3\Api;
 
 if (!CModule::IncludeModule('vettich.devform')) {
 	?>
@@ -16,11 +17,11 @@ if (!CModule::IncludeModule('vettich.devform')) {
 	exit;
 }
 
-$pingRes = Module::api()->ping();
+$pingRes = Api::ping();
 Module::log($pingRes);
 if ($pingRes['response'] != 'pong' ||
 	($pingRes['error'] &&
-		$pingRes['error']['code'] == vettich\sp3\Api::SERVER_UNAVAILABLE)) {
+		$pingRes['error']['code'] == Api::SERVER_UNAVAILABLE)) {
 	?>
 	<div class="adm-info-message" style="display:block">
 		<?=Module::m('SERVER_UNAVAILABLE')?>

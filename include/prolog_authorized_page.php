@@ -3,6 +3,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 
 CModule::IncludeModule('vettich.sp3');
 use vettich\sp3\Module;
+use vettich\sp3\Api;
 
 if (!CModule::IncludeModule('vettich.devform')) {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php"); ?>
@@ -16,7 +17,7 @@ if (!CModule::IncludeModule('vettich.devform')) {
 
 $validateTokenRes = Module::isAuth(true);
 if ($validateTokenRes['error'] &&
-	$validateTokenRes['error']['code'] == vettich\sp3\Api::SERVER_UNAVAILABLE) {
+	$validateTokenRes['error']['code'] == Api::SERVER_UNAVAILABLE) {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php"); ?>
 	<div class="adm-info-message" style="display:block">
 		<?=Module::m('SERVER_UNAVAILABLE')?>

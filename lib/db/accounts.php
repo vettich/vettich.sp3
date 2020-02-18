@@ -2,6 +2,7 @@
 namespace vettich\sp3\db;
 
 use vettich\sp3\Module;
+use vettich\sp3\Api;
 
 class Accounts extends \vettich\devform\data\ArrayList
 {
@@ -17,7 +18,7 @@ class Accounts extends \vettich\devform\data\ArrayList
 
 	public function getList()
 	{
-		$res = Module::api()->accountsList($this->filter);
+		$res = Api::accountsList($this->filter);
 		if (!empty($res['error'])) {
 			return [];
 		}
@@ -48,7 +49,7 @@ class Accounts extends \vettich\devform\data\ArrayList
 		if (isset(self::$_accs[$id])) {
 			return self::$_accs[$id];
 		}
-		$r = Module::api()->getAccount($id);
+		$r = Api::getAccount($id);
 		if (empty($r['error'])) {
 			$r = Module::convertToSiteCharset($r);
 			self::$_accs[$id] = $r['response'];
@@ -68,7 +69,7 @@ class Accounts extends \vettich\devform\data\ArrayList
 				$res[$id] = self::$_accs[$id];
 				continue;
 			}
-			$r = Module::api()->getAccount($id);
+			$r = Api::getAccount($id);
 			if (empty($r['error'])) {
 				$r = Module::convertToSiteCharset($r);
 				$res[$id] = $r['response'];
@@ -80,6 +81,6 @@ class Accounts extends \vettich\devform\data\ArrayList
 
 	public function delete($name, $value)
 	{
-		Module::api()->deleteAccount($id=$value);
+		Api::deleteAccount($id=$value);
 	}
 }

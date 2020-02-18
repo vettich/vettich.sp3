@@ -2,6 +2,7 @@
 require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
+use vettich\sp3\Api;
 
 $issetID = !empty($_GET['id']);
 
@@ -54,7 +55,7 @@ if (!$issetID) {
 		'on renderTemplate' => function (&$obj, $template, &$replaces) {
 			$value = $obj->getValue($obj->data);
 			$tpl = '<img src="{src}" width=40 height=40 /> ';
-			$res = Module::api()->getFilesURL($value);
+			$res = Api::getFilesURL($value);
 			$value = '';
 			foreach ($res['response']['urls'] as $url) {
 				$value .= str_replace('{src}', $url, $tpl);

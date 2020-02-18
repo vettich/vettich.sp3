@@ -27,7 +27,7 @@ class Posts extends \vettich\devform\data\ArrayList
 			if (empty($this->filter['id'])) {
 				return $default;
 			}
-			$res = Module::api()->getPost($this->filter['id']);
+			$res = Api::getPost($this->filter['id']);
 			$res = Module::convertToSiteCharset($res);
 			$this->values = $res['response'];
 			$this->inited = true;
@@ -51,7 +51,7 @@ class Posts extends \vettich\devform\data\ArrayList
 				/* $queries['sort.order'] = strtoupper($order); */
 			}
 		}
-		$res = Module::api()->postsList($queries);
+		$res = Api::postsList($queries);
 		$res = Module::convertToSiteCharset($res);
 		$posts = $res['response']['posts'];
 		return $posts;
@@ -66,7 +66,7 @@ class Posts extends \vettich\devform\data\ArrayList
 			$images = [];
 			foreach ($this->values['fields']['images'] as $image) {
 				$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image["tmp_name"]);
-				$res = Module::api()->uploadFile($pathinfo['tmp_name'], $image['name']);
+				$res = Api::uploadFile($pathinfo['tmp_name'], $image['name']);
 				if (empty($res['error'])) {
 					$images[] = $res['response']['file_id'];
 				}
@@ -82,9 +82,9 @@ class Posts extends \vettich\devform\data\ArrayList
 		Module::log($this->values);
 		$utf8Values = Module::convertToUtf8($this->values);
 		if (empty($utf8Values['id'])) {
-			$res = Module::api()->createPost($utf8Values);
+			$res = Api::createPost($utf8Values);
 		} else {
-			$res = Module::api()->updatePost($utf8Values);
+			$res = Api::updatePost($utf8Values);
 		}
 		if (empty($res['error'])) {
 			return true;
@@ -94,6 +94,6 @@ class Posts extends \vettich\devform\data\ArrayList
 
 	public function delete($name, $value)
 	{
-		Module::api()->deletePost($id=$value);
+		Api::deletePost($id=$value);
 	}
 }

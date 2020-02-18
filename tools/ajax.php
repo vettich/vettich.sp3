@@ -7,6 +7,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_befo
 CModule::IncludeModule('vettich.sp3');
 
 use vettich\sp3\Module;
+use vettich\sp3\Api;
 use vettich\sp3\TemplateHelpers;
 
 function _result($data)
@@ -19,26 +20,26 @@ switch ($_GET['method']) {
 	case 'login':
 		$username = $_GET['username'];
 		$password = $_GET['password'];
-		$res = Module::api()->login($username, $password);
+		$res = Api::login($username, $password);
 		_result($res);
 		break;
 
 	case 'signup':
 		$username = $_GET['username'];
 		$password = $_GET['password'];
-		$res = Module::api()->signup($username, $password);
+		$res = Api::signup($username, $password);
 		_result($res);
 		break;
 
 	case 'logout':
-		$res = Module::api()->logout();
+		$res = Api::logout();
 		_result($res);
 		break;
 
 	case 'getConnectUrl':
 		$type = $_GET['type'];
 		$callback = $_GET['callback'];
-		$res = Module::api()->connectUrl($type, $callback);
+		$res = Api::connectUrl($type, $callback);
 		_result($res);
 		break;
 

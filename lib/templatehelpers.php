@@ -41,7 +41,7 @@ class TemplateHelpers
 			if (empty($post)) {
 				continue;
 			}
-			$res = Module::api()->createPost($post);
+			$res = Api::createPost($post);
 			if (empty($res['error'])) {
 				$postIblockData = [
 					'IBLOCK_ID' => $arFields['IBLOCK_ID'],
@@ -85,7 +85,7 @@ class TemplateHelpers
 				if (empty($post)) {
 					continue;
 				}
-				$res = Module::api()->createPost($post);
+				$res = Api::createPost($post);
 				if (empty($res['error'])) {
 					$arResult[] = $res['response']['post_id'];
 					$postIblockData = [
@@ -132,7 +132,7 @@ class TemplateHelpers
 					continue;
 				}
 				$post['id'] = $arPostIBlock['POST_ID'];
-				$res = Module::api()->updatePost($post);
+				$res = Api::updatePost($post);
 			}
 		} catch (\Exception $e) {
 			Module::log(['code' => $e->getCode(), 'msg' => $e->getMessage()]);
@@ -161,7 +161,7 @@ class TemplateHelpers
 				if ($arTemplate['DELETE_IN_NETWORKS'] != 'Y') {
 					continue;
 				}
-				$res = Module::api()->deletePost($arPostIBlock['POST_ID']);
+				$res = Api::deletePost($arPostIBlock['POST_ID']);
 				db\PostIBlockTable::delete($arPostIBlock['ID']);
 			}
 		} catch (\Exception $e) {
@@ -216,7 +216,7 @@ class TemplateHelpers
 		$images = [];
 		foreach ((array)$files as $filepath) {
 			$filepath = Module::convertToUtf8($filepath);
-			$res = Module::api()->uploadFile($filepath, basename($filepath));
+			$res = Api::uploadFile($filepath, basename($filepath));
 			if (empty($res['error'])) {
 				$images[] = $res['response']['file_id'];
 			}
