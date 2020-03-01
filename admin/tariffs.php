@@ -79,8 +79,8 @@ foreach ($tariffs as $tariff) {
 			<?php foreach ([1, 3, 6, 12] as $period): ?>
 				<label>
 					<?php $amount = calcAmount($period, $currentTariff['price']) ?>
-					<input name="period" value="1" type="radio" checked="checked" />
-					<?=Module::m('MONTH_'.$period)?>: 
+					<input name="period" value="<?=$period?>" type="radio" checked="checked" />
+					<?=Module::m('MONTH_'.$period)?>:
 					<?=Module::m($period == 1 ? 'AMOUNT' : 'AMOUNT2', [
 						'#amount#' => $amount['value'],
 						'#saving#' => $amount['saving'],
@@ -135,8 +135,8 @@ foreach ($tariffs as $tariff) {
 				<label>
 					<?php $amount = calcAmount($period, $tariff['price']) ?>
 					<?php $checked = $period == 1 ? 'checked="checked"' : '' ?>
-					<input name="period" value="1" type="radio" <?=$checked ?> />
-					<?=Module::m('MONTH_'.$period)?>: 
+					<input name="period" value="<?=$period?>" type="radio" <?=$checked ?> />
+					<?=Module::m('MONTH_'.$period)?>:
 					<?=Module::m($period == 1 ? 'AMOUNT' : 'AMOUNT2', [
 						'#amount#' => $amount['value'],
 						'#saving#' => $amount['saving'],
@@ -146,9 +146,9 @@ foreach ($tariffs as $tariff) {
 			<?php endforeach ?>
 			<br/>
 			<?php if ($balans > 0): ?>
-				<input type="button" disabled="disabled" value="<?=Module::m('SUBMIT')?>" />
+				<input type="submit" disabled="disabled" value="<?=Module::m('SUBMIT')?>" />
 			<?php else: ?>
-				<input type="button" value="<?=Module::m('SUBMIT')?>" />
+				<input type="submit" value="<?=Module::m('SUBMIT')?>" />
 			<?php endif ?>
 		</form>
 	</div>
