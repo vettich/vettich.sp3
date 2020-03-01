@@ -457,7 +457,7 @@ class AdminList extends Module
 			$GLOBALS['APPLICATION']->SetTitle($this->pageTitle);
 		}
 		global $adminPage, $adminMenu, $adminChain, $USER, $APPLICATION;
-		require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
+		require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 		$this->displayFilter();
 		$this->list->DisplayList();
 	}
