@@ -15,6 +15,14 @@ if (!CModule::IncludeModule('vettich.devform')) {
 	exit;
 }
 
+if (!function_exists('curl_version')) {
+	?>
+	<div class="adm-info-message" style="display:block">
+		<?=Module::m('CURL_NOT_FOUND')?>
+	</div>
+	<?php
+}
+
 $validateTokenRes = Module::isAuth(true);
 if ($validateTokenRes['error'] &&
 	$validateTokenRes['error']['code'] == Api::SERVER_UNAVAILABLE) {

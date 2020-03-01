@@ -24,3 +24,4 @@ $MESS['VETTICH_SP3_GOTO_USER_PAGE'] = 'Перейти на страницу Пользователя';
 
 $MESS['VETTICH_SP3_ACCOUNTS_LIMIT_USAGE'] = 'Использовано #current# из #max#';
 $MESS['VETTICH_SP3_TARIFF_EXPIRED'] = 'Истек срок действия тарифа. Вам необходимо <a href="/bitrix/admin/vettich.sp3.tariffs.php">продлить тариф</a> или перейти на новый. Публикация постов приостановлена.';
+$MESS['VETTICH_SP3_CURL_NOT_FOUND'] = 'Для работы модуля требуется наличие php библиотеки <b>curl</b>. Пожалуйста, установите ее, или обратитесь к своему хостинг провайдеру.';
