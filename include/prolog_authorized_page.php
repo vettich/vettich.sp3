@@ -30,8 +30,17 @@ if ($validateTokenRes['response'] == false) {
 	exit;
 }
 
-if ($prolog_admin_after !== false) {
+/* if ($prolog_admin_after !== false) { */
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+/* } */
+
+$res = Api::me();
+$user = $res['response'] ?: [];
+$userTariffExpired = (strtotime($user['tariff']['expiry_at']) - strtotime('now')) < 0;
+if ($userTariffExpired) {
+	?><div class="adm-info-message" style="display:block">
+		<?=Module::m('TARIFF_EXPIRED')?>
+	</div><?php
 }
 
 \CJSCore::Init(['vettich_sp3_script']);

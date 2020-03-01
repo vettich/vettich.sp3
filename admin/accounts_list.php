@@ -3,6 +3,26 @@ $prolog_admin_after = false;
 require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
+use vettich\sp3\Api;
+
+$res = Api::me();
+$user = $res['response'] ?: [];
+$addBtn = [
+	'type' => 'buttons\newLink',
+	'title' => '#VDF_ADD# ('.Module::m('ACCOUNTS_LIMIT_USAGE', [
+		'#max#' => $user['tariff_limits']['accounts_cnt'],
+		'#current#' => $user['tariff_limits']['accounts_current_cnt'],
+	]).')',
+	'default_value' => '/bitrix/admin/vettich.sp3.accounts_add.php?back_url\=vettich.sp3.accounts_list.php',
+];
+if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['accounts_cnt']) {
+	$addBtn['params'] = [
+		'disabled' => 'disabled',
+		'class' => 'adm-btn adm-btn-save adm-btn-add adm-btn-disabled'
+	];
+	$addBtn['default_value'] = '#';
+}
+
 
 (new \vettich\devform\AdminList('#.ACCOUNTS_LIST_PAGE#', 'sTableID', [
 	'data' => new vettich\sp3\db\Accounts(),
@@ -49,7 +69,7 @@ use vettich\sp3\Module;
 	'hiddenParams' => ['id'],
 	'dontEditAll' => true,
 	'buttons' => [
-		'add' => 'buttons\newLink:#VDF_ADD#:/bitrix/admin/vettich.sp3.accounts_add.php?back_url\=vettich.sp3.accounts_list.php',
+		'add' => $addBtn,
 	],
 ]))->render();
 

@@ -5,6 +5,14 @@ use vettich\sp3\Module;
 use vettich\sp3\Api;
 
 $issetID = !empty($_GET['id']);
+if (!$issetID && $userTariffExpired) {
+	$APPLICATION->SetTitle(Module::m('POSTS_ADD_TITLE')); ?>
+	<div class="adm-info-message" style="display:block">
+		<?=Module::m('POSTS_ADD_EXPIRED')?>
+	</div><?php
+	require(__DIR__.'/../include/epilog_authorized_page.php');
+	exit;
+}
 
 $dataArgs = ['prefix' => '_'];
 if (isset($_GET['FROM_id'])) {

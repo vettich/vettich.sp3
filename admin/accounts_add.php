@@ -3,6 +3,23 @@ require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
 
+if ($userTariffExpired) {
+	$APPLICATION->SetTitle(Module::m('ACCOUNTS_ADD_PAGE')); ?>
+	<div class="adm-info-message" style="display:block">
+		<?=Module::m('ACC_ADD_TARIFF_EXPIRED')?>
+	</div><?php
+	require(__DIR__.'/../include/epilog_authorized_page.php');
+	exit;
+}
+if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['accounts_cnt']) {
+	$APPLICATION->SetTitle(Module::m('ACCOUNTS_ADD_PAGE')); ?>
+	<div class="adm-info-message" style="display:block">
+		<?=Module::m('ACC_ADD_LIMITED')?>
+	</div><?php
+	require(__DIR__.'/../include/epilog_authorized_page.php');
+	exit;
+}
+
 $GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/vettich.sp3/script.js');
 
 (new \vettich\devform\AdminForm('devform', [

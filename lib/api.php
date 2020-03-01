@@ -347,4 +347,32 @@ class Api
 		$res = self::callGet('files_url', $queries);
 		return self::resultWrapper($res);
 	}
+
+	public static function getTariff($id)
+	{
+		if (empty($id)) {
+			return [];
+		}
+		$res = self::callGet("tariffs/$id");
+		return self::resultWrapper($res);
+	}
+
+	public static function tariffsList()
+	{
+		$res = self::callGet("tariffs");
+		return self::resultWrapper($res);
+	}
+
+	public static function setUserTariff($tariffID)
+	{
+		$params = ['tariff_id' => $tariffID];
+		$res = self::callPost('me/set-tariff', $params);
+		return self::resultWrapper($res);
+	}
+
+	public static function createTransaction($params)
+	{
+		$res = self::callPost('transactions', $params);
+		return self::resultWrapper($res);
+	}
 }
