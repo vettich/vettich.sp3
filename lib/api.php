@@ -47,12 +47,16 @@ class Api
 		return $langMess;
 	}
 
-	private static function buildEndpoint($endpoint)
+	private static function buildEndpoint($endpoint, $queries = [])
 	{
 		$url = Config::get('api_uri');
 		$url .= '/'.Config::get('api_version');
 		$url .= '/'.$endpoint;
-		return $url;
+		if (!is_array($queries)) {
+			$queries = [];
+		}
+		$queries['lang'] = LANGUAGE_ID == "ru" ? "ru" : "en";
+		return $url.'?'.http_build_query($queries);
 	}
 
 	private static function buildQuery($data)
@@ -62,7 +66,7 @@ class Api
 		}
 		$d = json_encode($data);
 		$q = urlencode($d);
-		return 'query='.$q;
+		return ['query' => $q];
 	}
 
 	private static function decodeResult($res)
@@ -100,9 +104,6 @@ class Api
 		curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($c, CURLOPT_SSL_VERIFYPEER, 0);
 		curl_setopt($c, CURLOPT_SSL_VERIFYHOST, 0);
-		#curl_setopt($c, CURLOPT_VERBOSE, true);
-		#curl_setopt($c, CURLOPT_STDERR, VETTICH_SP3_DIR.'/logerr.txt');
-		#curl_setopt($c, CURLINFO_HEADER_OUT, true);
 		if ($needAuth == true) {
 			$headers[] = 'Token: '.self::token();
 		}
@@ -115,11 +116,8 @@ class Api
 	private static function callGet($endpoint, $queries=[], $needAuth=true)
 	{
 		Module::log(['endpoint' => $endpoint, 'queries' => $queries], ['trace_n' => 3]);
-		$url = self::buildEndpoint($endpoint);
 		$q = self::buildQuery($queries);
-		if (!empty($q)) {
-			$url .= '?'.$q;
-		}
+		$url = self::buildEndpoint($endpoint, $q);
 		$c = self::buildCurl($url, $needAuth);
 		if (!$c) {
 			return false;
@@ -148,11 +146,8 @@ class Api
 	private static function callDelete($endpoint, $queries=[], $needAuth=true)
 	{
 		Module::log(['endpoint' => $endpoint, 'queries' => $queries], ['trace_n' => 3]);
-		$url = self::buildEndpoint($endpoint);
 		$q = self::buildQuery($queries);
-		if (!empty($q)) {
-			$url .= '?'.$q;
-		}
+		$url = self::buildEndpoint($endpoint, $q);
 		$c = self::buildCurl($url, $needAuth);
 		if (!$c) {
 			return false;
@@ -215,6 +210,26 @@ class Api
 		}
 		self::setUserData($result['response']['user_id'], $result['response']['token']);
 		return []; // success
+	}
+
+	public static function forgotPassword($username, $callback_url)
+	{
+		$q = [
+			'username' => $username,
+			'callback_url' => $callback_url,
+		];
+		$result = self::callPost('passwords/forgot', $q, false);
+		return self::resultWrapper($result);
+	}
+
+	public static function resetPassword($token, $password)
+	{
+		$queries = [
+			'token' => $token,
+			'password' => $password,
+		];
+		$result = self::callPost('passwords/new', $queries, false);
+		return self::resultWrapper($result);
 	}
 
 	public static function validateToken()

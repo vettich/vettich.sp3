@@ -29,10 +29,23 @@ if ($pingRes['response'] != 'pong' ||
 	<?php
 	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
 }
+
 $validateTokenRes = Module::isAuth(true);
 if ($validateTokenRes['response'] == true) {
-	header("Location: /bitrix/admin/vettich.sp3.user.php");
-	exit;
+	?>
+	<div class="adm-info-message" style="display:block">
+		<?=Module::m('USER_IS_AUTH')?>
+	</div>
+	<?php
+}
+
+if (empty($_GET['token'])) {
+	?>
+	<div class="adm-info-message" style="display:block">
+		<?=Module::m('TOKEN_EMPTY')?>
+	</div>
+	<?php
+	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
 }
 
 \CJSCore::Init(['vettich_sp3_script']);
@@ -41,48 +54,23 @@ $userEmail = $USER->GetEmail();
 
 \vettich\devform\Module::pushMessPrefix('VETTICH_SP3_');
 (new \vettich\devform\AdminForm('devform', [
-	'pageTitle' => '#.START_USE#',
+	'pageTitle' => '#.RESET_PASSWORD_PAGE_TITLE#',
 	'tabs' => [
 		[
-			'name' => '#.AUTH#',
-			'title' => '#.AUTH_TITLE#',
+			'name' => '#.RESET_PASSWORD#',
+			'title' => '#.RESET_PASSWORD_TITLE#',
 			'params' => [
-				'lusername' => 'text:#.USERNAME#:'.$userEmail,
-				'lpassword' => 'password:#.PASSWORD#',
-				'login_btn' => 'divbutton::#.LOGIN_BTN#:onclick=VettichSP3.login()',
-				'lresult' => 'html::',
-			],
-		],
-		[
-			'name' => '#.REG#',
-			'title' => '#.REG_TITLE#',
-			'params' => [
-				'rusername' => 'text:#.USERNAME#:'.$userEmail,
+				'token' => 'hidden::'.$_GET['token'],
 				'passgen_btn' => 'divbutton::#.PASSGEN_BTN#:onclick=VettichSP3.passGen()',
 				'rpassword' => 'password:#.PASSWORD#',
 				'rpassword2' => 'password:#.PASSWORD_CONFIRM#',
-				'reg_btn' => 'divbutton::#.REG_BTN#:onclick=VettichSP3.signup()',
+				'reg_btn' => 'divbutton::#.RESET_BTN#:onclick=VettichSP3.resetPassword()',
 				'rresult' => 'html::',
-			],
-		],
-		[
-			'name' => '#.FORGOT_PASSWORD#',
-			'title' => '#.FORGOT_PASSWORD_TITLE#',
-			'params' => [
-				'fusername' => 'text:#.USERNAME#:'.$userEmail,
-				'forgot_btn' => 'divbutton::#.FORGOT_BTN#:onclick=VettichSP3.forgotPassword()',
-				'fresult' => 'html::',
 			],
 		],
 	],
 	'data' => null,
 ]))->render();
 \vettich\devform\Module::popMessPrefix();
-?>
 
-<div class="adm-info-message" style="display:block">
-	<pre style="white-space: pre-wrap;"><?=Module::m('START_HELP')?></pre>
-</div>
-<?php
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
-?>

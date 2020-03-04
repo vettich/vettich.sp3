@@ -36,6 +36,9 @@ if (!Module::isAuth()) {
 	$aMenu['items'][] = [
 		'text'		=> Module::m('MENU_START_USE'),
 		'url'		=> '/bitrix/admin/vettich.sp3.start_use.php',
+		'more_url' => [
+			'/bitrix/admin/vettich.sp3.reset_password.php',
+		],
 	];
 } else {
 	$aMenu['items'][] = [
@@ -43,6 +46,7 @@ if (!Module::isAuth()) {
 		'url'		=> '/bitrix/admin/vettich.sp3.user.php',
 		'more_url' => [
 			'/bitrix/admin/vettich.sp3.start_use.php',
+			'/bitrix/admin/vettich.sp3.reset_password.php',
 			'/bitrix/admin/vettich.sp3.tariffs.php',
 			'/bitrix/admin/vettich.sp3.transactions.php',
 			'/bitrix/admin/vettich.sp3.payment_success.php',

@@ -31,6 +31,20 @@ switch ($_GET['method']) {
 		_result($res);
 		break;
 
+	case 'forgotPassword':
+		$username = $_GET['username'];
+		$callback_url = $_GET['callback_url'];
+		$res = Api::forgotPassword($username, $callback_url);
+		_result($res);
+		break;
+
+	case 'resetPassword':
+		$token = $_GET['token'];
+		$password = $_GET['password'];
+		$res = Api::resetPassword($token, $password);
+		_result($res);
+		break;
+
 	case 'logout':
 		$res = Api::logout();
 		_result($res);

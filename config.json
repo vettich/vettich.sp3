@@ -1,4 +1,5 @@
 {
+	"log": false,
     "api_uri": "https:\/\/sp3.local.vettich.ru\/api",
     "api_version": "v1",
     "user_id": "",

@@ -117,6 +117,74 @@ VettichSP3.signup = function () {
 	});
 }
 
+VettichSP3.forgotPassword = function () {
+	var username = document.getElementById('fusername').value;
+	var rresult = document.getElementById('fresult');
+	VettichSP3.clearResult(rresult);
+
+	if (!username.length) {
+		VettichSP3.setResult(rresult, VettichSP3.langs.fillAllFields, 'red');
+		return;
+	}
+	if (!VettichSP3.re.test(String(username).toLowerCase())) {
+		VettichSP3.setResult(rresult, BX.message('VETTICH_SP3_EMAIL_INCORRECT'), 'red');
+		return;
+	}
+
+	var show = BX.showWait("FORM_devform");
+	var callback = location.origin + '/bitrix/admin/vettich.sp3.reset_password.php';
+	var queries = '?method=forgotPassword' +
+		'&callback_url=' + callback +
+		'&username=' + username;
+	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
+		var dataJson = JSON.parse(data)
+		if(!dataJson.error) {
+			VettichSP3.setResult(rresult, BX.message('VETTICH_SP3_FORGOT_PASS_SENT'), 'green');
+		} else {
+			VettichSP3.setResult(rresult, dataJson.error.msg, 'red');
+		}
+	}).always(function() {
+		BX.closeWait("FORM_devform", show);
+	});
+}
+
+VettichSP3.resetPassword = function () {
+	var token = document.getElementById('token').value;
+	var password = document.getElementById('rpassword').value;
+	var password2 = document.getElementById('rpassword2').value;
+	var rresult = document.getElementById('rresult');
+	VettichSP3.clearResult(rresult);
+
+	if (!password.length) {
+		VettichSP3.setResult(rresult, VettichSP3.langs.fillAllFields, 'red');
+		return;
+	}
+	if (password.length < 6) {
+		VettichSP3.setResult(rresult, BX.message('VETTICH_SP3_PASS_MIN_LEN'), 'red');
+		return;
+	}
+	if (password != password2) {
+		VettichSP3.setResult(rresult, VettichSP3.langs.passwordsNotMatch, 'red');
+		return;
+	}
+
+	var show = BX.showWait("FORM_devform");
+	var queries = '?method=resetPassword' +
+		'&token=' + token +
+		'&password=' + password;
+	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
+		var dataJson = JSON.parse(data)
+		if(!dataJson.error) {
+			VettichSP3.setResult(rresult, VettichSP3.langs.success, 'green');
+			window.location = VettichSP3.userUrl;
+		} else {
+			VettichSP3.setResult(rresult, dataJson.error.msg, 'red');
+		}
+	}).always(function() {
+		BX.closeWait("FORM_devform", show);
+	});
+}
+
 VettichSP3.logout = function () {
 	var rresult = document.getElementById('logout_res');
 	VettichSP3.clearResult(rresult);
