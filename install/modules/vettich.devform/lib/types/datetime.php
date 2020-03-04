@@ -18,12 +18,12 @@ class datetime extends _type
 		$this->default_value = date('d.m.Y H:i:s');
 	}
 
-	public function renderView($value)
+	public function renderView($value='', $arRes=[])
 	{
 		return self::formatDate($value);
 	}
 
-	public function getValue($data)
+	public function getValue($data=null)
 	{
 		$value = parent::getValue($data);
 		if (!empty($value)) {

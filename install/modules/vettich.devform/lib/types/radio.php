@@ -1,4 +1,4 @@
-<?
+<?php
 namespace vettich\devform\types;
 
 /**
@@ -11,34 +11,34 @@ class radio extends _type
 	public $label = '';
 	public $options = null;
 
-	public function __construct($id, $args=array())
+	public function __construct($id, $args=[])
 	{
 		parent::__construct($id, $args);
-		if(isset($args['label'])) {
+		if (isset($args['label'])) {
 			$this->label = $args['label'];
 		}
-		if(isset($args['options'])) {
+		if (isset($args['options'])) {
 			$this->options = $args['options'];
 		}
 	}
 
-	public function renderTemplate($template='', $replaces=array())
+	public function renderTemplate($template='', $replaces=[])
 	{
-		if(isset($replaces['{value}'])) {
+		if (isset($replaces['{value}'])) {
 			$value = $replaces['{value}'];
 		} else {
 			$value = $this->getValue($this->data);
 		}
-		if(empty($value)) {
+		if (empty($value)) {
 			$value = $this->default_value;
 		}
 		$html_options = '';
 		foreach ($this->options as $key => $opt) {
-			$repls = array(
+			$repls = [
 				'{checked}' => ($key == $value) ? 'checked' : '',
 				'{label}' => $opt,
 				'{value}' => $key,
-			);
+			];
 			$html_options .= str_replace(
 				array_keys($repls),
 				array_values($repls),
@@ -52,9 +52,9 @@ class radio extends _type
 		return parent::renderTemplate($template, $replaces);
 	}
 
-	public function renderView($value='')
+	public function renderView($value='', $arRes=[])
 	{
-		if(isset($this->options[$value])) {
+		if (isset($this->options[$value])) {
 			$value = $this->options[$value];
 		}
 		return parent::renderView($value);

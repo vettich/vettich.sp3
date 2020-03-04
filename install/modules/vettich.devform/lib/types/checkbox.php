@@ -98,7 +98,7 @@ class checkbox extends _type
 		return parent::renderTemplate($template, $replaces);
 	}
 
-	public function renderView($value='')
+	public function renderView($value='', $arRes=[])
 	{
 		if (!$this->multiple) {
 			if ($value == 'Y') {

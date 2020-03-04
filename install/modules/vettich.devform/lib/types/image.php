@@ -77,7 +77,7 @@ class image extends _type
 		return parent::renderTemplate($template, $replaces);
 	}
 
-	public function renderView($value=0)
+	public function renderView($value='', $arRes=[])
 	{
 		return CFile::ShowImage($value, 60, 60, "border=0", "", true);
 	}

@@ -16,7 +16,7 @@ class Accounts extends \vettich\devform\data\ArrayList
 		}
 	}
 
-	public function getList()
+	public function getList($params=[])
 	{
 		$res = Api::accountsList($this->filter);
 		if (!empty($res['error'])) {

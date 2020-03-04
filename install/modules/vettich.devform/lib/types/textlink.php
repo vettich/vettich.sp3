@@ -1,10 +1,10 @@
-<?
+<?php
 namespace vettich\devform\types;
 
 use vettich\devform\types\_type;
 
 /**
-* 
+*
 */
 class textlink extends text
 {
@@ -16,16 +16,16 @@ class textlink extends text
 	{
 		parent::__construct($id, $args);
 
-		if(isset($args['href'])) {
+		if (isset($args['href'])) {
 			$this->href = $args['href'];
 		}
 	}
 
-	public function renderView($value='')
+	public function renderView($value='', $arRes=[])
 	{
-		return $this->renderTemplate($this->templateView, array(
+		return $this->renderTemplate($this->templateView, [
 			'{value}' => $value,
 			'{href}' => $this->href,
-		));
+		]);
 	}
 }
