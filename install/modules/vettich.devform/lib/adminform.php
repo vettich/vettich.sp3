@@ -168,9 +168,9 @@ class AdminForm extends Module
 				'ICON' => 'btn_list',
 			];
 		}
-		if (isset($_GET[$this->idKey]) && $_GET[$this->idKey] > 0) {
+		if (isset($_GET[$this->getID]) && $_GET[$this->getID] > 0) {
 			$get = $_GET;
-			unset($get[$this->idKey]);
+			unset($get[$this->getID]);
 			$arResult['add'] = [
 				'TEXT' => GetMessage('VDF_ADD'),
 				'TITLE' => GetMessage('VDF_ADD_TITLE'),
@@ -179,7 +179,7 @@ class AdminForm extends Module
 			];
 			if (isset($_GET['back_url'])) {
 				$get = [
-					'ID' => $_GET[$this->idKey],
+					$this->getID => $_GET[$this->getID],
 					'action' => 'delete',
 					'sessid' => bitrix_sessid(),
 				];
