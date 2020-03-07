@@ -352,6 +352,9 @@ class Module
 			$arr[$key] = '';
 		}
 		$res = self::arrayChainSet($arr[$key], $columns, $value);
+		if ($res === true) {
+			return true;
+		}
 		if ($res == null) {
 			$arr[$key] = $value;
 			return true;
