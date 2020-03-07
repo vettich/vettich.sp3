@@ -43,7 +43,7 @@ CModule::IncludeModule('iblock');
 				}
 			},
 		],
-		'extra_fields[id]' => [
+		'fields[extra][id]' => [
 			'type' => 'html',
 			'title' => '#.IBLOCK_ELEM#',
 			'on renderView' => function (&$obj, &$value, $arRow=[]) {
@@ -53,7 +53,8 @@ CModule::IncludeModule('iblock');
 				}
 				$rs = \CIBlockElement::GetList([], ['ID' => $value], false, false, ['ID', 'NAME']);
 				if ($ar = $rs->GetNext()) {
-					$iblockId = $arRow['extra_fields']['iblock_id'];
+					/* $iblockId = $arRow['extra_fields']['iblock_id']; */
+					$iblockId = $arRow['fields']['extra']['iblock_id'];
 					$iblockType = CIBlock::GetArrayByID($iblockId, 'IBLOCK_TYPE_ID');
 					$value = "[$value] <a href=\"/bitrix/admin/iblock_element_edit.php?type=$iblockType&IBLOCK_ID=$iblockId&ID=$value\">$ar[NAME]</a>";
 				}

@@ -181,19 +181,17 @@ class TemplateHelpers
 				'link' => TextProcessor::macroValue($arTemplate['PUBLISH']['COMMON']['LINK'], $fields),
 				'tags' => TextProcessor::macroValue($arTemplate['PUBLISH']['COMMON']['TAGS'], $fields),
 				'images' => $images,
-			],
-			'vk_fields' => [
-				'from_group' => ($arTemplate['PUBLISH']['VK']['FROM_GROUP'] == 'Y'),
-				'signed' => ($arTemplate['PUBLISH']['VK']['SIGNED'] == 'Y'),
+				'extra' => [
+					'vk_from_group' => ($arTemplate['PUBLISH']['VK']['FROM_GROUP'] == 'Y'),
+					'vk_signed' => ($arTemplate['PUBLISH']['VK']['SIGNED'] == 'Y'),
+					'id' => intval($arFields['ID']),
+					'iblock_id' => intval($arFields['IBLOCK_ID']),
+					'template_id' => intval($arTemplate['ID']),
+				],
 			],
 			'publish_at' => Api::toTime(TextProcessor::macroValue($arTemplate['PUBLISH_AT'], $fields)),
 			'networks' => [
 				'accounts' => $arTemplate['ACCOUNTS'],
-			],
-			'extra_fields' => [
-				'id' => intval($arFields['ID']),
-				'iblock_id' => intval($arFields['IBLOCK_ID']),
-				'template_id' => intval($arTemplate['ID']),
 			],
 		];
 		return Module::convertToUtf8($post);

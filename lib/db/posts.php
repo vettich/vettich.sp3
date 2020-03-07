@@ -89,7 +89,7 @@ class Posts extends \vettich\devform\data\ArrayList
 		if (empty($res['error'])) {
 			return true;
 		}
-		return ['error' => $res['error']['msg']];
+		return ['error' => Module::convertToSiteCharset($res['error']['msg'])];
 	}
 
 	public function delete($name, $value)

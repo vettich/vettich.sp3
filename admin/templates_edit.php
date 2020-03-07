@@ -129,8 +129,8 @@ if (!$iblock_id) {
 	}
 	$params += [
 		'heading2' => 'heading:#.DOMAIN_HEADING#',
-		'_DOMAIN' => 'text:#.DOMAIN_NAME#:'.$_SERVER['SERVER_NAME'].':help=#.DOMAIN_NAME_HELP#',
-		'_NEED_UTM' => 'checkbox:#.NEED_UTM#:Y',
+		'_DOMAIN' => 'text:#.DOMAIN_NAME#:'.$_SERVER['HTTP_HOST'].':help=#.DOMAIN_NAME_HELP#',
+		/* '_NEED_UTM' => 'checkbox:#.NEED_UTM#:Y', */
 		/* '_URL_PARAMS' => 'text:#.URL_PARAMS#:utm_source\=#SOCIAL_ID#&utm_medium\=cpc:help=#.URL_PARAMS_HELP#', */
 		'heading6' => 'heading:#.CONDITIONS_HEADING#',
 		'_PUBLISH[CONDITIONS][ACTIVE]' => 'checkbox:#.PUBLISH_CONDITIONS_ACTIVE#:Y:help=#.PUBLISH_CONDITIONS_ACTIVE_HELP#',

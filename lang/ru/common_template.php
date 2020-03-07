@@ -3,12 +3,14 @@
 $MESS['VETTICH_SP3_EDIT_TEMPLATE']        = 'Редактирование шаблона';
 $MESS['VETTICH_SP3_ADD_TEMPLATE']         = 'Добавление шаблона';
 $MESS['VETTICH_SP3_TEMPLATES_PAGE_TITLE'] = 'Список шаблонов';
+$MESS['VETTICH_SP3_POST_IBLOCK_TYPE']     = 'Тип инфоблока';
+$MESS['VETTICH_SP3_POST_IBLOCK_ID']       = 'ID инфоблока';
 
 $MESS['VETTICH_SP3_TEMPLATE_GENERAL']          = 'Основное';
 $MESS['VETTICH_SP3_TEMPLATE_GENERAL_SETTINGS'] = 'Настройка основной информации';
 $MESS['VETTICH_SP3_TEMPLATE_DATA']             = 'Данные поста';
 $MESS['VETTICH_SP3_TEMPLATE_DATA_SETTINGS']    = 'Настройка данных поста';
-$MESS['VETTICH_SP3_ADDED_N_POST']              = 'Добавлено постов: N';
+$MESS['VETTICH_SP3_ADDED_N_POST2']             = 'Добавлено постов: #N#';
 $MESS['VETTICH_SP3_CLOSE_WIN']                 = 'Закрыть окно';
 
 $MESS['VETTICH_SP3_MAIN_FIELDS']             = 'Основные поля';

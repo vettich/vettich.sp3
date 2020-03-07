@@ -224,6 +224,11 @@ VettichSP3.MenuSendWithTemplate = function (query) {
 	var show = BX.showWait('adm-workarea');
 	// VettichSP3.fixClosePopupMenu();
 	jQuery.get(VettichSP3.ajaxUrl + '?method=listTemplates&' + VettichSP3.queryStringify(query), function (data) {
+		var publishBtn = {
+			title: BX.message('VETTICH_SP3_PUBLISH'),
+			onclick: 'VettichSP3.MenuSendWithTemplateStep2(' + JSON.stringify(query) + ');',
+		};
+		var buttons = [publishBtn, BX.CDialog.prototype.btnClose];
 		var html = '';
 		var htmlTemplate = '<input type="checkbox" name="{id}[{val}]" {checked} id="{id}-{val}" value="{val}"> <label for="{id}-{val}">{label}</label><br>';
 		try {
@@ -231,6 +236,7 @@ VettichSP3.MenuSendWithTemplate = function (query) {
 			var templatesKeys = Object.keys(json.templates);
 			if (templatesKeys.length == 0) {
 				html = BX.message('VETTICH_SP3_TEMPLATES_NOT_FOUND');
+				buttons = [BX.CDialog.prototype.btnClose];
 			} else {
 				var checked = templatesKeys.length > 1 ? '' : 'checked="checked"';
 				htmlTemplate = htmlTemplate.split('{id}').join('TEMPLATES');
@@ -250,16 +256,17 @@ VettichSP3.MenuSendWithTemplate = function (query) {
 			query = VettichSP3.getSelectedIblockElements(query);
 		}
 		var link = '/bitrix/admin/vettich.sp3.posts_custom.php?' + VettichSP3.queryStringify(query);
-		html += '<br/><br/><a href="{link}" target="_blank" onclick="{onclick}">' + BX.message('VETTICH_SP3_WITHOUT_TEMPLATE') + '</a>'
+		html += '<br/><br/><a href="{link}" target="_blank" onclick="{onclick}">{text}</a>'
 			.split('{link}').join(link)
-			.split('{onclick}').join('VettichSP3.dialogs.templatesList.Close()');
+			.split('{onclick}').join('VettichSP3.dialogs.templatesList.Close()')
+			.split('{text}').join(BX.message('VETTICH_SP3_WITHOUT_TEMPLATE'));
 		var publishBtn = {
 			title: BX.message('VETTICH_SP3_PUBLISH'),
 			onclick: 'VettichSP3.MenuSendWithTemplateStep2(' + JSON.stringify(query) + ');',
 		};
 		VettichSP3.dialogs.templatesList.SetContent(html);
 		VettichSP3.dialogs.templatesList.ClearButtons();
-		VettichSP3.dialogs.templatesList.SetButtons([publishBtn, BX.CDialog.prototype.btnClose]);
+		VettichSP3.dialogs.templatesList.SetButtons(buttons);
 		VettichSP3.dialogs.templatesList.Show();
 	}).always(function () {
 		BX.closeWait('adm-workarea', show);

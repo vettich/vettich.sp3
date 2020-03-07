@@ -34,7 +34,7 @@ if (isset($_POST['_save'])) {
 
 if ($_GET['res']) {
 	echo '<br/><br/>';
-	echo Module::m('ADDED_N_POST', ['N' => count($res)]);
+	echo Module::m('ADDED_N_POST2', ['#N#' => count($_GET['res'])]);
 	echo '<br/><br/>';
 	echo '<button class="adm-btn" onclick="window.close();">'.Module::m('CLOSE_WIN').'</button>';
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_popup_admin.php");
@@ -95,7 +95,7 @@ $params = [
 
 $params += [
 	'heading2' => 'heading:#.DOMAIN_HEADING#',
-	'_DOMAIN' => 'text:#.DOMAIN_NAME#:'.$_SERVER['SERVER_NAME'].':help=#.DOMAIN_NAME_HELP#',
+	'_DOMAIN' => 'text:#.DOMAIN_NAME#:'.$_SERVER['HTTP_HOST'].':help=#.DOMAIN_NAME_HELP#',
 	'_UTM' => 'checkbox:#.UTM#:Y:help=#.UTM_HELP#',
 	/* 'heading6' => 'heading:#.CONDITIONS_HEADING#', */
 	/* '_PUBLISH[CONDITIONS][ACTIVE]' => 'checkbox:#.PUBLISH_CONDITIONS_ACTIVE#:Y:help=#.PUBLISH_CONDITIONS_ACTIVE_HELP#', */
@@ -217,8 +217,8 @@ $tabs = [
 	'pageTitle' => ($id > 0 ? '#.EDIT_RECORD#' : '#.ADD_RECORD#'),
 	'tabs' => $tabs,
 	'buttons' => [
-		'_save' => 'buttons\saveSubmit:#VETTICH_SP_PUBLISH_BUTTON#',
-		'_cancel' => 'buttons\submit:#VCH_CANCEL#:params=[onclick=window.close();]',
+		'_save' => 'buttons\saveSubmit:#.PUBLISH_BTN#',
+		'_cancel' => 'buttons\submit:#.CANCEL#:params=[onclick=window.close();]',
 	],
 	/* 'data' => $data, */
 	'on beforeSave' => function (&$arValues, $args, $obj) {

@@ -50,7 +50,6 @@ class Api
 	private static function buildEndpoint($endpoint, $queries = [])
 	{
 		$url = Config::get('api_uri');
-		$url .= '/'.Config::get('api_version');
 		$url .= '/'.$endpoint;
 		if (!is_array($queries)) {
 			$queries = [];
@@ -72,7 +71,7 @@ class Api
 	private static function decodeResult($res)
 	{
 		$newRes = json_decode($res, true);
-		Module::log([$res, $newRes]);
+		Module::log($res);
 		if ($newRes !== null) {
 			return $newRes;
 		}

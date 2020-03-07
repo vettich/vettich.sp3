@@ -50,7 +50,7 @@ $tabGeneralParams = array_merge($tabGeneralParams, [
 	'_id' => 'hidden',
 	'_fields[text]' => 'textarea:#.POST_TEXT#:params=[rows=6]:help=#.POST_TEXT_HELP#',
 	'_fields[link]' => 'text:#.POST_LINK#:help=#.POST_LINK_HELP#:params=[placeholder=http\://domain.com/page.html]',
-	'_fields[need_utm]' => 'checkbox:#.POST_UTM#:Y:help=#.POST_UTM_HELP#:native=true',
+	/* '_fields[need_utm]' => 'checkbox:#.POST_UTM#:Y:help=#.POST_UTM_HELP#:native=true', */
 	'_fields[tags]' => 'text:#.POST_TAGS#:help=#.POST_TAGS_HELP#:params=[placeholder=#.POST_TAGS_PLACEHOLDER#]',
 ]);
 
@@ -65,7 +65,7 @@ if (!$issetID) {
 			$tpl = '<img src="{src}" width=40 height=40 /> ';
 			$res = Api::getFilesURL($value);
 			$value = '';
-			foreach ($res['response']['urls'] as $url) {
+			foreach ((array)$res['response']['urls'] as $url) {
 				$value .= str_replace('{src}', $url, $tpl);
 			}
 			$replaces['{value}'] = $value;
@@ -95,8 +95,8 @@ foreach ($accList as $t => $accType) {
 
 $tabGeneralParams = array_merge($tabGeneralParams, [
 	'vk_header' => 'heading:#.POST_VK_TITLE#',
-	'_vk_fields[from_group]' => 'checkbox:#.POST_VK_FROM_GROUP#:Y:native=true:help=#.POST_VK_FROM_GROUP_HELP#',
-	'_vk_fields[signed]' => 'checkbox:#.POST_VK_SIGNED#:native=true:help=#.POST_VK_SIGNED_HELP#',
+	'_fields[extra][vk_from_group]' => 'checkbox:#.POST_VK_FROM_GROUP#:Y:native=true:help=#.POST_VK_FROM_GROUP_HELP#',
+	'_fields[extra][vk_signed]' => 'checkbox:#.POST_VK_SIGNED#:native=true:help=#.POST_VK_SIGNED_HELP#',
 ]);
 
 $tabs = [

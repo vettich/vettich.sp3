@@ -38,9 +38,12 @@ if ($validateTokenRes['response'] == false) {
 	exit;
 }
 
-/* if ($prolog_admin_after !== false) { */
+if ($prolog_admin_after !== false) {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-/* } */
+}
+
+// disable all errors or warnings
+ini_set('display_errors', false);
 
 $res = Api::me();
 $user = $res['response'] ?: [];

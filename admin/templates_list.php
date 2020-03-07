@@ -11,12 +11,12 @@ use vettich\sp3\Module;
 		'NAME' => 'textlink:#VDF_NAME#',
 		'IBLOCK_TYPE' => [
 			'type' => 'text',
-			'title' => '#POST_IBLOCK_TYPE#',
+			'title' => '#.POST_IBLOCK_TYPE#',
 			/* 'on renderView' => ['Vettich\SP\Module', 'onRenderViewIblockType'], */
 		],
 		'IBLOCK_ID' => [
 			'type' => 'text',
-			'title' => '#POST_IBLOCK_ID#',
+			'title' => '#.POST_IBLOCK_ID#',
 			/* 'on renderView' => ['Vettich\SP\Module', 'onRenderViewIblockId'], */
 		],
 	],

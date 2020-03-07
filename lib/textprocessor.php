@@ -1,6 +1,8 @@
 <?php
 namespace vettich\sp3;
 
+\CModule::IncludeModule('vettich.devform');
+
 use vettich\devform\Module as DevFormModule;
 
 class TextProcessor

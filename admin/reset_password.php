@@ -3,6 +3,9 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 IncludeModuleLangFile(__FILE__);
 
+// disable all errors or warnings
+ini_set('display_errors', false);
+
 CModule::IncludeModule('vettich.sp3');
 use vettich\sp3\Module;
 use vettich\sp3\Api;

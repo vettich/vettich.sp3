@@ -1,7 +1,6 @@
 {
-	"log": false,
-    "api_uri": "https:\/\/sp3.local.vettich.ru\/api",
-    "api_version": "v1",
+    "api_uri": "https://parrotposter.com/api/v1",
+    "log": false,
     "user_id": "",
     "token": ""
 }
