@@ -18,3 +18,5 @@ $MESS['VETTICH_SP3_PASSWORDS_NOT_MATCH'] = 'Пароли не совпадают';
 $MESS['VETTICH_SP3_FILL_ALL_FIELDS'] = 'Заполните все поля';
 $MESS['VETTICH_SP3_SUCCESS'] = 'Успешно';
 $MESS['VETTICH_SP3_START_HELP'] = 'Модуль использует облачный сервис для публикации, поэтому вам необходимо в нем авторизоваться.';
+$MESS['VETTICH_SP3_POLITIKA_CONFIRM'] = 'Согласен с дальнейшей обработкой персональных данных в соответствии
+	<a href="https://parrotposter.com/politika.pdf" target="_blank">политикой конфиденциальности</a>';

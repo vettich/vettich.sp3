@@ -64,6 +64,7 @@ $userEmail = $USER->GetEmail();
 				'passgen_btn' => 'divbutton::#.PASSGEN_BTN#:onclick=VettichSP3.passGen()',
 				'rpassword' => 'password:#.PASSWORD#',
 				'rpassword2' => 'password:#.PASSWORD_CONFIRM#',
+				'politika' => 'checkbox:#.POLITIKA_CONFIRM#',
 				'reg_btn' => 'divbutton::#.REG_BTN#:onclick=VettichSP3.signup()',
 				'rresult' => 'html::',
 			],

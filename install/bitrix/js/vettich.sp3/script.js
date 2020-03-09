@@ -99,6 +99,10 @@ VettichSP3.signup = function () {
 		VettichSP3.setResult(rresult, VettichSP3.langs.passwordsNotMatch, 'red');
 		return;
 	}
+	if (!document.getElementById('politika').checked) {
+		VettichSP3.setResult(rresult, BX.message('VETTICH_SP3_POLITIKA_NEED_CONFIRM'), 'red');
+		return;
+	}
 
 	var show = BX.showWait("FORM_devform");
 	var queries = '?method=signup' +
