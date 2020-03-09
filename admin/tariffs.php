@@ -5,6 +5,7 @@ use vettich\sp3\Api;
 use vettich\sp3\Module;
 
 if (!empty($_POST)) {
+	$res = [];
 	if ($_POST['case'] == '1') {
 		$site = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'];
 		$params = [
@@ -19,10 +20,15 @@ if (!empty($_POST)) {
 			header('Location: '.$res['response']['payment_url']);
 			exit;
 		}
-		var_dump($res);
 	} elseif ($_POST['case'] == '2') {
 		$res = Api::setUserTariff($_POST['tariff_id']);
-		var_dump($res);
+	}
+	if (!empty($res['error'])) {
+		$res = Module::convertToSiteCharset($res); ?>
+		<div class="adm-info-message" style="display:block">
+			<?=$res['error']['msg']; ?>
+		</div>
+		<?php
 	}
 }
 
@@ -76,10 +82,12 @@ foreach ($tariffs as $tariff) {
 		<form method="post">
 			<?=bitrix_sessid_post() ?>
 			<input type="hidden" name="tariff_id" value="<?=$currentTariff['id']?>" />
+			<input type="hidden" name="case" value="1" />
 			<?php foreach ([1, 3, 6, 12] as $period): ?>
 				<label>
 					<?php $amount = calcAmount($period, $currentTariff['price']) ?>
-					<input name="period" value="<?=$period?>" type="radio" checked="checked" />
+					<?php $checked = $period == 1 ? 'checked="checked"' : '' ?>
+					<input name="period" value="<?=$period?>" type="radio" <?=$checked ?> />
 					<?=Module::m('MONTH_'.$period)?>:
 					<?=Module::m($period == 1 ? 'AMOUNT' : 'AMOUNT2', [
 						'#amount#' => $amount['value'],
