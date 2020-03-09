@@ -3,12 +3,17 @@ namespace vettich\sp3;
 
 class Config
 {
-	const CONFIG_FILENAME = '/config.json';
 	private $_data = [];
+	private $_path = "";
 	private static $_instance = null;
 
 	public function __construct()
 	{
+		if (file_exists($p = VETTICH_SP3_DIR.'/local_config.json')) {
+			$this->_path = $p;
+		} else {
+			$this->_path = VETTICH_SP3_DIR.'/config.json';
+		}
 		$this->readConfig();
 	}
 
@@ -22,7 +27,7 @@ class Config
 
 	private function readConfig()
 	{
-		$data = file_get_contents(VETTICH_SP3_DIR.self::CONFIG_FILENAME);
+		$data = file_get_contents($this->_path);
 		$conf = json_decode($data, true);
 		if (!empty($conf)) {
 			$this->_data = $conf;
@@ -32,7 +37,7 @@ class Config
 	private function saveConfig()
 	{
 		$data = json_encode($this->_data, JSON_PRETTY_PRINT);
-		file_put_contents(VETTICH_SP3_DIR.self::CONFIG_FILENAME, $data);
+		file_put_contents($this->_path, $data);
 	}
 
 	public static function setConfig($data)
