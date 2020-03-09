@@ -185,6 +185,7 @@ class Api
 		$queries = [
 			'username' => $username,
 			'password' => $password,
+			'from' => self::FROM,
 		];
 		$result = self::callPost('tokens', $queries, false);
 		Module::log($result);
@@ -201,6 +202,7 @@ class Api
 		$queries = [
 			'username' => $username,
 			'password' => $password,
+			'from' => self::FROM,
 		];
 		$result = self::callPost('users', $queries, false);
 		Module::log($result);
@@ -216,6 +218,7 @@ class Api
 		$q = [
 			'username' => $username,
 			'callback_url' => $callback_url,
+			'from' => self::FROM,
 		];
 		$result = self::callPost('passwords/forgot', $q, false);
 		return self::resultWrapper($result);
@@ -299,14 +302,12 @@ class Api
 
 	public static function createPost($post)
 	{
-		$post['from'] = self::FROM;
 		$res = self::callPost('posts', $post);
 		return self::resultWrapper($res);
 	}
 
 	public static function updatePost($post)
 	{
-		$post['from'] = self::FROM;
 		$res = self::callPost('posts/'.$post['id'], $post);
 		return self::resultWrapper($res);
 	}
@@ -345,7 +346,7 @@ class Api
 		curl_close($c);
 
 		$res = json_decode($result, true);
-		Module::log([$result, $res, empty($res['error']), $fileID]);
+		Module::log([$result, $res, $fileID]);
 		if (empty($res['error'])) {
 			return ['response' => ['file_id' => $fileID]];
 		}
