@@ -161,8 +161,8 @@ if (!$iblock_id) {
 			],
 		],
 		'heading7' => 'heading:#.BINDING_TO_IBLOCK#',
-		'_QUEUE_ELEMENT_UPDATE' => 'checkbox:#.PENDING_QUEUE_ELEMENT_UPDATE#:Y:help=#.PENDING_QUEUE_ELEMENT_UPDATE_HELP#',
-		'_QUEUE_ELEMENT_DELETE' => 'checkbox:#.PENDING_QUEUE_ELEMENT_DELETE#:Y:help=#.PENDING_QUEUE_ELEMENT_DELETE_HELP#',
+		'_UPDATE_IN_NETWORKS' => 'checkbox:#.PENDING_QUEUE_ELEMENT_UPDATE#:Y:help=#.PENDING_QUEUE_ELEMENT_UPDATE_HELP#',
+		'_DELETE_IN_NETWORKS' => 'checkbox:#.PENDING_QUEUE_ELEMENT_DELETE#:Y:help=#.PENDING_QUEUE_ELEMENT_DELETE_HELP#',
 		'_QUEUE_DUPLICATE' => 'checkbox:#.PENDING_QUEUE_DUPLICATE#:N:help=#.PENDING_QUEUE_DUPLICATE_HELP#',
 		'heading4' => 'heading:#.CHOOSE_POST_ACCOUNTS#',
 	];
@@ -267,6 +267,21 @@ if ($iblock_id) {
 	],
 	'data' => $data,
 	'idKey' => '_ID',
+	'on beforeSave' => function ($arValues, $args, $obj) {
+		$errs = [];
+		if (empty($arValues['_NAME']) && !empty($arValues['_IBLOCK_ID'])) {
+			$errs[] = Module::m('ERR_NAME_EMPTY');
+		}
+		if (empty($arValues['_IBLOCK_ID'])) {
+			$errs[] = Module::m('ERR_IBLOCK_ID_EMPTY');
+		}
+		if (empty($arValues['_ACCOUNTS'])) {
+			$errs[] = Module::m('ERR_ACCOUNTS_EMPTY');
+		}
+		if (!empty($errs)) {
+			return ['error' => $errs];
+		}
+	},
 ]))->render();
 
 require(__DIR__.'/../include/epilog_authorized_page.php');

@@ -275,6 +275,29 @@ class Api
 		return self::resultWrapper($res);
 	}
 
+	public static function connect($accType, $fields)
+	{
+		$queries = [
+			'type' => $accType,
+			'fields' => $fields,
+		];
+		$res = self::callPost('connect', $queries);
+		return self::resultWrapper($res);
+	}
+
+	// not support yet
+	public static function connectInsta($uname, $pass, $proxy, $code)
+	{
+		$q = [
+			'username' => trim($uname),
+			'password' => trim($pass),
+			'proxy' => trim($proxy),
+			'code' => trim($code),
+		];
+		$res = self::callPost('connect-insta', $q);
+		return self::resultWrapper($res);
+	}
+
 	public static function accountsList($filter=[])
 	{
 		$res = self::callGet('accounts', ['filter' => $filter]);

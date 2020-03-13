@@ -18,6 +18,8 @@ if ($days_left < 7) {
 	$color = '#c88d1e';
 }
 
+\CJSCore::Init(['vettich_sp3_script']);
+
 (new \vettich\devform\AdminForm('devform', [
 	'pageTitle' => '#.USER_INFO#',
 	'tabs' => [

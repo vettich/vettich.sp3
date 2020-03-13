@@ -5,6 +5,7 @@ $MESS['VETTICH_SP3_POST_ADD_PAGE']   = 'Создание произвольного поста';
 $MESS['VETTICH_SP3_POST_EDIT_PAGE']  = 'Редактирование поста';
 
 $MESS['VETTICH_SP3_ERROR_ACCOUNTS_EMPTY']  = 'Выберите аккаунт соц. сети, в который нужно опубликовать пост';
+$MESS['VETTICH_SP3_ERROR_EMPTY_POST_FIELDS']  = 'Заполните хотя бы одно из полей: Текст поста, Ссылка, Теги, Картинки';
 $MESS['VETTICH_SP3_POST_TEXT']             = 'Текст поста';
 $MESS['VETTICH_SP3_POST_TEXT_HELP']        = 'Основной текст, который будет опубликован в качестве поста в соц. сети';
 $MESS['VETTICH_SP3_POST_TAGS']             = 'Теги';

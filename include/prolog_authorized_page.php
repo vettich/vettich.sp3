@@ -54,6 +54,6 @@ if ($userTariffExpired) {
 	</div><?php
 }
 
-\CJSCore::Init(['vettich_sp3_script']);
+/* \CJSCore::Init(['vettich_sp3_script']); */
 
 \vettich\devform\Module::pushMessPrefix('VETTICH_SP3_');

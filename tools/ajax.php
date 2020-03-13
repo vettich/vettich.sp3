@@ -58,6 +58,14 @@ switch ($_GET['method']) {
 		_result($res);
 		break;
 
+	case 'connect':
+		_result(Api::connect($_GET['type'], $_GET['fields']));
+		break;
+
+	case 'connectInsta':
+		_result(Api::connectInsta($_GET['username'], $_GET['password'], $_GET['proxy'], $_GET['code']));
+		break;
+
 	case 'listTemplates':
 		$res = TemplateHelpers::listTemplates($_GET['IBLOCK_ID']);
 		$res = Module::convertToUtf8($res);

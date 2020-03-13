@@ -20,7 +20,7 @@ if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['ac
 	exit;
 }
 
-$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/vettich.sp3/script.js');
+\CJSCore::Init(['vettich_sp3_script']);
 
 (new \vettich\devform\AdminForm('devform', [
 	'pageTitle' => '#.ACCOUNTS_ADD_PAGE#',
@@ -47,6 +47,34 @@ $GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/vettich.sp3/script.js');
 			'params' => [
 				'fb_login' => 'divbutton::#.FB_LOGIN_BTN#:onclick=VettichSP3.connectAccount("fb")',
 				'fb_login_res' => 'html::',
+			],
+		],
+		// not support yet
+		/* [ */
+		/* 	'name' => '#.INSTA#', */
+		/* 	'title' => '#.INSTA_ADD_TITLE#', */
+		/* 	'params' => [ */
+		/* 		'insta_username' => 'text:#.INSTA_USERNAME#', */
+		/* 		'insta_password' => 'password:#.INSTA_PASSWORD#', */
+		/* 		'insta_proxy' => 'text:#.INSTA_PROXY#:placeholder=#.INSTA_PROXY_PLACEHOLDER#', */
+		/* 		'insta_code' => [ */
+		/* 			'type' => 'text', */
+		/* 			'title' => '#.INSTA_CODE#', */
+		/* 			'template' => '<tr id="{id}-wrap" style="display:none"><td width="40%"><label for="{id}">{title}{help}</label></td><td width="60%">{content}</td></tr>', */
+		/* 		], */
+		/* 		'insta_login' => 'divbutton::#.INSTA_LOGIN_BTN#:onclick=VettichSP3.connectInsta()', */
+		/* 		'insta_login_res' => 'html::', */
+		/* 	], */
+		/* ], */
+		[
+			'name' => '#.TG#',
+			'title' => '#.TG_ADD_TITLE#',
+			'params' => [
+				'tg_bot_token' => 'text:#.TG_BOT_TOKEN#:params=[placeholder=#.TG_BOT_TOKEN_PLACEHOLDER#]',
+				'tg_username' => 'text:#.TG_USERNAME#:params=[placeholder=#.TG_USERNAME_PLACEHOLDER#]',
+				'tg_login' => 'divbutton::#.TG_LOGIN_BTN#:onclick=VettichSP3.connectTg()',
+				'tg_login_res' => 'html::',
+				'tg_help' => 'note:#.TG_HELP_BLOCK#',
 			],
 		],
 	],

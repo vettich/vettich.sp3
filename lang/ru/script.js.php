@@ -18,3 +18,6 @@ $MESS['VETTICH_SP3_CHOOSE_TEMPLATE_FROM_LIST'] = 'Выберите шаблон из списка';
 $MESS['VETTICH_SP3_ADDED_N_POST']              = 'Было добавлено постов: ';
 $MESS['VETTICH_SP3_FORGOT_PASS_SENT']          = 'На вашу почту было отправлено письмо со ссылкой. Перейдите по ссылке из письма, чтобы ввести новый пароль';
 $MESS['VETTICH_SP3_POLITIKA_NEED_CONFIRM']     = 'Подтвердите свое согласие с политикой конфиденциальности';
+
+$MESS['VETTICH_SP3_INSTA_ENTER_CODE'] = 'Введите код подтверждения';
+$MESS['VETTICH_SP3_TG_FIELDS_EMPTY'] = 'Заполните все поля';

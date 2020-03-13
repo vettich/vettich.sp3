@@ -74,6 +74,12 @@ class Posts extends \vettich\devform\data\ArrayList
 			}
 			$this->values['fields']['images'] = $images;
 		}
+		if (empty($this->values['fields']['images']) &&
+			empty($this->values['fields']['text']) &&
+			empty($this->values['fields']['link']) &&
+			empty($this->values['fields']['tags'])) {
+			return ['error' => Module::m('ERROR_EMPTY_POST_FIELDS')];
+		}
 		$this->values['publish_at'] = Api::toTime($this->values['publish_at']);
 	}
 

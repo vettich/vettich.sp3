@@ -6,6 +6,10 @@ $MESS['VETTICH_SP3_TEMPLATES_PAGE_TITLE'] = 'Список шаблонов';
 $MESS['VETTICH_SP3_POST_IBLOCK_TYPE']     = 'Тип инфоблока';
 $MESS['VETTICH_SP3_POST_IBLOCK_ID']       = 'ID инфоблока';
 
+$MESS['VETTICH_SP3_ERR_NAME_EMPTY']      = 'Заполните поле Имя';
+$MESS['VETTICH_SP3_ERR_IBLOCK_ID_EMPTY'] = 'Выберите инфоблок';
+$MESS['VETTICH_SP3_ERR_ACCOUNTS_EMPTY']  = 'Выберите хотя бы один аккаунт соц. сети';
+
 $MESS['VETTICH_SP3_TEMPLATE_GENERAL']          = 'Основное';
 $MESS['VETTICH_SP3_TEMPLATE_GENERAL_SETTINGS'] = 'Настройка основной информации';
 $MESS['VETTICH_SP3_TEMPLATE_DATA']             = 'Данные поста';
@@ -20,7 +24,7 @@ $MESS['VETTICH_SP3_UTM_HEADING']             = 'Настройка UTM меток';
 $MESS['VETTICH_SP3_CONDITIONS_HEADING']      = 'Настройка условий публикации';
 $MESS['VETTICH_SP3_CHOOSE_POST_ACCOUNTS']    = 'Выбор аккаунтов соц. сетей';
 $MESS['VETTICH_SP3_POST_ACCOUNTS']           = 'Аккаунты соц. сетей';
-$MESS['VETTICH_SP3_COMMON_DESCRIPTION']      = 'Общие настройки для соц. сотей';
+$MESS['VETTICH_SP3_COMMON_DESCRIPTION']      = 'Общие настройки для соц. сeтей';
 $MESS['VETTICH_SP3_NONE_ACCOUNTS']           = 'Еще не создано ни одного аккаунта соц. сети. Создайте, и возвращайтесь на эту страницу!';
 $MESS['VETTICH_SP3_IS_AUTO']                 = 'Автопубликация';
 $MESS['VETTICH_SP3_IS_AUTO_HELP']            = 'При включении данной опции, добавляемые элементы в выбранный инфоблок будут обработаны данным шаблоном';
@@ -49,7 +53,7 @@ $MESS['VETTICH_SP3_URL_PARAMS_HELP']         = 'Сюда можно добавить UTM метки, и
 $MESS['VETTICH_SP3_BINDING_TO_IBLOCK']       = 'Привязка к инфоблоку';
 
 $MESS['VETTICH_SP3_PUBLISH_MAIN_PICTURE']             = 'Главная картинка';
-$MESS['VETTICH_SP3_PUBLISH_MAIN_PICTURE_HELP']        = 'Основная картинка, которая будет использоваться для публикации. Обязательна при публикации в <b>Инстраграм</b>, <b>Pinterest</b>.';
+$MESS['VETTICH_SP3_PUBLISH_MAIN_PICTURE_HELP']        = 'Основная картинка, которая будет использоваться для публикации. Обязательна при публикации в <b>Инстаграм</b>, <b>Pinterest</b>.';
 $MESS['VETTICH_SP3_PUBLISH_OTHER_PICTURE']            = 'Дополнительные картинки';
 $MESS['VETTICH_SP3_PUBLISH_OTHER_PICTURE_HELP']       = 'Картинки которые можно дополнительно прикрепить к посту, если это позволяет соц. сеть';
 $MESS['VETTICH_SP3_PUBLISH_LINK']                     = 'Ссылка (на детальную страницу)';

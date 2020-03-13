@@ -1,11 +1,5 @@
 VettichSP3 = {
 	re: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-	langs: {
-		success: BX.message('VETTICH_SP3_SUCCESS'),
-		redirecting: BX.message('VETTICH_SP3_REDIRECTING'),
-		fillAllFields: BX.message('VETTICH_SP3_FILL_ALL_FIELDS'),
-		passwordsNotMatch: BX.message('VETTICH_SP3_PASS_NOT_MATCH'),
-	},
 	dialogs: {
 		templatesList: new BX.CDialog({
 			title: BX.message('VETTICH_SP3_LIST_TEMPLATES'),
@@ -18,6 +12,12 @@ VettichSP3 = {
 			buttons: [BX.CDialog.prototype.btnClose]
 		}),
 	},
+}
+
+VettichSP3.m = function(langKey) {
+	var msg = BX.message('VETTICH_SP3_' + langKey);
+	if(!msg) msg = langKey;
+	return msg;
 }
 
 VettichSP3.ajaxUrl = '/bitrix/tools/vettich.sp3.ajax.php';
@@ -38,7 +38,7 @@ VettichSP3.login = function () {
 	var lresult = document.getElementById('lresult');
 	VettichSP3.clearResult(lresult);
 	if (!username.length || !password.length) {
-		VettichSP3.setResult(lresult, VettichSP3.langs.fillAllFields, 'red');
+		VettichSP3.setResult(lresult, VettichSP3.m('FILL_ALL_FIELDS'), 'red');
 		return;
 	}
 	var show = BX.showWait("FORM_devform");
@@ -48,7 +48,7 @@ VettichSP3.login = function () {
 	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
 		var dataJson = JSON.parse(data)
 		if(!dataJson.error) {
-			VettichSP3.setResult(lresult, VettichSP3.langs.success, 'green');
+			VettichSP3.setResult(lresult, VettichSP3.m('SUCCESS'), 'green');
 			window.location = VettichSP3.userUrl;
 		} else {
 			VettichSP3.setResult(lresult, dataJson.error.msg, 'red');
@@ -84,23 +84,23 @@ VettichSP3.signup = function () {
 	VettichSP3.clearResult(rresult);
 
 	if (!username.length || !password.length) {
-		VettichSP3.setResult(rresult, VettichSP3.langs.fillAllFields, 'red');
+		VettichSP3.setResult(rresult, VettichSP3.m('FILL_ALL_FIELDS'), 'red');
 		return;
 	}
 	if (!VettichSP3.re.test(String(username).toLowerCase())) {
-		VettichSP3.setResult(rresult, BX.message('VETTICH_SP3_EMAIL_INCORRECT'), 'red');
+		VettichSP3.setResult(rresult, VettichSP3.m('EMAIL_INCORRECT'), 'red');
 		return;
 	}
 	if (password.length < 6) {
-		VettichSP3.setResult(rresult, BX.message('VETTICH_SP3_PASS_MIN_LEN'), 'red');
+		VettichSP3.setResult(rresult, VettichSP3.m('PASS_MIN_LEN'), 'red');
 		return;
 	}
 	if (password != password2) {
-		VettichSP3.setResult(rresult, VettichSP3.langs.passwordsNotMatch, 'red');
+		VettichSP3.setResult(rresult, VettichSP3.m('PASS_NOT_MATCH'), 'red');
 		return;
 	}
 	if (!document.getElementById('politika').checked) {
-		VettichSP3.setResult(rresult, BX.message('VETTICH_SP3_POLITIKA_NEED_CONFIRM'), 'red');
+		VettichSP3.setResult(rresult, VettichSP3.m('POLITIKA_NEED_CONFIRM'), 'red');
 		return;
 	}
 
@@ -111,7 +111,7 @@ VettichSP3.signup = function () {
 	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
 		var dataJson = JSON.parse(data)
 		if(!dataJson.error) {
-			VettichSP3.setResult(rresult, VettichSP3.langs.success, 'green');
+			VettichSP3.setResult(rresult, VettichSP3.m('SUCCESS'), 'green');
 			window.location = VettichSP3.userUrl;
 		} else {
 			VettichSP3.setResult(rresult, dataJson.error.msg, 'red');
@@ -127,11 +127,11 @@ VettichSP3.forgotPassword = function () {
 	VettichSP3.clearResult(rresult);
 
 	if (!username.length) {
-		VettichSP3.setResult(rresult, VettichSP3.langs.fillAllFields, 'red');
+		VettichSP3.setResult(rresult, VettichSP3.m('FILL_ALL_FIELDS'), 'red');
 		return;
 	}
 	if (!VettichSP3.re.test(String(username).toLowerCase())) {
-		VettichSP3.setResult(rresult, BX.message('VETTICH_SP3_EMAIL_INCORRECT'), 'red');
+		VettichSP3.setResult(rresult, VettichSP3.m('EMAIL_INCORRECT'), 'red');
 		return;
 	}
 
@@ -143,7 +143,7 @@ VettichSP3.forgotPassword = function () {
 	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
 		var dataJson = JSON.parse(data)
 		if(!dataJson.error) {
-			VettichSP3.setResult(rresult, BX.message('VETTICH_SP3_FORGOT_PASS_SENT'), 'green');
+			VettichSP3.setResult(rresult, VettichSP3.m('FORGOT_PASS_SENT'), 'green');
 		} else {
 			VettichSP3.setResult(rresult, dataJson.error.msg, 'red');
 		}
@@ -160,15 +160,15 @@ VettichSP3.resetPassword = function () {
 	VettichSP3.clearResult(rresult);
 
 	if (!password.length) {
-		VettichSP3.setResult(rresult, VettichSP3.langs.fillAllFields, 'red');
+		VettichSP3.setResult(rresult, VettichSP3.m('FILL_ALL_FIELDS'), 'red');
 		return;
 	}
 	if (password.length < 6) {
-		VettichSP3.setResult(rresult, BX.message('VETTICH_SP3_PASS_MIN_LEN'), 'red');
+		VettichSP3.setResult(rresult, VettichSP3.m('PASS_MIN_LEN'), 'red');
 		return;
 	}
 	if (password != password2) {
-		VettichSP3.setResult(rresult, VettichSP3.langs.passwordsNotMatch, 'red');
+		VettichSP3.setResult(rresult, VettichSP3.m('PASS_NOT_MATCH'), 'red');
 		return;
 	}
 
@@ -179,7 +179,7 @@ VettichSP3.resetPassword = function () {
 	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
 		var dataJson = JSON.parse(data)
 		if(!dataJson.error) {
-			VettichSP3.setResult(rresult, VettichSP3.langs.success, 'green');
+			VettichSP3.setResult(rresult, VettichSP3.m('SUCCESS'), 'green');
 			window.location = VettichSP3.userUrl;
 		} else {
 			VettichSP3.setResult(rresult, dataJson.error.msg, 'red');
@@ -197,7 +197,7 @@ VettichSP3.logout = function () {
 	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
 		var dataJson = JSON.parse(data)
 		if(!dataJson.error) {
-			VettichSP3.setResult(rresult, VettichSP3.langs.success, 'green');
+			VettichSP3.setResult(rresult, VettichSP3.m('SUCCESS'), 'green');
 			window.location = VettichSP3.startUseUrl;
 		} else {
 			VettichSP3.setResult(rresult, dataJson.error.msg, 'red');
@@ -215,7 +215,7 @@ VettichSP3.connectAccount = function(type) {
 	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
 		var dataJson = JSON.parse(data)
 		if(!dataJson.error) {
-			VettichSP3.setResult(rresult, VettichSP3.langs.redirecting, 'green');
+			VettichSP3.setResult(rresult, VettichSP3.m('REDIRECTING'), 'green');
 			window.location = dataJson.response.url;
 		} else {
 			VettichSP3.setResult(rresult, dataJson.error.msg, 'red');
@@ -224,12 +224,83 @@ VettichSP3.connectAccount = function(type) {
 	});
 }
 
+VettichSP3.connectInsta = function() {
+	var query = {
+		username: document.getElementById('insta_username').value,
+		password: document.getElementById('insta_password').value,
+		proxy: document.getElementById('insta_proxy').value,
+		code: document.getElementById('insta_code').value,
+	}
+	var result = document.getElementById('insta_login_res');
+	VettichSP3.clearResult(result);
+	if(!query.username.length && !query.password.length) {
+		VettichSP3.setResult(result, VettichSP3.m('INSTA_AUTH_FIELDS_EMPTY'), 'red');
+		return;
+	}
+	var show = BX.showWait('adm-workarea');
+	jQuery.get(VettichSP3.ajaxUrl + '?method=connectInsta&' + VettichSP3.queryStringify(query), function (data) {
+		try {
+			var res = JSON.parse(data);
+			if(res.error) {
+				VettichSP3.setResult(result, res.error.msg, 'red');
+				return;
+			}
+			if(res.response.challenge) {
+				jQuery('#insta_code-wrap').show();
+				VettichSP3.setResult(result, VettichSP3.m('INSTA_ENTER_CODE'), 'red');
+				return;
+			}
+			VettichSP3.setResult(result, VettichSP3.m('SUCCESS'), 'green');
+			window.location = '/bitrix/admin/vettich.sp3.accounts_list.php';
+			return;
+		} catch (e) {
+			VettichSP3.setResult(result, VettichSP3.m('SOME_ERROR'), 'red');
+		}
+	}).always(function () {
+		BX.closeWait('adm-workarea', show);
+	});
+}
+
+VettichSP3.connectTg = function() {
+	var fields = {
+		username: document.getElementById('tg_username').value,
+		bot_token: document.getElementById('tg_bot_token').value,
+	}
+	var result = document.getElementById('tg_login_res');
+	VettichSP3.clearResult(result);
+	if(!fields.username.length && !fields.bot_token.length) {
+		VettichSP3.setResult(result, VettichSP3.m('TG_FIELDS_EMPTY'), 'red');
+		return;
+	}
+	var show = BX.showWait('adm-workarea');
+	var query = {
+		type: 'tg',
+		fields: fields,
+	}
+	jQuery.get(VettichSP3.ajaxUrl + '?method=connect&' + VettichSP3.queryStringify(query), function (data) {
+		try {
+			var res = JSON.parse(data);
+			if(res.error) {
+				VettichSP3.setResult(result, res.error.msg, 'red');
+				return;
+			}
+			VettichSP3.setResult(result, VettichSP3.m('SUCCESS'), 'green');
+			window.location = '/bitrix/admin/vettich.sp3.accounts_list.php';
+			return;
+		} catch (e) {
+			VettichSP3.setResult(result, VettichSP3.m('SOME_ERROR'), 'red');
+		}
+	}).always(function () {
+		BX.closeWait('adm-workarea', show);
+	});
+}
+
 VettichSP3.MenuSendWithTemplate = function (query) {
 	var show = BX.showWait('adm-workarea');
 	// VettichSP3.fixClosePopupMenu();
 	jQuery.get(VettichSP3.ajaxUrl + '?method=listTemplates&' + VettichSP3.queryStringify(query), function (data) {
 		var publishBtn = {
-			title: BX.message('VETTICH_SP3_PUBLISH'),
+			title: VettichSP3.m('PUBLISH'),
 			onclick: 'VettichSP3.MenuSendWithTemplateStep2(' + JSON.stringify(query) + ');',
 		};
 		var buttons = [publishBtn, BX.CDialog.prototype.btnClose];
@@ -239,12 +310,12 @@ VettichSP3.MenuSendWithTemplate = function (query) {
 			var json = JSON.parse(data);
 			var templatesKeys = Object.keys(json.templates);
 			if (templatesKeys.length == 0) {
-				html = BX.message('VETTICH_SP3_TEMPLATES_NOT_FOUND');
+				html = VettichSP3.m('TEMPLATES_NOT_FOUND');
 				buttons = [BX.CDialog.prototype.btnClose];
 			} else {
 				var checked = templatesKeys.length > 1 ? '' : 'checked="checked"';
 				htmlTemplate = htmlTemplate.split('{id}').join('TEMPLATES');
-				html = BX.message('VETTICH_SP3_CHOOSE_TEMPLATE') + ' <br/><br/>';
+				html = VettichSP3.m('CHOOSE_TEMPLATE') + ' <br/><br/>';
 				for(var i = 0; i < templatesKeys.length; i++) {
 					inputHtml = htmlTemplate
 						.split('{val}').join(templatesKeys[i])
@@ -254,7 +325,7 @@ VettichSP3.MenuSendWithTemplate = function (query) {
 				}
 			}
 		} catch (e) {
-			html = BX.message('VETTICH_SP3_SOME_ERROR');
+			html = VettichSP3.m('SOME_ERROR');
 		}
 		if(!query.ELEMS && !query.SECTIONS) {
 			query = VettichSP3.getSelectedIblockElements(query);
@@ -263,9 +334,9 @@ VettichSP3.MenuSendWithTemplate = function (query) {
 		html += '<br/><br/><a href="{link}" target="_blank" onclick="{onclick}">{text}</a>'
 			.split('{link}').join(link)
 			.split('{onclick}').join('VettichSP3.dialogs.templatesList.Close()')
-			.split('{text}').join(BX.message('VETTICH_SP3_WITHOUT_TEMPLATE'));
+			.split('{text}').join(VettichSP3.m('WITHOUT_TEMPLATE'));
 		var publishBtn = {
-			title: BX.message('VETTICH_SP3_PUBLISH'),
+			title: VettichSP3.m('PUBLISH'),
 			onclick: 'VettichSP3.MenuSendWithTemplateStep2(' + JSON.stringify(query) + ');',
 		};
 		VettichSP3.dialogs.templatesList.SetContent(html);
@@ -282,7 +353,7 @@ VettichSP3.MenuSendWithTemplateStep2 = function(query) {
 	var show = BX.showWait(prevDialog.DIV.id);
 	var selectedTemplates = prevDialog.PARTS.CONTENT_DATA.querySelectorAll('input:checked');
 	if(selectedTemplates.length == 0) {
-		alert(BX.message('VETTICH_SP3_CHOOSE_TEMPLATE_FROM_LIST'));
+		alert(VettichSP3.m('CHOOSE_TEMPLATE_FROM_LIST'));
 		return;
 	}
 	if(!query.ELEMS && !query.SECTIONS) {
@@ -302,11 +373,11 @@ VettichSP3.MenuSendWithTemplateStep2 = function(query) {
 			if (dataJson.error) {
 				html = dataJson.error.msg;
 			} else {
-				html = BX.message('VETTICH_SP3_ADDED_N_POST') + dataJson.length;
+				html = VettichSP3.m('ADDED_N_POST') + dataJson.length;
 			}
 		} catch(e) {
 			console.log(e);
-			html = BX.message('VETTICH_SP3_SOME_ERROR2');
+			html = VettichSP3.m('SOME_ERROR2');
 		}
 		prevDialog.AllowClose();
 		prevDialog.Close();
@@ -347,15 +418,25 @@ VettichSP3.getSelectedIblockElements = function(query) {
 	return query;
 }
 
-VettichSP3.queryStringify = function(query) {
+VettichSP3.queryStringify = function(query, prefix) {
 	var res = [];
+	prefix = prefix || "";
+	function buildKey(key) {
+		if(!prefix.length) {
+			return key
+		}
+		return prefix + '[' + key + ']';
+	}
+
 	Object.keys(query).map(function(key) {
 		if(Array.isArray(query[key])) {
 			query[key].map(function(val) {
-				res.push(key + '[]=' + val);
+				res.push(buildKey(key) + '[]=' + val);
 			});
+		} else if(typeof query[key] == "object") {
+			res = res.concat(VettichSP3.queryStringify(query[key], key).split('&'));
 		} else {
-			res.push(key + '=' + query[key]);
+			res.push(buildKey(key) + '=' + query[key]);
 		}
 	});
 	return res.join('&');

@@ -3,7 +3,7 @@
 $MESS['VETTICH_SP3_TARIFFS_PAGE_TITLE'] = 'Тарифы';
 $MESS['VETTICH_SP3_POSTS_CNT']          = 'Количество постов';
 $MESS['VETTICH_SP3_ACCOUNTS_CNT']       = 'Количество аккаунтов соц. сетей';
-$MESS['VETTICH_SP3_UNLIMITED']          = 'неограничено';
+$MESS['VETTICH_SP3_UNLIMITED']          = 'неограниченно';
 $MESS['VETTICH_SP3_MONTH_1']            = '1 мес.';
 $MESS['VETTICH_SP3_MONTH_3']            = '3 мес.';
 $MESS['VETTICH_SP3_MONTH_6']            = '6 мес.';

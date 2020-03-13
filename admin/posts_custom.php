@@ -10,26 +10,34 @@ use vettich\devform\types;
 CModule::IncludeModule('iblock');
 
 if (isset($_POST['_save'])) {
-	$arTemplate = [];
-	foreach ($_POST as $key => $value) {
-		if (!is_string($key) || $key[0] != '_') {
-			continue;
+	if (empty($_POST['_ACCOUNTS'])) {
+		?>
+		<div class="adm-info-message" style="display:block">
+			<span style="color: red"><?=Module::m('ERR_ACCOUNTS_EMPTY')?></span>
+		</div>
+		<?php
+	} else {
+		$arTemplate = [];
+		foreach ($_POST as $key => $value) {
+			if (!is_string($key) || $key[0] != '_') {
+				continue;
+			}
+			$newKey = substr($key, 1);
+			$arTemplate[$newKey] = $value;
 		}
-		$newKey = substr($key, 1);
-		$arTemplate[$newKey] = $value;
+		$arTemplate['ACCOUNTS'] = [];
+		foreach ($_POST['_ACCOUNTS'] as $id => $v) {
+			$arTemplate['ACCOUNTS'][] = $id;
+		}
+		$arTemplate['ID'] = 0;
+		$arFilter = ['IBLOCK_ID' => $_POST['IBLOCK_ID']];
+		foreach ($_POST['ELEMS'] as $id => $v) {
+			$arFilter['ID'][] = $id;
+		}
+		$res = vettich\sp3\TemplateHelpers::publishWithTemplateStep2($arFilter, [$arTemplate]);
+		header('Location: ?'.http_build_query(['res' => $res]));
+		exit;
 	}
-	$arTemplate['ACCOUNTS'] = [];
-	foreach ($_POST['_ACCOUNTS'] as $id => $v) {
-		$arTemplate['ACCOUNTS'][] = $id;
-	}
-	$arTemplate['ID'] = 0;
-	$arFilter = ['IBLOCK_ID' => $_POST['IBLOCK_ID']];
-	foreach ($_POST['ELEMS'] as $id => $v) {
-		$arFilter['ID'][] = $id;
-	}
-	$res = vettich\sp3\TemplateHelpers::publishWithTemplateStep2($arFilter, [$arTemplate]);
-	header('Location: ?'.http_build_query(['res' => $res]));
-	exit;
 }
 
 if ($_GET['res']) {
