@@ -225,7 +225,7 @@ VettichSP3.connectAccount = function(type) {
 }
 
 VettichSP3.connectInsta = function() {
-	var query = {
+	var fields = {
 		username: document.getElementById('insta_username').value,
 		password: document.getElementById('insta_password').value,
 		proxy: document.getElementById('insta_proxy').value,
@@ -233,19 +233,23 @@ VettichSP3.connectInsta = function() {
 	}
 	var result = document.getElementById('insta_login_res');
 	VettichSP3.clearResult(result);
-	if(!query.username.length && !query.password.length) {
+	if(!fields.username.length && !fields.password.length) {
 		VettichSP3.setResult(result, VettichSP3.m('INSTA_AUTH_FIELDS_EMPTY'), 'red');
 		return;
 	}
 	var show = BX.showWait('adm-workarea');
-	jQuery.get(VettichSP3.ajaxUrl + '?method=connectInsta&' + VettichSP3.queryStringify(query), function (data) {
+	var query = {
+		type: 'insta',
+		fields: fields,
+	}
+	jQuery.get(VettichSP3.ajaxUrl + '?method=connect&' + VettichSP3.queryStringify(query), function (data) {
 		try {
 			var res = JSON.parse(data);
 			if(res.error) {
 				VettichSP3.setResult(result, res.error.msg, 'red');
 				return;
 			}
-			if(res.response.challenge) {
+			if(res.response.need_challenge) {
 				jQuery('#insta_code-wrap').show();
 				VettichSP3.setResult(result, VettichSP3.m('INSTA_ENTER_CODE'), 'red');
 				return;
