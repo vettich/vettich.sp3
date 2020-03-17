@@ -19,7 +19,6 @@ if (isset($_GET['FROM_id'])) {
 	$dataArgs['filter'] = ['id' => $_GET['FROM_id']];
 }
 $data = new \vettich\sp3\db\Posts($dataArgs);
-var_dump($data->get('_fields[extra][vk_from_group]'));
 
 $tabGeneralParams = [];
 if ($issetID) {
