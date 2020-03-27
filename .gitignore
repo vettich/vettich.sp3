@@ -1,4 +1,4 @@
 .php_cs.cache
-log.txt
+log*.txt
 local_config.json
 
