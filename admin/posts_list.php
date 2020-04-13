@@ -7,7 +7,7 @@ use vettich\sp3\Api;
 
 CModule::IncludeModule('iblock');
 
-(new \vettich\devform\AdminList('#.POSTS_LIST_PAGE#', 'sTableID', [
+(new \vettich\devform\AdminList('#.POSTS_LIST_PAGE#', 'sp3_posts', [
 	'data' => new vettich\sp3\db\Posts(),
 	'hideFilters' => true,
 	'idKey' => 'id',
