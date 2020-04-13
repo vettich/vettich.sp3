@@ -11,6 +11,9 @@ $tariff = Module::convertToSiteCharset($tariff);
 $expiry_at = strtotime($user['tariff']['expiry_at']);
 $time_left = $expiry_at - strtotime('now');
 $days_left = round((($time_left/24)/60)/60);
+if ($days_left < 0) {
+	$days_left = 0;
+}
 $color = '#1ea81e';
 if ($days_left < 7) {
 	$color = '#c42222';
