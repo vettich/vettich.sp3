@@ -77,10 +77,17 @@ if (!$issetID) {
 	];
 }
 
-$tabGeneralParams = array_merge($tabGeneralParams, [
-	'_publish_at' => 'datetime:#.POST_PUBLISH_AT#:help=#.POST_PUBLISH_AT_HELP#',
-	'h2' => 'heading:#.POST_HEADER_ACCOUNTS#',
-]);
+$tabGeneralParams['_publish_at'] = 'datetime:#.POST_PUBLISH_AT#:help=#.POST_PUBLISH_AT_HELP#';
+if ($issetID && strtotime($data->get('_publish_at')) < strtotime('now')) {
+	$tabGeneralParams['_publish_at'] = [
+		'type' => 'plaintext',
+		'title' => '#.POST_PUBLISH_AT#',
+		'help' => '#.POST_PUBLISH_AT_HELP#',
+		'value' => date('d.m.Y H:i:s', strtotime($data->get('_publish_at'))),
+	];
+}
+
+$tabGeneralParams['h2'] = 'heading:#.POST_HEADER_ACCOUNTS#';
 $accList = (new vettich\sp3\db\Accounts())->getListType();
 foreach ($accList as $t => $accType) {
 	$accountsMap = [];
