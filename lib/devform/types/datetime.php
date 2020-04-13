@@ -7,7 +7,7 @@ namespace vettich\sp3\devform\types;
 class datetime extends _type
 {
 	public $content = '<div class="adm-input-wrap adm-input-wrap-calendar">
-		<input class="adm-input adm-input-calendar" type="text" name="{id}" size="22" value="{value}">
+		<input class="adm-input adm-input-calendar" type="text" name="{id}" size="22" value="{value}" {params}>
 		<span class="adm-calendar-icon" title="Select date" onclick="BX.calendar({node:this, field:\'{id}\', form: \'\', bTime: true, bHideTime: false});"></span>
 	</div>';
 	public $filterMask = '%';
