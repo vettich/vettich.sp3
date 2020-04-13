@@ -24,7 +24,7 @@ if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['ac
 }
 
 
-(new \vettich\devform\AdminList('#.ACCOUNTS_LIST_PAGE#', 'sp3_accounts', [
+(new \vettich\sp3\devform\AdminList('#.ACCOUNTS_LIST_PAGE#', 'sp3_accounts', [
 	'data' => new vettich\sp3\db\Accounts(),
 	'hideFilters' => true,
 	'idKey' => 'id',

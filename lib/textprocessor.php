@@ -1,9 +1,7 @@
 <?php
 namespace vettich\sp3;
 
-\CModule::IncludeModule('vettich.devform');
-
-use vettich\devform\Module as DevFormModule;
+use vettich\sp3\devform;
 
 class TextProcessor
 {
@@ -22,7 +20,7 @@ class TextProcessor
 
 		if (isset($macros['figure'])) {
 			foreach ((array)$macros['figure'] as $k => $v) {
-				$t = self::replace(DevFormModule::mb_substr($k, 1, -1), $fields, false);
+				$t = self::replace(devform\Module::mb_substr($k, 1, -1), $fields, false);
 				if (strpos($t, '#') === false) {
 					$macros['figure'][$k] = str_replace("\n", '#BR#', $t);
 				}
@@ -52,11 +50,11 @@ class TextProcessor
 
 	protected static function mbStringToArray($string)
 	{
-		$strlen = DevFormModule::mb_strlen($string);
+		$strlen = devform\Module::mb_strlen($string);
 		while ($strlen) {
-			$array[] = DevFormModule::mb_substr($string, 0, 1, "UTF-8");
-			$string = DevFormModule::mb_substr($string, 1, $strlen, "UTF-8");
-			$strlen = DevFormModule::mb_strlen($string);
+			$array[] = devform\Module::mb_substr($string, 0, 1, "UTF-8");
+			$string = devform\Module::mb_substr($string, 1, $strlen, "UTF-8");
+			$strlen = devform\Module::mb_strlen($string);
 		}
 		return $array;
 	}
@@ -77,7 +75,7 @@ class TextProcessor
 						array_push($startStack, $macros_start);
 						$macros_start = $i;
 					} else {
-						$macro = DevFormModule::mb_substr($text, $macros_start, $i - $macros_start + 1);
+						$macro = devform\Module::mb_substr($text, $macros_start, $i - $macros_start + 1);
 						$macros['simple'][$macro] = '';
 						$macros_start = array_pop($startStack) ?: -1;
 						$status = array_pop($statusStack) ?: 'simple';
@@ -97,7 +95,7 @@ class TextProcessor
 				}
 			} elseif ($status == 'figureblock') {
 				if ($ch == '}') { // end figure block
-					$macro = DevFormModule::mb_substr($text, $macros_start, $i - $macros_start + 1);
+					$macro = devform\Module::mb_substr($text, $macros_start, $i - $macros_start + 1);
 					$macros['figure'][$macro] = '';
 					$macros_start = array_pop($startStack) ?: -1;
 					$status = array_pop($statusStack) ?: 'simple';
@@ -108,7 +106,7 @@ class TextProcessor
 				}
 			} elseif ($status == 'squareblock2') {
 				if ($ch == ']') {
-					$macro = DevFormModule::mb_substr($text, $macros_start, $i - $macros_start + 1);
+					$macro = devform\Module::mb_substr($text, $macros_start, $i - $macros_start + 1);
 					$macros['square'][$macro] = '';
 					$macros_start = array_pop($startStack) ?: -1;
 					$status = array_pop($statusStack) ?: 'simple';
@@ -121,7 +119,7 @@ class TextProcessor
 
 	protected static function macroExplode($macro)
 	{
-		$tmp = DevFormModule::mb_substr($macro, 1, -1);
+		$tmp = devform\Module::mb_substr($macro, 1, -1);
 		return explode('.', $tmp);
 	}
 
@@ -159,14 +157,14 @@ class TextProcessor
 			}
 		}
 
-		$value = DevFormModule::arrayChain($fields, $macro);
+		$value = devform\Module::arrayChain($fields, $macro);
 		if (is_array($value)) {
 			$macro[] = 'VALUES';
-			$value = DevFormModule::arrayChain($fields, $macro);
+			$value = devform\Module::arrayChain($fields, $macro);
 			if ($value === null) {
 				array_pop($macro);
 				$macro[] = 'VALUE';
-				$value = DevFormModule::arrayChain($fields, $macro);
+				$value = devform\Module::arrayChain($fields, $macro);
 			}
 		}
 		if (!$raw && is_array($value)) {
@@ -302,7 +300,7 @@ class TextProcessor
 			$columnsWidth = [];
 			foreach ((array)$headers as $head) {
 				$val = trim(self::replace($head, $fields, $isCreateLink));
-				$columnsWidth[] = DevFormModule::mb_strlen($val);
+				$columnsWidth[] = devform\Module::mb_strlen($val);
 				$headerValues[] = $val;
 			}
 			$len = count($headerValues);
@@ -312,8 +310,8 @@ class TextProcessor
 				$fields['THIS'] = $f;
 				for ($i=0; $i < $len; $i++) {
 					$val = trim(self::replace($body[$i], $fields, $isCreateLink));
-					if ($columnsWidth[$i] < DevFormModule::mb_strlen($val)) {
-						$columnsWidth[$i] = DevFormModule::mb_strlen($val);
+					if ($columnsWidth[$i] < devform\Module::mb_strlen($val)) {
+						$columnsWidth[$i] = devform\Module::mb_strlen($val);
 					}
 					$bodyValues[$j][$i] = $val;
 				}
@@ -322,12 +320,12 @@ class TextProcessor
 			$fields['THIS'] = $old;
 			$result = '';
 			for ($i=0; $i < $len; $i++) {
-				$result .= $headerValues[$i] . str_repeat(' ', $columnsWidth[$i] + 2 - DevFormModule::mb_strlen($headerValues[$i]));
+				$result .= $headerValues[$i] . str_repeat(' ', $columnsWidth[$i] + 2 - devform\Module::mb_strlen($headerValues[$i]));
 			}
 			$result .= '#BR#';
 			foreach ((array)$bodyValues as $body) {
 				for ($i=0; $i < $len; $i++) {
-					$result .= $body[$i] . str_repeat(' ', $columnsWidth[$i] + 2 - DevFormModule::mb_strlen($body[$i]));
+					$result .= $body[$i] . str_repeat(' ', $columnsWidth[$i] + 2 - devform\Module::mb_strlen($body[$i]));
 				}
 				$result .= '#BR#';
 			}
@@ -347,11 +345,11 @@ class TextProcessor
 				$link = 'http://'.$link;
 			}
 		}
-		if ($link[DevFormModule::mb_strlen($link)-1] != '/') {
+		if ($link[devform\Module::mb_strlen($link)-1] != '/') {
 			$link .= '/';
 		}
 		if (strpos($slink, '/') === 0) {
-			$link .= DevFormModule::mb_substr($slink, 1);
+			$link .= devform\Module::mb_substr($slink, 1);
 		} else {
 			$link .= $slink;
 		}

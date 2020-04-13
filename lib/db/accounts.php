@@ -4,7 +4,7 @@ namespace vettich\sp3\db;
 use vettich\sp3\Module;
 use vettich\sp3\Api;
 
-class Accounts extends \vettich\devform\data\ArrayList
+class Accounts extends \vettich\sp3\devform\data\ArrayList
 {
 	private static $_accs = [];
 

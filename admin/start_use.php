@@ -9,16 +9,7 @@ ini_set('display_errors', false);
 CModule::IncludeModule('vettich.sp3');
 use vettich\sp3\Module;
 use vettich\sp3\Api;
-
-if (!CModule::IncludeModule('vettich.devform')) {
-	?>
-	<div class="adm-info-message" style="display:block">
-		<?=Module::m('DEVFORM_NOT_INSTALLED')?>
-	</div>
-	<?php
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
-	exit;
-}
+use vettich\sp3\devform;
 
 $pingRes = Api::ping();
 Module::log($pingRes);
@@ -42,8 +33,8 @@ if ($validateTokenRes['response'] == true) {
 
 $userEmail = $USER->GetEmail();
 
-\vettich\devform\Module::pushMessPrefix('VETTICH_SP3_');
-(new \vettich\devform\AdminForm('devform', [
+devform\Module::pushMessPrefix('VETTICH_SP3_');
+(new devform\AdminForm('devform', [
 	'pageTitle' => '#.START_USE#',
 	'tabs' => [
 		[
@@ -81,7 +72,7 @@ $userEmail = $USER->GetEmail();
 	],
 	'data' => null,
 ]))->render();
-\vettich\devform\Module::popMessPrefix();
+devform\Module::popMessPrefix();
 ?>
 
 <div class="adm-info-message" style="display:block">

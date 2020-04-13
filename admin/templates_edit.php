@@ -3,7 +3,7 @@ require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
 use vettich\sp3\IBlockHelpers;
-use vettich\devform\types;
+use vettich\sp3\devform\types;
 
 CModule::IncludeModule('iblock');
 
@@ -15,7 +15,7 @@ $dataArgs = [
 if (!$issetID && isset($_GET['FROM_ID'])) {
 	$dataArgs['filter'] = ['ID' => $_GET['FROM_ID']];
 }
-$data = new vettich\devform\data\orm($dataArgs);
+$data = new vettich\sp3\devform\data\orm($dataArgs);
 
 $arIblockTypes = ['' => Module::m('IBLOCK_TYPE_SELECT')];
 $rsIblockTypes = CIBlockType::GetList();
@@ -37,7 +37,7 @@ $params = [
 		'title' => '#.IBLOCK_TYPE#',
 		'help' => '#.IBLOCK_TYPE_HELP#',
 		'options' => $arIblockTypes,
-		'params' => ['onchange' => 'Vettich.Devform.Refresh(this);'],
+		'params' => ['onchange' => 'VettichSP3.Devform.Refresh(this);'],
 	],
 ];
 if ($issetID) {
@@ -84,7 +84,7 @@ if ($iblock_type) {
 		'title' => '#.IBLOCK#',
 		'help' => '#.IBLOCK_HELP#',
 		'options' => $arIblockIds,
-		'params' => ['onchange' => 'Vettich.Devform.Refresh(this);'],
+		'params' => ['onchange' => 'VettichSP3.Devform.Refresh(this);'],
 	];
 	if ($isSections) {
 		$params['_IS_SECTIONS'] = 'checkbox:#.IBLOCK_IS_SECTIONS#:refresh=Y:help=#.IBLOCK_IS_SECTIONS_HELP#';
@@ -173,7 +173,7 @@ if (!$iblock_id) {
 		foreach ($accType as $account) {
 			$accountsMap[$account['id']] = $account['name'];
 		}
-		$params[] = new \vettich\devform\types\checkbox('_ACCOUNTS', [
+		$params[] = new \vettich\sp3\devform\types\checkbox('_ACCOUNTS', [
 			'title' => Module::m(strtoupper($t)),
 			'options' => $accountsMap,
 			'multiple' => true,
@@ -181,7 +181,7 @@ if (!$iblock_id) {
 	}
 
 	$templateDataParams = [
-		// 'none_acc' => 'plaintext::'.vettich\devform\Module::m('#.NONE_ACCOUNTS#'),
+		// 'none_acc' => 'plaintext::'.vettich\sp3\devform\Module::m('#.NONE_ACCOUNTS#'),
 		'heading5' => 'heading:#.COMMON_DESCRIPTION#',
 		/* '_PUBLISH[COMMON][INDIVIDUAL_SETTINGS]' => 'checkbox:#.PUBLISH_INDIVIDUAL_SETTINGS#:N:help=#.PUBLISH_INDIVIDUAL_SETTINGS_HELP#:refresh=Y', */
 		'_PUBLISH[COMMON][TEXT]' => [
@@ -197,6 +197,7 @@ if (!$iblock_id) {
 			'title' => '#.PUBLISH_TAGS#',
 			'help' => '#.PUBLISH_TAGS_HELP#',
 			'options' => IBlockHelpers::allPropsFor($iblock_id),
+			'default_value' => 'TAGS',
 		],
 		'_PUBLISH[COMMON][LINK]' => [
 			'type' => 'select',
@@ -258,7 +259,7 @@ if ($iblock_id) {
 	];
 }
 
-(new \vettich\devform\AdminForm('devform', [
+(new \vettich\sp3\devform\AdminForm('devform', [
 	'pageTitle' => ($issetID ? '#.EDIT_TEMPLATE#' : '#.ADD_TEMPLATE#'),
 	'tabs' => $tabs,
 	'buttons' => [

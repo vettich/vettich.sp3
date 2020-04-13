@@ -23,7 +23,7 @@ if ($days_left < 7) {
 
 \CJSCore::Init(['vettich_sp3_script']);
 
-(new \vettich\devform\AdminForm('devform', [
+(new \vettich\sp3\devform\AdminForm('devform', [
 	'pageTitle' => '#.USER_INFO#',
 	'tabs' => [
 		[

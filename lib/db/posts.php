@@ -4,7 +4,7 @@ namespace vettich\sp3\db;
 use vettich\sp3\Module;
 use vettich\sp3\Api;
 
-class Posts extends \vettich\devform\data\ArrayList
+class Posts extends \vettich\sp3\devform\data\ArrayList
 {
 	private $filter = [];
 	private $inited = false;

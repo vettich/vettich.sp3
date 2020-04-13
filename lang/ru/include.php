@@ -32,7 +32,7 @@ $MESS['VETTICH_SP3_TG_BOT_TOKEN_PLACEHOLDER'] = '12345:OeotHOUt_oTOHUTOEhuc';
 $MESS['VETTICH_SP3_TG_HELP_BLOCK']            = 'Чтобы подключить канал или группу, Вам нужно создать Telegram бота
 	и добавить его в ваш канал или группу. Чтобы сделать это, следуйте этим простым шагам: <br/><br/>
 	1) Начните диалог с <b><a href="https://telegram.me/BotFather" target="_blank">@BotFather</a></b> <br/>
-    2) Отправьте ему команду <b>/newbot</b> <br/>
+	2) Отправьте ему команду <b>/newbot</b> <br/>
 	3) <b>@BotFather</b> спросит у вас имя и пользовательское имя для Вашего нового бота.
 		Вы можете указать что угодно, но имя пользователя должно заканчиваться на "bot" или "Bot".
 		После успешного создания бота <b>@BotFather</b> отправит Вам токен бота. <br/>
@@ -50,13 +50,34 @@ $MESS['VETTICH_SP3_TG_HELP_BLOCK']            = 'Чтобы подключить канал или груп
 $MESS['VETTICH_SP3_IBLOCK']      = 'Инфоблок';
 $MESS['VETTICH_SP3_IBLOCK_ELEM'] = 'Элемент инфоблока';
 
-$MESS['VETTICH_SP3_DEVFORM_NOT_INSTALLED'] = 'Для работы модуля "Автопубликации в соц. сети 3.0" требуется установленный модуль vettich.devform. Установите его, перейдя в <a href="/bitrix/admin/partner_modules.php">список модулей</a>, либо переустановите данный модуль.';
 $MESS['VETTICH_SP3_SERVER_UNAVAILABLE']    = 'Облачный сервис в данный момент недоступен. Приносим свои извинения. Повторите попытку позже. Если проблема не устранилась, то сообщите, пожалуйста, об этой проблеме vetti.ch@mail.ru';
 
 $MESS['VETTICH_SP3_PAYMENT_SUCCESS_TITLE'] = 'Оплата произведена успешно!';
-$MESS['VETTICH_SP3_PAYMENT_FAIL_TITLE'] = 'Ошибка при проведении оплаты!';
-$MESS['VETTICH_SP3_GOTO_USER_PAGE'] = 'Перейти на страницу Пользователя';
+$MESS['VETTICH_SP3_PAYMENT_FAIL_TITLE']    = 'Ошибка при проведении оплаты!';
+$MESS['VETTICH_SP3_GOTO_USER_PAGE']        = 'Перейти на страницу Пользователя';
 
 $MESS['VETTICH_SP3_ACCOUNTS_LIMIT_USAGE'] = 'Использовано #current# из #max#';
-$MESS['VETTICH_SP3_TARIFF_EXPIRED'] = 'Истек срок действия тарифа. Вам необходимо <a href="/bitrix/admin/vettich.sp3.tariffs.php">продлить тариф</a> или перейти на новый. Публикация постов приостановлена.';
-$MESS['VETTICH_SP3_CURL_NOT_FOUND'] = 'Для работы модуля требуется наличие php библиотеки <b>curl</b>. Пожалуйста, установите ее, или обратитесь к своему хостинг провайдеру.';
+$MESS['VETTICH_SP3_TARIFF_EXPIRED']       = 'Истек срок действия тарифа. Вам необходимо <a href="/bitrix/admin/vettich.sp3.tariffs.php">продлить тариф</a> или перейти на новый. Публикация постов приостановлена.';
+$MESS['VETTICH_SP3_CURL_NOT_FOUND']       = 'Для работы модуля требуется наличие php библиотеки <b>curl</b>. Пожалуйста, установите ее, или обратитесь к своему хостинг провайдеру.';
+
+// from devform
+$MESS['VDF_NAME']                 = 'Имя';
+$MESS['VDF_TEXT']                 = 'Текст';
+$MESS['VDF_PICTURE']              = 'Картинка';
+$MESS['VDF_IS_ENABLE']            = 'Активность';
+$MESS['VDF_ADD']                  = 'Добавить';
+$MESS['VDF_ADD_TITLE']            = 'Добавить запись';
+$MESS['VDF_EDIT']                 = 'Редактировать';
+$MESS['VDF_SAVE']                 = 'Сохранить';
+$MESS['VDF_APPLY']                = 'Применить';
+$MESS['VDF_BACK_LIST']            = 'Назад';
+$MESS['VDF_BACK_LIST_TITLE']      = 'Вернуться назад в список';
+$MESS['VDF_LIST_EDIT']            = 'Редактировать';
+$MESS['VDF_LIST_COPY']            = 'Копировать';
+$MESS['VDF_LIST_DELETE']          = 'Удалить';
+$MESS['VDF_LIST_DELETE_TITLE']    = 'Удалить запись';
+$MESS['VDF_LIST_DELETE_CONFIRM']  = 'Вы действительно хотите удалить элемент #NAME#?';
+$MESS['VDF_LIST_DELETE_CONFIRM2'] = 'Вы действительно хотите удалить данную запись?';
+$MESS['VDF_DELETE']               = 'Удалить';
+$MESS['VDF_TEXT_OPTION']          = 'Другое';
+$MESS['VDF_HEADING_HELP_TITLE']   = 'Развернуть/Свернуть';

@@ -32,7 +32,6 @@ class vettich_sp3 extends CModule
 	{
 		global $DOCUMENT_ROOT, $APPLICATION, $errors, $ver, $GLOBALS;
 		$GLOBALS['CACHE_MANAGER']->CleanAll();
-		$this->InstallDevform();
 		if ($this->InstallDB()
 			&& $this->InstallFiles()
 			&& $this->InstallEvents()) {
@@ -124,47 +123,11 @@ class vettich_sp3 extends CModule
 		$thisPath = $this->MODULE_ROOT_DIR.'/install/bitrix';
 		$installedPath = $_SERVER['DOCUMENT_ROOT'].'/bitrix';
 		DeleteDirFiles($thisPath.'/admin', $installedPath.'/admin');
+		DeleteDirFiles($thisPath.'/css/vettich.sp3', $installedPath.'/css/vettich.sp3');
 		DeleteDirFiles($thisPath.'/js/vettich.sp3', $installedPath.'/js/vettich.sp3');
 		DeleteDirFiles($thisPath.'/images/vettich.sp3', $installedPath.'/images/vettich.sp3');
 		DeleteDirFiles($thisPath.'/themes/.default', $installedPath.'/themes/.default');
 		DeleteDirFiles($thisPath.'/themes/.default/icons/vettich.sp3', $installedPath.'/themes/.default/icons/vettich.sp3');
 		return true;
-	}
-
-	public function InstallDevform()
-	{
-		$vdfInstalledPath = '/bitrix/modules/vettich.devform';
-		$vdfVersionFile = $_SERVER['DOCUMENT_ROOT'].$vdfInstalledPath.'/install/version.php';
-		$needCopyFiles = true;
-		if (file_exists($vdfVersionFile)) {
-			$needCopyFiles = false;
-			include($vdfVersionFile);
-			$v1 = $arModuleVersion;
-			include(__DIR__.'/modules/vettich.devform/install/version.php');
-			$v2 = $arModuleVersion;
-			if (!CheckVersion($v1['VERSION'], $v2['VERSION'])) { // $v1 < $v2
-				$needCopyFiles = true;
-			}
-		}
-		if ($needCopyFiles) {
-			$dirFrom = $this->MODULE_ROOT_DIR.'/install/modules';
-			$dirTo = $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules';
-			CopyDirFiles($dirFrom, $dirTo, true, true);
-		}
-		if (CModule::IncludeModule('vettich.devform')) {
-			if ($needCopyFiles) {
-				$dirFrom = $this->MODULE_ROOT_DIR.'/install/modules/vettich.devform/install/bitrix';
-				$dirTo = $_SERVER['DOCUMENT_ROOT'].'/bitrix';
-				CopyDirFiles($dirFrom, $dirTo, true, true);
-			}
-			return;
-		}
-		include $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/vettich.devform/install/index.php';
-		if (class_exists('vettich_devform')) {
-			$cl = new vettich_devform();
-			if (!$cl->IsInstalled()) {
-				$cl->DoInstall();
-			}
-		}
 	}
 }

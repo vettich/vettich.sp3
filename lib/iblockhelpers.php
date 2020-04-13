@@ -1,7 +1,7 @@
 <?php
 namespace vettich\sp3;
 
-use vettich\devform\Module as DevFormModule;
+use vettich\sp3\devform;
 
 class IBlockHelpers
 {
@@ -158,13 +158,13 @@ class IBlockHelpers
 					if (!$key2) {
 						continue;
 					}
-					DevFormModule::changeKey($key2, "#$key2#", $value['items']);
+					devform\Module::changeKey($key2, "#$key2#", $value['items']);
 				}
 				// $value = $result[$key];
 				unset($result[$key]);
 				$result[$key] = $value;
 			} else {
-				DevFormModule::changeKey($key, "#$key#", $result);
+				devform\Module::changeKey($key, "#$key#", $result);
 			}
 		}
 		self::$_allPropsMacrosFor[$iblockId] = $result;

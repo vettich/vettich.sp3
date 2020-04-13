@@ -5,7 +5,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_popu
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
 use vettich\sp3\IBlockHelpers;
-use vettich\devform\types;
+use vettich\sp3\devform\types;
 
 CModule::IncludeModule('iblock');
 
@@ -148,16 +148,16 @@ foreach ($accList as $t => $accType) {
 	foreach ($accType as $account) {
 		$accountsMap[$account['id']] = $account['name'];
 	}
-	$params[] = new \vettich\devform\types\checkbox('_ACCOUNTS', [
+	$params[] = new types\checkbox('_ACCOUNTS', [
 		'title' => Module::m(strtoupper($t)),
 		'options' => $accountsMap,
 		'multiple' => true,
 	]);
 }
 
-/* $params += (array) Module::socialAccountsForDevForm('_ACCOUNTS', $individ ? ['onclick' => 'Vettich.Devform.Refresh(this);'] : []); */
+/* $params += (array) Module::socialAccountsForDevForm('_ACCOUNTS', $individ ? ['onclick' => 'VettichSP3.Devform.Refresh(this);'] : []); */
 $templateDataParams = [
-	// 'none_acc' => 'plaintext::'.vettich\devform\Module::m('#.NONE_ACCOUNTS#'),
+	// 'none_acc' => 'plaintext::'.vettich\sp3\devform\Module::m('#.NONE_ACCOUNTS#'),
 	'heading5' => 'heading:#.COMMON_DESCRIPTION#',
 	/* '_PUBLISH[COMMON][INDIVIDUAL_SETTINGS]' => 'checkbox:#.PUBLISH_INDIVIDUAL_SETTINGS#:N:help=#.PUBLISH_INDIVIDUAL_SETTINGS_HELP#:refresh=Y', */
 	'_PUBLISH[COMMON][TEXT]' => [
@@ -221,7 +221,7 @@ $tabs = [
 	],
 ];
 
-(new \vettich\devform\AdminForm('devform', [
+(new \vettich\sp3\devform\AdminForm('devform', [
 	'pageTitle' => ($id > 0 ? '#.EDIT_RECORD#' : '#.ADD_RECORD#'),
 	'tabs' => $tabs,
 	'buttons' => [

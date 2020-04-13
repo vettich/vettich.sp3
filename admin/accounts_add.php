@@ -22,7 +22,7 @@ if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['ac
 
 \CJSCore::Init(['vettich_sp3_script']);
 
-(new \vettich\devform\AdminForm('devform', [
+(new \vettich\sp3\devform\AdminForm('devform', [
 	'pageTitle' => '#.ACCOUNTS_ADD_PAGE#',
 	'tabs' => [
 		[

@@ -1,8 +1,6 @@
 <?php
 namespace vettich\sp3;
 
-use \vettich\devform\Module as DevFormModule;
-
 /**
  * main class of module
  */

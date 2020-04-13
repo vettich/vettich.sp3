@@ -3,6 +3,7 @@ require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
 use vettich\sp3\Api;
+use vettich\sp3\devform\types;
 
 $issetID = !empty($_GET['id']);
 if (!$issetID && $userTariffExpired) {
@@ -86,7 +87,7 @@ foreach ($accList as $t => $accType) {
 	foreach ($accType as $account) {
 		$accountsMap[$account['id']] = $account['name'];
 	}
-	$tabGeneralParams[] = new \vettich\devform\types\checkbox('_networks[accounts]', [
+	$tabGeneralParams[] = new types\checkbox('_networks[accounts]', [
 		'title' => Module::m(strtoupper($t)),
 		'options' => $accountsMap,
 		'multiple' => true,
@@ -131,7 +132,7 @@ if ($issetID) {
 	];
 }
 
-(new \vettich\devform\AdminForm('devform', [
+(new \vettich\sp3\devform\AdminForm('devform', [
 	'pageTitle' => !$issetID ? '#.POST_ADD_PAGE#' : '#.POST_EDIT_PAGE#',
 	'tabs' => $tabs,
 	'buttons' => [
