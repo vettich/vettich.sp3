@@ -11,7 +11,7 @@ $tariff = Module::convertToSiteCharset($tariff);
 $expiry_at = strtotime($user['tariff']['expiry_at']);
 $time_left = $expiry_at - strtotime('now');
 $days_left = round((($time_left/24)/60)/60);
-if ($days_left < 0) {
+if ($days_left <= 0) {
 	$days_left = 0;
 }
 $color = '#1ea81e';
@@ -48,7 +48,7 @@ if ($days_left < 7) {
 				'expiry_at' => [
 					'type' => 'plaintext',
 					'title' => '#.EXPIRY_AT#',
-					'value' => Module::m('EXPIRY_AT_VALUE', [
+					'value' => Module::m($days_left <= 0 ? 'EXPIRED_AT_VALUE' : 'EXPIRY_AT_VALUE', [
 						'#date#' => date('d.m.Y', $expiry_at),
 						'#days#' => $days_left,
 						'#color#' => $color,
