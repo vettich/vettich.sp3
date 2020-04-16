@@ -5,6 +5,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_popu
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
 use vettich\sp3\IBlockHelpers;
+use vettich\sp3\TextProcessor;
 use vettich\sp3\devform\types;
 
 CModule::IncludeModule('iblock');
