@@ -1,3 +1,42 @@
+.vettich-sp3-acc-link span {
+	height: 2em;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.vettich-sp3-acc-link img {
+	height: 2em;
+	width: 2em;
+	border-radius: 50%;
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+.vettich-sp3-social-icon {
+	position: relative;
+}
+.vettich-sp3-social-icon:after {
+	content: "";
+	display: inline-block;
+	position: absolute;
+	height: 1em;
+	width: 1em;
+	bottom: -4px;
+	right: -4px;
+	border-radius: 50%;
+	background-color: white;
+	background-position: center;
+	background-size: cover;
+}
+
+.vettich-sp3-social-icon.vk:after    { background-image: url(/bitrix/images/vettich.sp3/vk.png) }
+.vettich-sp3-social-icon.fb:after    { background-image: url(/bitrix/images/vettich.sp3/fb.png) }
+.vettich-sp3-social-icon.ok:after    { background-image: url(/bitrix/images/vettich.sp3/ok.png) }
+.vettich-sp3-social-icon.tg:after    { background-image: url(/bitrix/images/vettich.sp3/tg.png) }
+.vettich-sp3-social-icon.tw:after    { background-image: url(/bitrix/images/vettich.sp3/tw.png) }
+.vettich-sp3-social-icon.insta:after { background-image: url(/bitrix/images/vettich.sp3/insta.png) }
+
+
 .instal-progress-bar-outer {
 	height: 32px;
 	border:1px solid;
