@@ -5,6 +5,7 @@ $MESS['VETTICH_SP3_ADD_TEMPLATE']         = 'Добавление шаблона';
 $MESS['VETTICH_SP3_TEMPLATES_PAGE_TITLE'] = 'Список шаблонов';
 $MESS['VETTICH_SP3_POST_IBLOCK_TYPE']     = 'Тип инфоблока';
 $MESS['VETTICH_SP3_POST_IBLOCK_ID']       = 'ID инфоблока';
+$MESS['VETTICH_SP3_NEW_TEMPLATE']         = 'Новый шаблон';
 
 $MESS['VETTICH_SP3_ERR_NAME_EMPTY']      = 'Заполните поле Имя';
 $MESS['VETTICH_SP3_ERR_IBLOCK_ID_EMPTY'] = 'Выберите инфоблок';

@@ -1,5 +1,10 @@
 <?php
 
+$MESS['VETTICH_SP3_ACC_WARN_NOTE'] = 'Инстаграм и Телеграм в данный момент не поддерживают обновление поста';
+
+$MESS['VETTICH_SP3_SUCCESS'] = 'Успешно';
+$MESS['VETTICH_SP3_FAIL']    = 'Ошибка';
+
 $MESS['VETTICH_SP3_VK']           = 'Вконтакте';
 $MESS['VETTICH_SP3_VK_ADD_TITLE'] = 'Авторизация и выбор группы в ВК';
 $MESS['VETTICH_SP3_VK_LOGIN_BTN'] = 'Перейти к добавлению Вконтакте';
@@ -45,6 +50,10 @@ $MESS['VETTICH_SP3_TG_HELP_BLOCK']            = 'Чтобы подключить канал или груп
 	7) В поле <b>Имя пользователя</b> введите имя пользователя канала или группы которую хотите подключить.
 		Вы можете найти его в разделе Информация канала или группы.
 		Обратите внимание, что добавить можно только открытые группы или каналы.
+	<br/><br/>
+	<div style="text-align: center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/Ys_Mio_MSY0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+	</div>
 ';
 
 $MESS['VETTICH_SP3_IBLOCK']      = 'Инфоблок';

@@ -3,6 +3,7 @@ require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
 use vettich\sp3\Api;
+use vettich\sp3\TextProcessor;
 use vettich\sp3\devform\types;
 
 $issetID = !empty($_GET['id']);
@@ -78,7 +79,9 @@ if (!$issetID) {
 }
 
 $tabGeneralParams['_publish_at'] = 'datetime:#.POST_PUBLISH_AT#:help=#.POST_PUBLISH_AT_HELP#';
-if ($issetID && strtotime($data->get('_publish_at')) < strtotime('now')) {
+$isPublished = ($data->get('_status') == 'success' || $data->get('_status') == 'fail');
+/* if ($issetID && strtotime($data->get('_publish_at')) < strtotime('now')) { */
+if ($issetID && $isPublished) {
 	$tabGeneralParams['_publish_at'] = [
 		'type' => 'plaintext',
 		'title' => '#.POST_PUBLISH_AT#',
@@ -92,13 +95,26 @@ $accList = (new vettich\sp3\db\Accounts())->getListType();
 foreach ($accList as $t => $accType) {
 	$accountsMap = [];
 	foreach ($accType as $account) {
-		$accountsMap[$account['id']] = $account['name'];
+		$name = TextProcessor::replace('<span class="vettich-sp3-acc-link" target="_blank"><img src="#PIC#"><span>#NAME#</span></span>', [
+			'PIC' => $account['photo'],
+			'TYPE' => $account['type'],
+			'LINK' => $account['link'],
+			'NAME' => $account['name'],
+			'OPEN_IN_NEW_TAB' => Module::m('OPEN_IN_NEW_TAB'),
+		]);
+		$accountsMap[$account['id']] = $name;
 	}
 	$tabGeneralParams[] = new types\checkbox('_networks[accounts]', [
 		'title' => Module::m(strtoupper($t)),
 		'options' => $accountsMap,
 		'multiple' => true,
 	]);
+	if ($t == 'insta' || $t == 'tg') {
+		$accWarningShow = true;
+	}
+}
+if ($accWarningShow) {
+	$tabGeneralParams['acc_warn'] = 'note:#.ACC_WARN_NOTE#';
 }
 
 $tabGeneralParams = array_merge($tabGeneralParams, [
@@ -119,10 +135,22 @@ if ($issetID) {
 	$resData = $data->get('_results');
 	foreach ($resData as $id => $ar) {
 		$acc = vettich\sp3\db\Accounts::getById($id);
+		$name = '&lt;unknown&gt;';
+		if (!empty($acc)) {
+			$name = TextProcessor::replace('<a class="vettich-sp3-acc-link" href="#LINK#" target="_blank" title="#OPEN_IN_NEW_TAB#"><span class="vettich-sp3-social-icon #TYPE#"><img src="#PIC#"></span><span>#NAME#</span></a>', [
+				'PIC' => $acc['photo'],
+				'TYPE' => $acc['type'],
+				'LINK' => $acc['link'],
+				'NAME' => $acc['name'],
+				'OPEN_IN_NEW_TAB' => Module::m('OPEN_IN_NEW_TAB'),
+			]);
+		}
+		/* var_dump([$id, $ar, $acc, $name]); */
+		$link = '<a href="'.$ar['link'].'" target="_blank">'.$ar['link'].'</a>';
 		$results[] = [
 			'type' => 'plaintext',
-			'title' => $acc['name'],
-			'value' => $ar['success'] ? 'success' : 'fail',
+			'title' => $name,
+			'value' => $ar['success'] ? ($ar['link'] ? $link : Module::m('SUCCESS')) : Module::m('FAIL'),
 		];
 	}
 	if (empty($results)) {
@@ -139,13 +167,22 @@ if ($issetID) {
 	];
 }
 
+$newBtn = [
+	'type' => 'buttons\link',
+	'title' => '#.NEW_POST#',
+	'default_value' => 'vettich.sp3.posts_edit.php?back_url='.urlencode($_GET['back_url']).'&lang='.$_GET['lang'],
+	'params' => ['class' => 'adm-btn adm-btn-add']
+];
+
 (new \vettich\sp3\devform\AdminForm('devform', [
 	'pageTitle' => !$issetID ? '#.POST_ADD_PAGE#' : '#.POST_EDIT_PAGE#',
 	'tabs' => $tabs,
 	'buttons' => [
 		'_save' => 'buttons\saveSubmit:'.(!$issetID ? '#.POST_ADD_BTN#' : '#.POST_UPDATE_BTN#'),
 	],
+	'headerButtons' => !$issetID ? [] : [$newBtn],
 	'data' => $data,
+	/* 'getID' => 'id', */
 ]))->render();
 
 if (!$issetID):

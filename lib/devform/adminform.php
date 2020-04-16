@@ -161,26 +161,32 @@ class AdminForm extends Module
 
 		if (isset($_GET['back_url'])) {
 			$arResult['back'] = [
-				'TEXT' => GetMessage('VDF_BACK_LIST'),
+				'TEXT'  => GetMessage('VDF_BACK_LIST'),
 				'TITLE' => GetMessage('VDF_BACK_LIST_TITLE'),
-				'LINK' => $_GET['back_url'],
-				'ICON' => 'btn_list',
+				'LINK'  => $_GET['back_url'],
+				'ICON'  => 'btn_list',
 			];
 		}
 		if (isset($_GET[$this->getID]) && $_GET[$this->getID] > 0) {
 			$get = $_GET;
 			unset($get[$this->getID]);
 			$arResult['add'] = [
-				'TEXT' => GetMessage('VDF_ADD'),
+				'TEXT'  => GetMessage('VDF_ADD'),
 				'TITLE' => GetMessage('VDF_ADD_TITLE'),
-				'LINK' => $_SERVER['SCRIPT_NAME'].'?'.http_build_query($get),
-				'ICON' => 'btn_new',
+				'LINK'  => $_SERVER['SCRIPT_NAME'].'?'.http_build_query($get),
+				'ICON'  => 'btn_new',
 			];
 			if (isset($_GET['back_url'])) {
+				unset($get['ID']);
+				unset($get['action']);
+				unset($get['action_button']);
+				/* unset($get['sessid']); */
 				$get = [
-					$this->getID => $_GET[$this->getID],
-					'action' => 'delete',
-					'sessid' => bitrix_sessid(),
+					$this->getID    => $_GET[$this->getID],
+					'ID'            => $_GET[$this->getID],
+					'action'        => 'delete',
+					'action_button' => 'delete',
+					/* 'sessid'        => bitrix_sessid(), */
 				];
 				$url = $_GET['back_url'];
 				$url .= (strpos($url, '?') ? '&' : '?').http_build_query($get);
@@ -243,9 +249,9 @@ class AdminForm extends Module
 	}
 
 	/**
-	 * возвращает дополнительные JS код и CSS стили
-	 * @return string js and css
-	 */
+	* возвращает дополнительные JS код и CSS стили
+	* @return string js and css
+	*/
 	public function getJsCss()
 	{
 		$result = '';
