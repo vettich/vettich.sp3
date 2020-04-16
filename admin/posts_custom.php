@@ -146,13 +146,26 @@ $accList = (new vettich\sp3\db\Accounts())->getListType();
 foreach ($accList as $t => $accType) {
 	$accountsMap = [];
 	foreach ($accType as $account) {
-		$accountsMap[$account['id']] = $account['name'];
+		$name = TextProcessor::replace('<span class="vettich-sp3-acc-link" target="_blank"><img src="#PIC#"><span>#NAME#</span></span>', [
+			'PIC' => $account['photo'],
+			'TYPE' => $account['type'],
+			'LINK' => $account['link'],
+			'NAME' => $account['name'],
+			'OPEN_IN_NEW_TAB' => Module::m('OPEN_IN_NEW_TAB'),
+		]);
+		$accountsMap[$account['id']] = $name;
 	}
 	$params[] = new types\checkbox('_ACCOUNTS', [
 		'title' => Module::m(strtoupper($t)),
 		'options' => $accountsMap,
 		'multiple' => true,
 	]);
+	if ($t == 'insta' || $t == 'tg') {
+		$accWarningShow = true;
+	}
+}
+if ($accWarningShow) {
+	$tabGeneralParams['acc_warn'] = 'note:#.ACC_WARN_NOTE#';
 }
 
 /* $params += (array) Module::socialAccountsForDevForm('_ACCOUNTS', $individ ? ['onclick' => 'VettichSP3.Devform.Refresh(this);'] : []); */
