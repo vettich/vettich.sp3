@@ -189,7 +189,7 @@ class TemplateHelpers
 					'template_id' => intval($arTemplate['ID']),
 				],
 			],
-			'publish_at' => Api::toTime(TextProcessor::macroValue($arTemplate['PUBLISH_AT'], $fields)),
+			'publish_at' => Api::toTime(TextProcessor::macroValue($arTemplate['PUBLISH']['COMMON']['PUBLISH_AT'], $fields)),
 			'networks' => [
 				'accounts' => $arTemplate['ACCOUNTS'],
 			],
