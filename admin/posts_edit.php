@@ -150,7 +150,9 @@ if ($issetID) {
 		$results[] = [
 			'type' => 'plaintext',
 			'title' => $name,
-			'value' => $ar['success'] ? ($ar['link'] ? $link : Module::m('SUCCESS')) : Module::m('FAIL'),
+			'value' => $ar['success'] ?
+				($ar['link'] ? $link : Module::m('SUCCESS')) :
+				($ar['error_formatted'] ?: Module::m('FAIL')),
 		];
 	}
 	if (empty($results)) {

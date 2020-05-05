@@ -1,6 +1,7 @@
 {
     "api_uri": "https://parrotposter.com/api/v1",
     "log": false,
+	"remote_log": true,
     "user_id": "",
     "token": ""
 }
