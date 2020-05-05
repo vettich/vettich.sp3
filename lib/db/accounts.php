@@ -18,14 +18,23 @@ class Accounts extends \vettich\sp3\devform\data\ArrayList
 
 	public function getList($params=[])
 	{
-		$res = Api::accountsList($this->filter);
-		if (!empty($res['error'])) {
-			return [];
+		return self::getAccs($this->filter);
+	}
+
+	private static function getAccs($filter=null)
+	{
+		if (empty(self::$_accs)) {
+			$res = Api::accountsList($filter);
+			if (!empty($res['error'])) {
+				return [];
+			}
+			$res = Module::convertToSiteCharset($res);
+			$accounts = $res['response']['accounts'];
+			foreach ($accounts as $acc) {
+				self::$_accs[$acc['id']] = $acc;
+			}
 		}
-		$res = Module::convertToSiteCharset($res);
-		$accounts = $res['response']['accounts'];
-		self::$_accs = $accounts;
-		return $accounts;
+		return self::$_accs;
 	}
 
 	public function getListType()
@@ -46,14 +55,9 @@ class Accounts extends \vettich\sp3\devform\data\ArrayList
 		if (empty($id)) {
 			return [];
 		}
-		if (isset(self::$_accs[$id])) {
-			return self::$_accs[$id];
-		}
-		$r = Api::getAccount($id);
-		if (empty($r['error'])) {
-			$r = Module::convertToSiteCharset($r);
-			self::$_accs[$id] = $r['response'];
-			return $r['response'];
+		$accs = (array)self::getAccs();
+		if (isset($accs[$id])) {
+			return $accs[$id];
 		}
 		return [];
 	}
@@ -64,16 +68,13 @@ class Accounts extends \vettich\sp3\devform\data\ArrayList
 			return [];
 		}
 		$res = [];
+		$accs = self::getAccs();
+		if (empty($accs)) {
+			return [];
+		}
 		foreach ($ids as $id) {
-			if (isset(self::$_accs[$id])) {
-				$res[$id] = self::$_accs[$id];
-				continue;
-			}
-			$r = Api::getAccount($id);
-			if (empty($r['error'])) {
-				$r = Module::convertToSiteCharset($r);
-				$res[$id] = $r['response'];
-				self::$_accs[$id] = $r['response'];
+			if (isset($accs[$id])) {
+				$res[$id] = $accs[$id];
 			}
 		}
 		return $res;
