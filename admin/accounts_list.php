@@ -3,6 +3,7 @@ $prolog_admin_after = false;
 require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
+use vettich\sp3\devform\Module as DevModule;
 use vettich\sp3\Api;
 
 $res = Api::me();
@@ -14,6 +15,11 @@ $addBtn = [
 		'#current#' => $user['tariff_limits']['accounts_current_cnt'],
 	]).')',
 	'default_value' => '/bitrix/admin/vettich.sp3.accounts_add.php?back_url\=vettich.sp3.accounts_list.php',
+	'params' => [
+		'data-title' => DevModule::mess('#VDF_ADD# ('.Module::m('ACCOUNTS_LIMIT_USAGE', [
+			'#max#' => $user['tariff_limits']['accounts_cnt'],
+		]).')'),
+	],
 ];
 if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['accounts_cnt']) {
 	$addBtn['params'] = [
@@ -23,6 +29,21 @@ if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['ac
 	$addBtn['default_value'] = '#';
 }
 
+?>
+<script>
+function updatePageTitle() {
+	setTimeout(function() {
+		var title = $('a#add').data('title') || '';
+		var accCnt = $('.adm-list-table-row').length;
+		console.log(title);
+		console.log(accCnt);
+		title = title.split('#current#').join(accCnt);
+		console.log(title);
+		$('a#add').text(title);
+	}, 200);
+}
+</script>
+<?php
 
 (new \vettich\sp3\devform\AdminList('#.ACCOUNTS_LIST_PAGE#', 'sp3_accounts', [
 	'data' => new vettich\sp3\db\Accounts(),
@@ -42,7 +63,8 @@ if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['ac
 			'type' => 'html',
 			'title' => '#.ACCOUNT_NAME#',
 			'on renderView' => function ($obj, &$value, $arRes) {
-				$tpl = '<a href="{href}" target="_blank">{value}</a>';
+				$tpl = '<a href="{href}" target="_blank">{value}</a>'.
+					'<script>updatePageTitle()</script>';
 				$href = $arRes['link'];
 				$value = str_replace(['{href}', '{value}'], [$href, $value], $tpl);
 			},

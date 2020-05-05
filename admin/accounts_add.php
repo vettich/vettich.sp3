@@ -49,22 +49,22 @@ if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['ac
 				'fb_login_res' => 'html::',
 			],
 		],
-		[
-			'name' => '#.INSTA#',
-			'title' => '#.INSTA_ADD_TITLE#',
-			'params' => [
-				'insta_username' => 'text:#.INSTA_USERNAME#',
-				'insta_password' => 'password:#.INSTA_PASSWORD#',
-				'insta_proxy' => 'text:#.INSTA_PROXY#:placeholder=#.INSTA_PROXY_PLACEHOLDER#',
-				'insta_code' => [
-					'type' => 'text',
-					'title' => '#.INSTA_CODE#',
-					'template' => '<tr id="{id}-wrap" style="display:none"><td width="40%"><label for="{id}">{title}{help}</label></td><td width="60%">{content}</td></tr>',
-				],
-				'insta_login' => 'divbutton::#.INSTA_LOGIN_BTN#:onclick=VettichSP3.connectInsta()',
-				'insta_login_res' => 'html::',
-			],
-		],
+		/* [ */
+		/* 	'name' => '#.INSTA#', */
+		/* 	'title' => '#.INSTA_ADD_TITLE#', */
+		/* 	'params' => [ */
+		/* 		'insta_username' => 'text:#.INSTA_USERNAME#', */
+		/* 		'insta_password' => 'password:#.INSTA_PASSWORD#', */
+		/* 		'insta_proxy' => 'text:#.INSTA_PROXY#:placeholder=#.INSTA_PROXY_PLACEHOLDER#', */
+		/* 		'insta_code' => [ */
+		/* 			'type' => 'text', */
+		/* 			'title' => '#.INSTA_CODE#', */
+		/* 			'template' => '<tr id="{id}-wrap" style="display:none"><td width="40%"><label for="{id}">{title}{help}</label></td><td width="60%">{content}</td></tr>', */
+		/* 		], */
+		/* 		'insta_login' => 'divbutton::#.INSTA_LOGIN_BTN#:onclick=VettichSP3.connectInsta()', */
+		/* 		'insta_login_res' => 'html::', */
+		/* 	], */
+		/* ], */
 		[
 			'name' => '#.TG#',
 			'title' => '#.TG_ADD_TITLE#',
