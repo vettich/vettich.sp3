@@ -65,10 +65,8 @@ CModule::IncludeModule('iblock');
 			'type' => 'plaintext',
 			'title' => '#.POST_STATUS#',
 			'on renderView' => function (&$obj, &$value) {
-				if (empty($value)) {
-					$value = 'SUCCESS';
-				}
-				/* $value = Module::m('POST_STATUS_'.$value); */
+				$key = empty($value) ? 'SUCCESS' : strtoupper($value);
+				$value = Module::m('POST_STATUS_'.$key);
 			},
 		],
 		'networks[accounts]' => [
