@@ -87,7 +87,7 @@ CModule::IncludeModule('iblock');
 			},
 		],
 	],
-	'actions' => ['edit', 'copy', 'delete'],
+	/* 'actions' => ['edit', 'copy', 'delete'], */
 	'hiddenParams' => ['id', 'fields[images]'],
 	'dontEditAll' => true,
 	'editLink' => 'vettich.sp3.posts_edit.php',
