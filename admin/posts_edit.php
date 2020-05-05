@@ -63,15 +63,14 @@ if (!$issetID) {
 		'type' => 'html',
 		'title' => '#.POST_PICTURE#',
 		'on renderTemplate' => function (&$obj, $template, &$replaces) {
-			$value = $obj->getValue($obj->data);
+			$urls = $obj->data->getValue('_fields[image_urls]');
 			$tpl = '<img src="{src}" width=40 height=40 /> ';
-			$res = Api::getFilesURL($value);
 			$value = '';
-			foreach ((array)$res['response']['urls'] as $url) {
+			foreach ((array)$urls as $url) {
 				$value .= str_replace('{src}', $url, $tpl);
 			}
 			$replaces['{value}'] = $value;
-			if (empty($res['response']['urls'])) {
+			if (empty($urls)) {
 				$replaces['{value}'] = Module::m('NO_IMAGES');
 			}
 		},

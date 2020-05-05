@@ -31,14 +31,10 @@ CModule::IncludeModule('iblock');
 		'fields[images]' => [
 			'type' => 'html',
 			'title' => '#.POST_PICTURE#',
-			'on renderView' => function (&$obj, &$value) {
+			'on renderView' => function (&$obj, &$value, $arRow=[]) {
 				$tpl = '<img src="{value}" width=40 height=40 /> ';
-				$res = Api::getFilesURL($value);
-				if (!empty($res['error'])) {
-					return;
-				}
 				$value = '';
-				foreach ($res['response']['urls'] as $url) {
+				foreach ($arRow['fields']['image_urls'] as $url) {
 					$value .= str_replace('{value}', $url, $tpl);
 				}
 			},
