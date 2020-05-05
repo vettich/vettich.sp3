@@ -90,6 +90,7 @@ class Api
 			if (empty($token)) {
 				return false;
 			}
+			$headers[] = 'Token: '.self::token();
 		}
 		if (!function_exists('curl_init')) {
 			return false;
@@ -103,9 +104,6 @@ class Api
 		curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($c, CURLOPT_SSL_VERIFYPEER, 0);
 		curl_setopt($c, CURLOPT_SSL_VERIFYHOST, 0);
-		if ($needAuth == true) {
-			$headers[] = 'Token: '.self::token();
-		}
 		if (!empty($headers)) {
 			curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
 		}
@@ -349,6 +347,7 @@ class Api
 
 	public static function uploadFile($filepath, $filename)
 	{
+		// step 1: get upload url and new file id
 		Module::log([$filepath, $filename]);
 		$res = self::callGet('file_upload_url', ['type' => 'image', 'filename' => $filename]);
 		Module::log($res);
@@ -356,6 +355,7 @@ class Api
 			return $res;
 		}
 
+		// step 2: upload file
 		$fileID = $res['response']['file_id'];
 		$uploadUrl = $res['response']['url'];
 		$data = ['file' => self::filenameWrapper($filepath, $filename)];
@@ -365,11 +365,24 @@ class Api
 		}
 		curl_setopt($c, CURLOPT_POST, true);
 		curl_setopt($c, CURLOPT_POSTFIELDS, $data);
+		// get more debug
+		$verbose = fopen('php://temp', 'w+');
+		curl_setopt($handle, CURLOPT_VERBOSE, true);
+		curl_setopt($handle, CURLOPT_STDERR, $verbose);
 		$result = curl_exec($c);
 		curl_close($c);
+		rewind($verbose);
+		$verboseLog = stream_get_contents($verbose);
 
+		// step 3: check file status, it must be 'uploaded'
+		$res = self::callGet("files/$fileID/status");
+		if ($res['response'] && $res['response']['status'] != 'uploaded') {
+			Log::error([$result, $verboseLog]);
+			return ['error' => ['msg' => 'failed file upload']];
+		}
+
+		// step 4: return result via uploaded file id
 		$res = json_decode($result, true);
-		Module::log([$result, $res, $fileID]);
 		if (empty($res['error'])) {
 			return ['response' => ['file_id' => $fileID]];
 		}
@@ -412,5 +425,11 @@ class Api
 	{
 		$res = self::callPost('transactions', $params);
 		return self::resultWrapper($res);
+	}
+
+	public static function sendLog($logData)
+	{
+		$logData['from'] = self::FROM;
+		self::callPost('logs', $logData, false);
 	}
 }
