@@ -85,7 +85,6 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 
 	public function afterSave($obj, $arValues)
 	{
-		Module::log($this->values);
 		$utf8Values = Module::convertToUtf8($this->values);
 		if (empty($utf8Values['id'])) {
 			$res = Api::createPost($utf8Values);

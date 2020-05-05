@@ -39,8 +39,7 @@ class Module
 
 	public static function log($data, $options=[])
 	{
-		$options['rm_trace'] = ($options['rm_trace'] ?: 0) + 1;
-		Log::debug($data, $params);
+		Log::debug($data, $options);
 	}
 
 	public static function isAuth($withValidate=false)

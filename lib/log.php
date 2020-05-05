@@ -12,26 +12,28 @@ class Log
 
 	public static function debug($msg, $options=[])
 	{
-		$options['rm_trace'] = ($options['rm_trace'] ?: 0) + 1;
-		self::log(self::DEBUG, $msg, $options);
+		self::log(self::DEBUG, $msg, self::addRmTrace($options));
 	}
 
 	public static function info($msg, $options=[])
 	{
-		$options['rm_trace'] = ($options['rm_trace'] ?: 0) + 1;
-		self::log(self::INFO, $msg, $options);
+		self::log(self::INFO, $msg, self::addRmTrace($options));
 	}
 
 	public static function warning($msg, $options=[])
 	{
-		$options['rm_trace'] = ($options['rm_trace'] ?: 0) + 1;
-		self::log(self::WARNING, $msg, $options);
+		self::log(self::WARNING, $msg, self::addRmTrace($options));
 	}
 
 	public static function error($msg, $options=[])
 	{
+		self::log(self::ERROR, $msg, self::addRmTrace($options));
+	}
+
+	private static function addRmTrace($options=[])
+	{
 		$options['rm_trace'] = ($options['rm_trace'] ?: 0) + 1;
-		self::log(self::ERROR, $msg, $options);
+		return $options;
 	}
 
 	public static function log($level, $msg, $options=[])
@@ -39,7 +41,6 @@ class Log
 		if (Config::get('log') != true && Config::get('remote_log') != true) {
 			return;
 		}
-		$options['rm_trace'] = ($options['rm_trace'] ?: 0) + 1;
 		$options['trace'] = self::traceFormatted(($options['rm_trace'] ?: 0) + 1);
 		if (Config::get('log') == true) {
 			self::localWrite($level, $msg, $options);
@@ -62,7 +63,8 @@ class Log
 		$date = date('Y/m/d H:i:s');
 		$trace = $options['trace'];
 		$text = "[$level:$date] $trace:\n$text\n";
-		error_log($text, 3, VETTICH_SP3_DIR.'/'.self::LOCAL_FILE);
+		$logfile = $options['logfile'] ?: self::LOCAL_FILE;
+		error_log($text, 3, VETTICH_SP3_DIR.'/'.$logfile);
 	}
 
 	private static function remoteWrite($level, $msg, $options=[])
