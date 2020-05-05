@@ -2,8 +2,8 @@
 namespace vettich\sp3;
 
 /**
- * main class of module
- */
+* main class of module
+*/
 class Module
 {
 	const MID = 'vettich.sp3';
@@ -11,9 +11,9 @@ class Module
 	private static $_version = null;
 
 	/**
-	 * функция возвращает языковой текст
-	 * по ключу VETTICH_SP3_<ключ>
-	 */
+	* функция возвращает языковой текст
+	* по ключу VETTICH_SP3_<ключ>
+	*/
 	public static function m($key, $replaces=[])
 	{
 		$m = GetMessage('VETTICH_SP3_' . $key, $replaces);
@@ -37,22 +37,10 @@ class Module
 		return self::$_version;
 	}
 
-	public static function log($data, $params=[])
+	public static function log($data, $options=[])
 	{
-		if (Config::get('log') != true) {
-			return;
-		}
-		$text = var_export($data, true);
-		$date = date('Y/m/d H:i:s');
-		$tracen = $params['trace_n'] ?: 2;
-		$trace = debug_backtrace(2, $tracen);
-		$filename = $trace[0]['file'];
-		$filename = str_replace(VETTICH_SP3_DIR, '', $filename);
-		$filename = str_replace($_SERVER['DOCUMENT_ROOT'], '', $filename);
-		$line = $trace[$tracen-2]['line'];
-		$funcname = $trace[$tracen-1]['function'];
-		$text = "[$date] $filename($line) in $funcname:\n$text\n";
-		error_log($text, 3, VETTICH_SP3_DIR.'/'.self::LOG_FILE);
+		$options['rm_trace'] = ($options['rm_trace'] ?: 0) + 1;
+		Log::debug($data, $params);
 	}
 
 	public static function isAuth($withValidate=false)
