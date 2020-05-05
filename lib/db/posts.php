@@ -66,7 +66,7 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 			$images = [];
 			foreach ($this->values['fields']['images'] as $image) {
 				$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image["tmp_name"]);
-				$res = Api::uploadFile($pathinfo['tmp_name'], $image['name']);
+				$res = Api::uploadFile($pathinfo['tmp_name'], Module::convertToUtf8($image['name']));
 				if (empty($res['error'])) {
 					$images[] = $res['response']['file_id'];
 				}
