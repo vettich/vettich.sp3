@@ -19,13 +19,13 @@ $addBtn = [
 		'data-title' => DevModule::mess('#VDF_ADD# ('.Module::m('ACCOUNTS_LIMIT_USAGE', [
 			'#max#' => $user['tariff_limits']['accounts_cnt'],
 		]).')'),
+		'data-max' => $user['tariff_limits']['accounts_cnt'],
+		'data-url' => '/bitrix/admin/vettich.sp3.accounts_add.php?back_url\=vettich.sp3.accounts_list.php',
 	],
 ];
 if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['accounts_cnt']) {
-	$addBtn['params'] = [
-		'disabled' => 'disabled',
-		'class' => 'adm-btn adm-btn-save adm-btn-add adm-btn-disabled'
-	];
+	$addBtn['params']['disabled'] = 'disabled';
+	$addBtn['params']['class'] = 'adm-btn adm-btn-save adm-btn-add adm-btn-disabled';
 	$addBtn['default_value'] = '#';
 }
 
@@ -34,12 +34,15 @@ if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['ac
 function updatePageTitle() {
 	setTimeout(function() {
 		var title = $('a#add').data('title') || '';
+		var max = $('a#add').data('max') || '0';
 		var accCnt = $('.adm-list-table-row').length;
-		console.log(title);
-		console.log(accCnt);
-		title = title.split('#current#').join(accCnt);
-		console.log(title);
-		$('a#add').text(title);
+		if (accCnt < max) {
+			$('a#add')
+				.attr('href', $('a#add').data('url') || '#')
+				.prop('disabled', false)
+				.removeClass('adm-btn-disabled');
+		}
+		$('a#add').text(title.split('#current#').join(accCnt));
 	}, 200);
 }
 </script>
