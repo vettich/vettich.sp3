@@ -337,10 +337,7 @@ class IBlockHelpers
 			or empty(self::$_iblockElemIds[$id])) {
 			$rs = \CIBlockElement::GetList(
 				['sort'=>'asc'],
-				[
-					'ID' => $id,
-					'IBLOCK_ID' => $iblockId,
-				]
+				['ID' => $id, 'IBLOCK_ID' => $iblockId]
 			);
 			while ($ar = $rs->GetNext()) {
 				if ($isFill) {
@@ -375,10 +372,7 @@ class IBlockHelpers
 			or empty(self::$_iblockSections[$id])) {
 			$rs = \CIBlockSection::GetList(
 				['sort'=>'asc'],
-				[
-					'ID' => $id,
-					'IBLOCK_ID' => $iblockId,
-				]
+				['ID' => $id, 'IBLOCK_ID' => $iblockId]
 			);
 			while ($ar = $rs->GetNext()) {
 				self::$_iblockSections[$ar['ID']] = $ar;
@@ -404,43 +398,31 @@ class IBlockHelpers
 		}
 		if ($conditions) {
 			foreach ((array)$conditions as $cond) {
-				$field = TextProcessor::macroValue($cond['field'], $fields);
-				switch ($cond['cmp']) {
-				case '>=':
-					if (!($field >= $cond['value'])) {
-						return false;
-					}
-					break;
-				case '<=':
-					if (!($field <= $cond['value'])) {
-						return false;
-					}
-					break;
-				case '=':
-				case '==':
-					if (!($field == $cond['value'])) {
-						return false;
-					}
-					break;
-				case '!=':
-					if (!($field != $cond['value'])) {
-						return false;
-					}
-					break;
-				case 'include':
-					if (strpos($field, $cond['value']) === false
-						or (empty($cond['value']) && !empty($field))) {
-						return false;
-					}
-					break;
-				case 'notinclude':
-					if (strpos($field, $cond['value']) !== false
-						or (empty($cond['value']) && empty($field))) {
-						return false;
-					}
-					break;
+				$fieldVal = TextProcessor::macroValue($cond['field'], $fields);
+				if (!self::cmp($fieldVal, $cond['cmp'], $cond['value'])) {
+					return false;
+				}
 			}
-			}
+		}
+		return true;
+	}
+
+	private static function cmp($left, $op, $right)
+	{
+		switch ($op) {
+		case '>=':
+			return $left >= $right;
+		case '<=':
+			return $left <= $right;
+		case '=':
+		case '==':
+			return $left == $right;
+		case '!=':
+			return $left != $right;
+		case 'include':
+			return @strpos($left, $right) !== false;
+		case 'notinclude':
+			return @strpos($left, $right) === false;
 		}
 		return true;
 	}

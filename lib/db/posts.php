@@ -6,8 +6,7 @@ use vettich\sp3\Api;
 
 class Posts extends \vettich\sp3\devform\data\ArrayList
 {
-	private $filter = [];
-	private $inited = false;
+	public const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 	public function __construct($args = [])
 	{
@@ -63,16 +62,11 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 			return ['error' => Module::m('ERROR_ACCOUNTS_EMPTY')];
 		}
 		if (!empty($this->values['fields']['images'])) {
-			$images = [];
-			foreach ($this->values['fields']['images'] as $image) {
-				$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image["tmp_name"]);
-				$res = Api::uploadFile($pathinfo['tmp_name'], Module::convertToUtf8($image['name']));
-				if (empty($res['error'])) {
-					$images[] = $res['response']['file_id'];
-				}
-				DeleteDirFilesEx(dirname($pathinfo['tmp_name']));
+			$errors = self::checkImages($this->values['fields']['images']);
+			if (!empty($errors)) {
+				return ['error' => $errors];
 			}
-			$this->values['fields']['images'] = $images;
+			$this->values['fields']['images'] = self::uploadImages($this->values['fields']['images']);
 		}
 		if (empty($this->values['fields']['images']) &&
 			empty($this->values['fields']['text']) &&
@@ -100,5 +94,49 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 	public function delete($name, $value)
 	{
 		Api::deletePost($id=$value);
+	}
+
+	private static function checkImages($imagesField)
+	{
+		$errors = [];
+		foreach ($imagesField as $image) {
+			$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image["tmp_name"]);
+			if (!isset($errors['format']) && !self::checkImageMime($pathinfo['tmp_name'])) {
+				$errors['format'] = Module::m('POST_PICTURE_ERROR');
+			}
+			if (!isset($errors['size']) && !self::checkImageSize($pathinfo['tmp_name'])) {
+				$errors['format'] = Module::m('POST_PICTURE_SIZE_ERR');
+			}
+			if (isset($errors['format']) && isset($errors['size'])) {
+				break;
+			}
+		}
+		return $errors;
+	}
+
+	public static function checkImageMime($imagePath)
+	{
+		$mime = mime_content_type($imagePath);
+		return in_array($mime, ['image/png', 'image/jpeg']);
+	}
+
+	public static function checkImageSize($imagePath)
+	{
+		return filesize($imagePath) <= self::MAX_IMAGE_SIZE;
+	}
+
+	private static function uploadImages($imagesField)
+	{
+		$images = [];
+		foreach ($imagesField as $image) {
+			$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image["tmp_name"]);
+			$mime = mime_content_type($pathinfo['tmp_name']);
+			$res = Api::uploadFile($pathinfo['tmp_name'], Module::convertToUtf8($image['name']));
+			if (empty($res['error'])) {
+				$images[] = $res['response']['file_id'];
+			}
+			DeleteDirFilesEx(dirname($pathinfo['tmp_name']));
+		}
+		return $images;
 	}
 }

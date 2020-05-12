@@ -1,7 +1,10 @@
 <?php
 require(__DIR__.'/../include/prolog_authorized_page.php');
+
 IncludeModuleLangFile(__FILE__);
+
 use vettich\sp3\Module;
+use vettich\sp3\FormHelpers;
 use vettich\sp3\Api;
 use vettich\sp3\TextProcessor;
 use vettich\sp3\devform\types;
@@ -57,7 +60,7 @@ $tabGeneralParams = array_merge($tabGeneralParams, [
 ]);
 
 if (!$issetID) {
-	$tabGeneralParams['_fields[images]'] = 'image:#.POST_PICTURE#:maxCount=10:raw=true';
+	$tabGeneralParams['_fields[images]'] = 'image:#.POST_PICTURE#:help=#.POST_PICTURE_HELP#:maxCount=10:raw=true';
 } else {
 	$tabGeneralParams['_fields[images]'] = [
 		'type' => 'html',
@@ -89,32 +92,10 @@ if ($issetID && $isPublished) {
 	];
 }
 
-$tabGeneralParams['h2'] = 'heading:#.POST_HEADER_ACCOUNTS#';
-$accList = (new vettich\sp3\db\Accounts())->getListType();
-foreach ($accList as $t => $accType) {
-	$accountsMap = [];
-	foreach ($accType as $account) {
-		$name = TextProcessor::replace('<span class="vettich-sp3-acc-link" target="_blank"><img src="#PIC#"><span>#NAME#</span></span>', [
-			'PIC' => $account['photo'],
-			'TYPE' => $account['type'],
-			'LINK' => $account['link'],
-			'NAME' => $account['name'],
-			'OPEN_IN_NEW_TAB' => Module::m('OPEN_IN_NEW_TAB'),
-		]);
-		$accountsMap[$account['id']] = $name;
-	}
-	$tabGeneralParams[] = new types\checkbox('_networks[accounts]', [
-		'title' => Module::m(strtoupper($t)),
-		'options' => $accountsMap,
-		'multiple' => true,
-	]);
-	if ($t == 'insta' || $t == 'tg') {
-		$accWarningShow = true;
-	}
-}
-if ($accWarningShow) {
-	$tabGeneralParams['acc_warn'] = 'note:#.ACC_WARN_NOTE#';
-}
+$tabGeneralParams = array_merge(
+	$tabGeneralParams,
+	FormHelpers::buildAccountsList('_networks[accounts]')
+);
 
 $tabGeneralParams = array_merge($tabGeneralParams, [
 	'vk_header' => 'heading:#.POST_VK_TITLE#',

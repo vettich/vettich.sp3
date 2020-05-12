@@ -17,10 +17,7 @@ class Module
 	public static function m($key, $replaces=[])
 	{
 		$m = GetMessage('VETTICH_SP3_' . $key, $replaces);
-		if (empty($m)) {
-			return $key;
-		}
-		return $m;
+		return $m ?: $key;
 	}
 
 	public static function version()

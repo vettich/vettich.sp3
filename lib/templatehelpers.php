@@ -214,6 +214,9 @@ class TemplateHelpers
 		$images = [];
 		foreach ((array)$files as $filepath) {
 			$filepath = Module::convertToUtf8($filepath);
+			if (!db\Posts::checkImageMime($filepath) or !db\Posts::checkImageSize($filepath)) {
+				continue;
+			}
 			$res = Api::uploadFile($filepath, basename($filepath));
 			if (empty($res['error'])) {
 				$images[] = $res['response']['file_id'];

@@ -2,8 +2,11 @@
 $prolog_admin_after = false;
 require(__DIR__.'/../include/prolog_authorized_page.php');
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_popup_admin.php');
+
 IncludeModuleLangFile(__FILE__);
+
 use vettich\sp3\Module;
+use vettich\sp3\FormHelpers;
 use vettich\sp3\IBlockHelpers;
 use vettich\sp3\TextProcessor;
 use vettich\sp3\devform\types;
@@ -138,38 +141,12 @@ $params += [
 	'_QUEUE_ELEMENT_UPDATE' => 'checkbox:#.PENDING_QUEUE_ELEMENT_UPDATE#:Y:help=#.PENDING_QUEUE_ELEMENT_UPDATE_HELP#',
 	'_QUEUE_ELEMENT_DELETE' => 'checkbox:#.PENDING_QUEUE_ELEMENT_DELETE#:Y:help=#.PENDING_QUEUE_ELEMENT_DELETE_HELP#',
 	'_QUEUE_DUPLICATE' => 'checkbox:#.PENDING_QUEUE_DUPLICATE#:N:help=#.PENDING_QUEUE_DUPLICATE_HELP#',
-	'heading4' => 'heading:#.CHOOSE_POST_ACCOUNTS#',
 ];
 /* $individ = ($_POST['_PUBLISH']['COMMON']['INDIVIDUAL_SETTINGS'] == 'Y' */
 /* 	or $data->get('_PUBLISH[COMMON][INDIVIDUAL_SETTINGS]') == 'Y'); */
 
-$accList = (new vettich\sp3\db\Accounts())->getListType();
-foreach ($accList as $t => $accType) {
-	$accountsMap = [];
-	foreach ($accType as $account) {
-		$name = TextProcessor::replace('<span class="vettich-sp3-acc-link" target="_blank"><img src="#PIC#"><span>#NAME#</span></span>', [
-			'PIC' => $account['photo'],
-			'TYPE' => $account['type'],
-			'LINK' => $account['link'],
-			'NAME' => $account['name'],
-			'OPEN_IN_NEW_TAB' => Module::m('OPEN_IN_NEW_TAB'),
-		]);
-		$accountsMap[$account['id']] = $name;
-	}
-	$params[] = new types\checkbox('_ACCOUNTS', [
-		'title' => Module::m(strtoupper($t)),
-		'options' => $accountsMap,
-		'multiple' => true,
-	]);
-	if ($t == 'insta' || $t == 'tg') {
-		$accWarningShow = true;
-	}
-}
-if ($accWarningShow) {
-	$tabGeneralParams['acc_warn'] = 'note:#.ACC_WARN_NOTE#';
-}
+$params = array_merge($params, FormHelpers::buildAccountsList('_ACCOUNTS'));
 
-/* $params += (array) Module::socialAccountsForDevForm('_ACCOUNTS', $individ ? ['onclick' => 'VettichSP3.Devform.Refresh(this);'] : []); */
 $templateDataParams = [
 	// 'none_acc' => 'plaintext::'.vettich\sp3\devform\Module::m('#.NONE_ACCOUNTS#'),
 	'heading5' => 'heading:#.COMMON_DESCRIPTION#',
