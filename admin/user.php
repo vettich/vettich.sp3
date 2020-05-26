@@ -1,6 +1,12 @@
+<?php require(__DIR__.'/../include/prolog_authorized_page_before.php'); ?>
+
+<script src="//code-ya.jivosite.com/widget/ogQFVxRJiA" async></script>
+
 <?php
-require(__DIR__.'/../include/prolog_authorized_page.php');
+require(__DIR__.'/../include/prolog_authorized_page_after.php');
+
 IncludeModuleLangFile(__FILE__);
+
 use vettich\sp3\Api;
 use vettich\sp3\Module;
 
@@ -14,6 +20,7 @@ $days_left = round((($time_left/24)/60)/60);
 if ($days_left <= 0) {
 	$days_left = 0;
 }
+
 $color = '#1ea81e';
 if ($days_left < 7) {
 	$color = '#c42222';
@@ -31,7 +38,6 @@ if ($days_left < 7) {
 			'title' => '#.USER_TITLE#',
 			'params' => [
 				'username' => 'plaintext:#.USERNAME#:'.$user['username'],
-				/* 'balance' => 'plaintext:#.BALANCE#:$999', */
 				'tariff' => [
 					'type' => 'plaintext',
 					'title' => '#.TARIFF_NAME#',
@@ -67,5 +73,16 @@ if ($days_left < 7) {
 	],
 	'data' => null,
 ]))->render();
+?>
 
+<script>
+	var jivo_onLoadCallback = function() {
+		jivo_api.setContactInfo({
+			name: '<?=$user['username']?>',
+			email: '<?=$user['username']?>',
+		});
+	}
+</script>
+
+<?php
 require(__DIR__.'/../include/epilog_authorized_page.php');
