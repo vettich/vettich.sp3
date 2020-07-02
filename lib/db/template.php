@@ -2,8 +2,6 @@
 namespace vettich\sp3\db;
 
 use Bitrix\Main\Entity;
-use Bitrix\Main\ORM\Fields\ArrayField;
-use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
 use Bitrix\Main\Type;
 use vettich\sp3\Module;
 
@@ -23,6 +21,11 @@ class TemplateTable extends OrmBase
 				'autocomplete' => true
 			]),
 
+			new Entity\BooleanField('IS_ENABLE', [
+				'values'=>['N', 'Y'],
+				'default_value' => 'Y'
+			]),
+
 			new Entity\StringField('NAME'),
 
 			new Entity\StringField('IBLOCK_TYPE', [
@@ -38,15 +41,6 @@ class TemplateTable extends OrmBase
 				'default_value' => 'N'
 			]),
 
-			(new ArrayField('IBLOCK_SECTIONS', [
-				'default_value' => []
-			]))->configureSerializationPhp()
-				->addValidator(new LengthValidator(0, 2000)),
-
-			(new Entity\StringField('DOMAIN', [
-				'default_value' => ''
-			]))->addValidator(new LengthValidator(0, 1000)),
-
 			new Entity\BooleanField('NEED_UTM', [
 				'values'=>['N', 'Y'],
 				'default_value' => 'Y'
@@ -55,21 +49,6 @@ class TemplateTable extends OrmBase
 			/* (new Entity\TextField('URL_PARAMS', [ */
 			/* 	'default_value' => '' */
 			/* ]))->addValidator(new LengthValidator(0, 1000)), */
-
-			(new ArrayField('CONDITIONS', [
-				'default_value' => []
-			]))->configureSerializationPhp()
-				->addValidator(new LengthValidator(0, 2000)),
-
-			(new ArrayField('ACCOUNTS', [
-				'default_value' => []
-			]))->configureSerializationPhp()
-				->addValidator(new LengthValidator(0, 2000)),
-
-			(new ArrayField('PUBLISH', [
-				'default_value' => []
-			]))->configureSerializationPhp()
-				->addValidator(new LengthValidator(0, 2000)),
 
 			new Entity\BooleanField('IS_AUTO', [
 				'values'=>['N', 'Y'],
@@ -107,6 +86,50 @@ class TemplateTable extends OrmBase
 				'default_value' => Type\DateTime::createFromPhp(new \DateTime()),
 			]),
 		];
+
+		if (version_compare(SM_VERSION, '18.1.4') < 0) {
+			$arMap[] = new Entity\TextField('IBLOCK_SECTIONS', [
+				'serialized' => true,
+				'default_value' => ''
+			]);
+			$arMap[] = new Entity\StringField('DOMAIN', [
+				'default_value' => ''
+			]);
+			$arMap[] = new Entity\TextField('CONDITIONS', [
+				'serialized' => true,
+				'default_value' => ''
+			]);
+			$arMap[] = new Entity\TextField('ACCOUNTS', [
+				'serialized' => true,
+				'default_value' => ''
+			]);
+			$arMap[] = new Entity\TextField('PUBLISH', [
+				'serialized' => true,
+				'default_value' => ''
+			]);
+		} else {
+			$v = new \Bitrix\Main\ORM\Fields\Validators\LengthValidator(0, 2000);
+
+			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('IBLOCK_SECTIONS', [
+				'default_value' => []
+			]))->configureSerializationPhp()->addValidator($v);
+
+			$arMap[] = (new Entity\StringField('DOMAIN', [
+				'default_value' => ''
+			]))->addValidator($v);
+
+			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('CONDITIONS', [
+				'default_value' => []
+			]))->configureSerializationPhp()->addValidator($v);
+
+			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('ACCOUNTS', [
+				'default_value' => []
+			]))->configureSerializationPhp()->addValidator($v);
+
+			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('PUBLISH', [
+				'default_value' => []
+			]))->configureSerializationPhp()->addValidator($v);
+		}
 		return $arMap;
 	}
 

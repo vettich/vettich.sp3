@@ -117,3 +117,15 @@ $MESS['VETTICH_SP3_PROP_SHOW_COUNTER_START'] = '[SHOW_COUNTER_START] <b>Дата пер
 $MESS['VETTICH_SP3_PROP_WF_COMMENTS']        = '[WF_COMMENTS] <b>Комментарий администратора документооборота</b>';
 $MESS['VETTICH_SP3_PROP_WF_STATUS_ID']       = '[WF_STATUS_ID] <b>Код статуса элемента в документообороте</b>';
 $MESS['VETTICH_SP3_PROP_TAGS']               = '[TAGS] <b>Теги элемента</b>';
+
+$MESS['VETTICH_SP3_PROP_CAT_QUANTITY']             = '[CATALOG_QUANTITY] Количество товара на складе';
+$MESS['VETTICH_SP3_PROP_CAT_WEIGHT']               = '[CATALOG_WEIGHT] Вес единицы товара';
+$MESS['VETTICH_SP3_PROP_CAT_PRICE']                = '[CATALOG_PRICE_#PRICE_ID#] Цена (#TYPE#)';
+$MESS['VETTICH_SP3_PROP_CAT_CURRENCY']             = '[CATALOG_CURRENCY_#PRICE_ID#] Валюта цены (#TYPE#)';
+$MESS['VETTICH_SP3_PROP_CAT_DISCOUNT_ACTIVE_NAME'] = '[CATALOG_DISCOUNT_ACTIVE_NAME] Название скидки';
+$MESS['VETTICH_SP3_PROP_CAT_DISCOUNT_ACTIVE_FROM'] = '[CATALOG_DISCOUNT_ACTIVE_FROM] Дата, с которой действует скидка';
+$MESS['VETTICH_SP3_PROP_CAT_DISCOUNT_ACTIVE_TO']   = '[CATALOG_DISCOUNT_ACTIVE_TO] Дата, до которой действует скидка';
+$MESS['VETTICH_SP3_PROP_CAT_DISCOUNT_NAME']        = '[CATALOG_DISCOUNT_NAME] Название скидки';
+$MESS['VETTICH_SP3_PROP_CAT_WIDTH']                = '[CATALOG_WIDTH] Ширина товара';
+$MESS['VETTICH_SP3_PROP_CAT_LENGTH']               = '[CATALOG_LENGTH] Длина товара';
+$MESS['VETTICH_SP3_PROP_CAT_HEIGHT']               = '[CATALOG_HEIGHT] Высота товара';

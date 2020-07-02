@@ -35,15 +35,24 @@ class PostIBlockTable extends OrmBase
 				'default_value' => 0,
 			]),
 
-			(new ArrayField('TEMPLATE', [
-				'default_value' => []
-			]))->configureSerializationPhp()
-				->addValidator(new LengthValidator(0, 2000)),
-
 			new Entity\StringField('POST_ID', [
 				'default_value' => '',
 			]),
 		];
+
+		if (version_compare(SM_VERSION, '18.1.4') < 0) {
+			$arMap[] = new Entity\TextField('TEMPLATE', [
+				'serialized' => true,
+				'default_value' => ''
+			]);
+		} else {
+			$arMap[] = (new ArrayField('TEMPLATE', [
+					'default_value' => []
+			]))
+				->configureSerializationPhp()
+				->addValidator(new LengthValidator(0, 2000));
+		}
+
 		return $arMap;
 	}
 }

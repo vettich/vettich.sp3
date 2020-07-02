@@ -20,7 +20,7 @@ use vettich\sp3\Module;
 			/* 'on renderView' => ['Vettich\SP\Module', 'onRenderViewIblockId'], */
 		],
 	],
-	/* 'actions' => ['edit', 'copy', 'delete'], */
+	'actions' => ['edit', 'copy', 'delete'],
 	'dontEdit' => ['ID', 'IBLOCK_TYPE', 'IBLOCK_ID'],
 	'dontEditAll' => true,
 	'buttons' => [

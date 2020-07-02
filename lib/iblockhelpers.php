@@ -5,6 +5,12 @@ use vettich\sp3\devform;
 
 class IBlockHelpers
 {
+	const ANY_TYPE = 0;
+	const STRING_TYPE = 1;
+	const FILE_TYPE = 2;
+	const DATE_TYPE = 3;
+	const URL_TYPE = 4;
+
 	private static $_allPropsFor = [];
 	private static $_allPropsMacrosFor = [];
 	private static $_iblockFields = null;
@@ -16,33 +22,33 @@ class IBlockHelpers
 	private static $_iblockElemIds = [];
 	private static $_iblockSections = [];
 
-	public static function allPropsFor($iblockId, $isIblockIsset=true)
+	public static function allPropsFor($iblockId, $fieldsType=0)
 	{
-		if ($isIblockIsset && empty($iblockId)) {
+		if (empty($iblockId)) {
 			return ['' => Module::m('BEFORE_IBLOCK_SELECT')];
 		}
-		if (isset(self::$_allPropsFor[$iblockId])) {
-			return self::$_allPropsFor[$iblockId];
+		if (isset(self::$_allPropsFor["$iblockId-$fieldsType"])) {
+			return self::$_allPropsFor["$iblockId-$fieldsType"];
 		}
 		$result = [];
 		$result[] = [
 			'label' => Module::m('MAIN_FIELDS'),
-			'items' => self::iblockFields(),
+			'items' => self::iblockFields($fieldsType),
 		];
 		$result[] = [
 			'label' => Module::m('PROPERTIES'),
-			'items' => self::iblockProps($iblockId),
+			'items' => self::iblockProps($iblockId, $fieldsType),
 		];
 		$result[] = [
 			'label' => Module::m('CATALOG_FIELDS'),
-			'items'=> self::catalogFiedls($iblockId),
+			'items'=> self::catalogFields($iblockId, $fieldsType),
 		];
-		self::$_allPropsFor[$iblockId] = $result;
+		self::$_allPropsFor["$iblockId-$fieldsType"] = $result;
 		return $result;
 	}
 
 
-	public static function iblockFields()
+	public static function iblockFields($fieldsType=0)
 	{
 		if (self::$_iblockFields == null) {
 			self::$_iblockFields = [
@@ -77,37 +83,91 @@ class IBlockHelpers
 				'TAGS'               => Module::m('PROP_TAGS'),
 			];
 		}
+
+		if ($fieldsType != self::ANY_TYPE) {
+			if ($fieldsType == self::STRING_TYPE) {
+				return Tools::filterByKeys(self::$_iblockFields, [
+					'', 'ID', 'CODE', 'XML_ID', 'NAME',
+					'IBLOCK_ID', 'IBLOCK_SECTION_ID', 'IBLOCK_CODE',
+					'ACTIVE', 'SORT', 'PREVIEW_TEXT', 'DETAIL_TEXT',
+					'CREATED_USER_NAME', 'USER_NAME', 'TAGS',
+				]);
+			}
+
+			if ($fieldsType == self::FILE_TYPE) {
+				return Tools::filterByKeys(self::$_iblockFields, [
+					'', 'PREVIEW_PICTURE', 'DETAIL_PICTURE',
+				]);
+			}
+
+			if ($fieldsType == self::DATE_TYPE) {
+				return Tools::filterByKeys(self::$_iblockFields, [
+					'', 'DATE_ACTIVE_FROM', 'DATE_ACTIVE_TO', 'DATE_CREATE',
+				]);
+			}
+
+			if ($fieldsType == self::URL_TYPE) {
+				return Tools::filterByKeys(self::$_iblockFields, [
+					'', 'LIST_PAGE_URL', 'DETAIL_PAGE_URL',
+				]);
+			}
+		}
+
 		return self::$_iblockFields;
 	}
 
-	public static function iblockProps($iblockId)
+	public static function iblockProps($iblockId, $fieldsType=0)
 	{
 		if (empty($iblockId)) {
 			return null;
 		}
+
 		if (!isset(self::$_iblockProps[$iblockId])) {
-			$arProps = [];
+			$arProps = [
+				self::ANY_TYPE    => [],
+				self::STRING_TYPE => [],
+				self::FILE_TYPE   => [],
+				self::DATE_TYPE   => [],
+				self::URL_TYPE    => [],
+			];
 			$rsProperties = \CIBlockProperty::GetList(
 				[],
 				['ACTIVE'=>'Y', 'IBLOCK_ID'=>$iblockId]
 			);
 			while ($prop_fields = $rsProperties->GetNext()) {
-				/* $str = $prop_fields['NAME']. ' [PROPERTY_'. $prop_fields['CODE']. ']'; */
 				$str = "[PROPERTY_$prop_fields[CODE]] <b>$prop_fields[NAME]</b>";
 				$str = str_replace("'", '"', $str);
 				$str = str_replace(["\"", '&quot;', '&#34;'], "'", $str);
-				$arProps['PROPERTY_'.$prop_fields['CODE']] = $str;
+				$propKey = 'PROPERTY_'.$prop_fields['CODE'];
+				$arProps[self::ANY_TYPE][$propKey] = $str;
+				// var_dump($prop_fields);
+
+				$propType = $prop_fields['PROPERTY_TYPE'];
+				$userType = $prop_fields['USER_TYPE'];
+				if ($propType == 'F') {
+					$arProps[self::FILE_TYPE][$propKey] = $str;
+				}
+				if ($propType == 'S' || $propType == 'N' || $propType == 'L') {
+					$arProps[self::STRING_TYPE][$propKey] = $str;
+				}
+				if ($propType == 'S' && in_array($userType, ['Date', 'DateTime'])) {
+					$arProps[self::DATE_TYPE][$propKey] = $str;
+				}
 			}
 			self::$_iblockProps[$iblockId] = $arProps;
 		}
-		return self::$_iblockProps[$iblockId];
+
+		return self::$_iblockProps[$iblockId][$fieldsType];
 	}
 
-	public static function catalogFiedls($iblockId)
+	public static function catalogFields($iblockId, $fieldsType=0)
 	{
-		if (empty($iblockId)) {
+		if (empty($iblockId) ||
+			$fieldsType == self::FILE_TYPE ||
+			$fieldsType == self::URL_TYPE) {
 			return null;
 		}
+
 		if (!isset(self::$_catalogFields[$iblockId])) {
 			$arProps = [];
 			if (\CModule::IncludeModule('catalog')
@@ -140,15 +200,29 @@ class IBlockHelpers
 				self::$_catalogFields[$iblockId] = $arProps;
 			}
 		}
+
+		if ($fieldsType != self::ANY_TYPE) {
+			$props = self::$_catalogFields[$iblockId];
+			$dateFields = ['CATALOG_DISCOUNT_ACTIVE_FROM', 'CATALOG_DISCOUNT_ACTIVE_TO'];
+
+			if ($fieldsType == self::DATE_TYPE) {
+				return Tools::filterByKeys($props, $dateFields);
+			}
+
+			if ($fieldsType == self::STRING_TYPE) {
+				return Tools::filterByUnKeys($props, $dateFields);
+			}
+		}
+
 		return self::$_catalogFields[$iblockId];
 	}
 
-	public static function allPropsMacrosFor($iblockId, $isIblockIsset=true)
+	public static function allPropsMacrosFor($iblockId)
 	{
 		if (isset(self::$_allPropsMacrosFor[$iblockId])) {
 			return self::$_allPropsMacrosFor[$iblockId];
 		}
-		$result = self::allPropsFor($iblockId, $isIblockIsset);
+		$result = self::allPropsFor($iblockId);
 		foreach ((array)$result as $key => $value) {
 			if (empty($key) && $key !== 0) {
 				continue;

@@ -139,14 +139,12 @@ class AdminForm extends Module
 			LocalRedirect($_GET['back_url']);
 			exit;
 		} elseif (empty($_GET[$this->getID]) && !empty($arValues[$this->idKey])) {
+			$urlParams = [
+				$this->getID => $arValues[$this->idKey],
+				'TAB_CONTROL_devform_active_tab' => $_POST['TAB_CONTROL_devform_active_tab'],
+			];
 			$url = $_SERVER['REQUEST_URI'];
-			if (strpos($url, '?')) {
-				$url .= '&';
-			} else {
-				$url .= '?';
-			}
-			$url .= $this->getID.'='.$arValues[$this->idKey];
-			$url .= '&TAB_CONTROL_devform_active_tab='.$_POST['TAB_CONTROL_devform_active_tab'];
+			$url = Module::setUrlParams($url, $urlParams, ['FROM_'.$this->getID]);
 			LocalRedirect($url);
 			exit;
 		} else {
