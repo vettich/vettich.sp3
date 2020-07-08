@@ -50,11 +50,18 @@ if ($issetID) {
 	}
 }
 
+$needUTM = ($_POST['_fields']['need_utm'] == 'Y' || (empty($_POST) && !!$data->get('_fields[need_utm]')));
 $tabGeneralParams = array_merge($tabGeneralParams, [
 	'h1' => 'heading:#.POST_HEADER_MAIN#',
 	'_id' => 'hidden',
 	'_fields[text]' => 'textarea:#.POST_TEXT#:params=[rows=6]:help=#.POST_TEXT_HELP#',
 	'_fields[link]' => 'text:#.POST_LINK#:help=#.POST_LINK_HELP#:params=[placeholder=http\://domain.com/page.html]',
+	'_fields[need_utm]' => 'checkbox:#.NEED_UTM#:N:help=#.NEED_UTM_HELP#:refresh=Y:native=true',
+	'_fields[utm_params][utm_source]' => !$needUTM ? 'hidden' : 'text:#.UTM_SOURCE#:#SOCIAL_CODE#:help=#.UTM_SOURCE_HELP#',
+	'_fields[utm_params][utm_medium]' => !$needUTM ? 'hidden' : 'text:#.UTM_MEDIUM#:social:help=#.UTM_MEDIUM_HELP#',
+	'_fields[utm_params][utm_campaign]' => !$needUTM ? 'hidden' : 'text:#.UTM_CAMPAIGN#:help=#.UTM_CAMPAIGN_HELP#',
+	'_fields[utm_params][utm_term]' => !$needUTM ? 'hidden' : 'text:#.UTM_TERM#:help=#.UTM_TERM_HELP#',
+	'_fields[utm_params][utm_content]' => !$needUTM ? 'hidden' : 'text:#.UTM_CONTENT#:help=#.UTM_CONTENT_HELP#',
 	/* '_fields[need_utm]' => 'checkbox:#.POST_UTM#:Y:help=#.POST_UTM_HELP#:native=true', */
 	'_fields[tags]' => 'text:#.POST_TAGS#:help=#.POST_TAGS_HELP#:params=[placeholder=#.POST_TAGS_PLACEHOLDER#]',
 ]);

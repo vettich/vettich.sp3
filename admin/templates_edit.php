@@ -131,10 +131,16 @@ if (!$iblock_id) {
 		$_POST['_CONDITIONS'] = unserialize(htmlspecialcharsBack($_POST['_CONDITIONS']));
 		$_POST['_PUBLISH'] = unserialize(htmlspecialcharsBack($_POST['_PUBLISH']));
 	}
+	$needUTM = ($_POST['_NEED_UTM'] == 'Y' || (empty($_POST) && $data->get('_NEED_UTM') == 'Y'));
 	$params += [
 		'heading2' => 'heading:#.DOMAIN_HEADING#',
 		'_DOMAIN' => 'text:#.DOMAIN_NAME#:'.$_SERVER['HTTP_HOST'].':help=#.DOMAIN_NAME_HELP#',
-		/* '_NEED_UTM' => 'checkbox:#.NEED_UTM#:Y', */
+		'_NEED_UTM' => 'checkbox:#.NEED_UTM#:N:refresh=Y:help=#.NEED_UTM_HELP#',
+		'_UTM_SOURCE' => !$needUTM ? 'hidden' : 'text:#.UTM_SOURCE#:#SOCIAL_CODE#:help=#.UTM_SOURCE_HELP#',
+		'_UTM_MEDIUM' => !$needUTM ? 'hidden' : 'text:#.UTM_MEDIUM#:social:help=#.UTM_MEDIUM_HELP#',
+		'_UTM_CAMPAIGN' => !$needUTM ? 'hidden' : 'text:#.UTM_CAMPAIGN#:#IBLOCK_CODE#:help=#.UTM_CAMPAIGN_HELP#',
+		'_UTM_TERM' => !$needUTM ? 'hidden' : 'text:#.UTM_TERM#:help=#.UTM_TERM_HELP#',
+		'_UTM_CONTENT' => !$needUTM ? 'hidden' : 'text:#.UTM_CONTENT#:help=#.UTM_CONTENT_HELP#',
 		/* '_URL_PARAMS' => 'text:#.URL_PARAMS#:utm_source\=#SOCIAL_ID#&utm_medium\=cpc:help=#.URL_PARAMS_HELP#', */
 		'heading6' => 'heading:#.CONDITIONS_HEADING#',
 		'_PUBLISH[CONDITIONS][ACTIVE]' => 'checkbox:#.PUBLISH_CONDITIONS_ACTIVE#:Y:help=#.PUBLISH_CONDITIONS_ACTIVE_HELP#',
@@ -277,4 +283,11 @@ if ($iblock_id) {
 	},
 ]))->render();
 
+if ($_GET['ajax'] != 'Y') {
+	?>
+	<div class="adm-info-message" style="display:block">
+		<pre style="white-space: pre-wrap;"><?=Module::m('MACROS_HELP')?></pre>
+	</div>
+	<?php
+}
 require(__DIR__.'/../include/epilog_authorized_page.php');

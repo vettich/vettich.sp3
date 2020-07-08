@@ -75,6 +75,19 @@ $MESS['VETTICH_SP3_ACCOUNTS_LIMIT_USAGE'] = 'Использовано #current# из #max#';
 $MESS['VETTICH_SP3_TARIFF_EXPIRED']       = 'Истек срок действия тарифа. Вам необходимо <a href="/bitrix/admin/vettich.sp3.tariffs.php">продлить тариф</a> или перейти на новый. Публикация постов приостановлена.';
 $MESS['VETTICH_SP3_CURL_NOT_FOUND']       = 'Для работы модуля требуется наличие php библиотеки <b>curl</b>. Пожалуйста, установите ее, или обратитесь к своему хостинг провайдеру.';
 
+$MESS['VETTICH_SP3_NEED_UTM']          = 'UTM метки';
+$MESS['VETTICH_SP3_NEED_UTM_HELP']     = 'Добавить к URL адресу UTM метки для отслеживания источника трафика';
+$MESS['VETTICH_SP3_UTM_SOURCE']        = 'Источник трафика [<i>utm_medium</i>]';
+$MESS['VETTICH_SP3_UTM_SOURCE_HELP']   = 'Специальный макрос #SOCIAL_CODE# автоматически подставит код социальной сети, например, vkontakte, facebook';
+$MESS['VETTICH_SP3_UTM_MEDIUM']        = 'Вид трафика [<i>utm_medium</i>]';
+$MESS['VETTICH_SP3_UTM_MEDIUM_HELP']   = 'Oпределяет тип трафика: cpc, ppc, email, и т.д. Для соц. сетей можно использовать social';
+$MESS['VETTICH_SP3_UTM_CAMPAIGN']      = 'Название компании [<i>utm_campaign</i>]';
+$MESS['VETTICH_SP3_UTM_CAMPAIGN_HELP'] = 'Название рекламной компании. Здесь, например, можно вставить идентификатор инфоблока, или раздела.';
+$MESS['VETTICH_SP3_UTM_TERM']          = 'Ключевое слово [<i>utm_term</i>]';
+$MESS['VETTICH_SP3_UTM_TERM_HELP']     = 'Определяет ключевые слова (необязательный)';
+$MESS['VETTICH_SP3_UTM_CONTENT']       = 'Вид контента [<i>utm_content</i>]';
+$MESS['VETTICH_SP3_UTM_CONTENT_HELP']  = 'Дополнительная информация, позволяющая различать объявления/посты (необязательный)';
+
 // from devform
 $MESS['VDF_NAME']                 = 'Имя';
 $MESS['VDF_TEXT']                 = 'Текст';

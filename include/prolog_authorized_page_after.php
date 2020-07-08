@@ -4,7 +4,7 @@ CModule::IncludeModule('vettich.sp3');
 use vettich\sp3\Module;
 use vettich\sp3\Api;
 
-if (!function_exists('curl_version')) {
+if (!in_array('curl', get_loaded_extensions())) {
 	?>
 	<div class="adm-info-message" style="display:block">
 		<?=Module::m('CURL_NOT_FOUND')?>

@@ -21,6 +21,7 @@ class IBlockHelpers
 	private static $_iblockids = [];
 	private static $_iblockElemIds = [];
 	private static $_iblockSections = [];
+	private static $_iblockElementFilled = [];
 
 	public static function allPropsFor($iblockId, $fieldsType=0)
 	{
@@ -256,29 +257,39 @@ class IBlockHelpers
 		}
 	}
 
-	public static function iblockValueFill(&$arFields, $isFull=false)
+	public static function iblockValueFill(&$arFields, $isFull=false, $fromCache=true)
 	{
-		if ($isFull) {
-			$arFields = self::iblockElemId($arFields['ID'], $arFields['IBLOCK_ID'], false);
+		if ($fromCache && isset(self::$_iblockElementFilled[$arFields['ID']])) {
+			$arFields = self::$_iblockElementFilled[$arFields['ID']];
+			return;
 		}
+
+		if ($isFull) {
+			$arFields = self::iblockElemId($arFields['ID'], $arFields['IBLOCK_ID'], false, $fromCache);
+		}
+
 		$rsProp = \CIBlockElement::GetProperty($arFields['IBLOCK_ID'], $arFields['ID'], [], []);
 		while ($arProp = $rsProp->GetNext()) {
 			if (!isset($arFields['PROPERTY_'.$arProp['CODE']])) {
 				$arFields['PROPERTY_'.$arProp['CODE']] = $arProp;
 			}
+
 			if ($arProp['MULTIPLE'] == 'Y') {
 				if ($arProp['VALUE']) {
 					$arFields['PROPERTY_'.$arProp['CODE']]['VALUES'][] = $arProp['VALUE'];
 				}
+
 				if ($arProp['~VALUE']) {
 					$arFields['PROPERTY_'.$arProp['CODE']]['~VALUES'][] = $arProp['~VALUE'];
 				}
+
 				$arFields['PROPERTY_'.$arProp['CODE']]['VALUES_ENUM'][] = $arProp['VALUE_ENUM'];
 				$arFields['PROPERTY_'.$arProp['CODE']]['~VALUES_ENUM'][] = $arProp['~VALUE_ENUM'];
 				$arFields['PROPERTY_'.$arProp['CODE']]['VALUES_XML_ID'][] = $arProp['VALUE_XML_ID'];
 				$arFields['PROPERTY_'.$arProp['CODE']]['~VALUES_XML_ID'][] = $arProp['~VALUE_XML_ID'];
 			}
 		}
+
 		if (\CModule::IncludeModule('catalog')
 			&& \CCatalog::GetByID($arFields['IBLOCK_ID'])) {
 			$db_res = \CCatalogProduct::GetList(
@@ -342,6 +353,7 @@ class IBlockHelpers
 					$arFields['CATALOG_DISCOUNT_ACTIVE_TO'] = $arDiscount['ACTIVE_TO'];
 				}
 			}
+
 			$rs = current(\CCatalogSKU::getOffersList($arFields['ID'], $arFields['IBLOCK_ID']));
 			if (!empty($rs)) {
 				foreach ((array)$rs as $ar) {
@@ -349,6 +361,7 @@ class IBlockHelpers
 				}
 			}
 		}
+		self::$_iblockElementFilled[$arFields['ID']] = $arFields;
 	}
 
 	public static function iblockTypes()
@@ -402,13 +415,14 @@ class IBlockHelpers
 		return self::$_iblockids[$id];
 	}
 
-	public static function iblockElemId($id, $iblockId, $isFill=true)
+	public static function iblockElemId($id, $iblockId, $isFill=true, $fromCache=true)
 	{
 		if (!\CModule::IncludeModule('iblock')) {
 			return null;
 		}
-		if ((is_array($id) && in_array($id, array_keys(self::$_iblockElemIds)))
-			or empty(self::$_iblockElemIds[$id])) {
+		if ((is_array($id) && in_array($id, array_keys(self::$_iblockElemIds))) ||
+			empty(self::$_iblockElemIds[$id]) ||
+			!$fromCache) {
 			$rs = \CIBlockElement::GetList(
 				['sort'=>'asc'],
 				['ID' => $id, 'IBLOCK_ID' => $iblockId]

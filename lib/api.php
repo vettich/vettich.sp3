@@ -23,10 +23,16 @@ class Api
 
 	public static function toTime($strtime)
 	{
+		$nowtime = strtotime('now');
 		if (empty($strtime)) {
-			$strtime = 'now';
+			$strtime = $nowtime;
+		} else {
+			$strtime = strtotime($strtime);
+			if ($strtime < $nowtime) {
+				$strtime = $nowtime;
+			}
 		}
-		return date(\DateTime::RFC3339_EXTENDED, strtotime($strtime));
+		return date(\DateTime::RFC3339_EXTENDED, $strtime);
 	}
 
 	private static function setUserData($userId, $token)

@@ -46,6 +46,26 @@ class TemplateTable extends OrmBase
 				'default_value' => 'Y'
 			]),
 
+			new Entity\StringField('UTM_SOURCE', [
+				'default_value' => ''
+			]),
+
+			new Entity\StringField('UTM_MEDIUM', [
+				'default_value' => ''
+			]),
+
+			new Entity\StringField('UTM_CAMPAIGN', [
+				'default_value' => ''
+			]),
+
+			new Entity\StringField('UTM_TERM', [
+				'default_value' => ''
+			]),
+
+			new Entity\StringField('UTM_CONTENT', [
+				'default_value' => ''
+			]),
+
 			/* (new Entity\TextField('URL_PARAMS', [ */
 			/* 	'default_value' => '' */
 			/* ]))->addValidator(new LengthValidator(0, 1000)), */

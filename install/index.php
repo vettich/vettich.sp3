@@ -98,6 +98,7 @@ class vettich_sp3 extends CModule
 		RegisterModuleDependences('main', 'OnAdminListDisplay', 'vettich.sp3', '\vettich\sp3\Events', 'adminListDisplayHandler');
 		RegisterModuleDependences('iblock', 'OnAfterIblockElementAdd', 'vettich.sp3', '\vettich\sp3\Events', 'afterIblockElementAddHandler');
 		RegisterModuleDependences('iblock', 'OnAfterIBlockElementUpdate', 'vettich.sp3', '\vettich\sp3\Events', 'afterIBlockElementUpdateHandler');
+		RegisterModuleDependences('iblock', 'OnBeforeIBlockElementUpdate', 'vettich.sp3', '\vettich\sp3\Events', 'beforeIBlockElementUpdateHandler');
 		RegisterModuleDependences('iblock', 'OnAfterIBlockElementDelete', 'vettich.sp3', '\vettich\sp3\Events', 'afterIBlockElementDeleteHandler');
 		return true;
 	}
@@ -108,6 +109,7 @@ class vettich_sp3 extends CModule
 		UnRegisterModuleDependences('main', 'OnAdminListDisplay', 'vettich.sp3', '\vettich\sp3\Events', 'adminListDisplayHandler');
 		UnRegisterModuleDependences('iblock', 'OnAfterIblockElementAdd', 'vettich.sp3', '\vettich\sp3\Events', 'afterIblockElementAddHandler');
 		UnRegisterModuleDependences('iblock', 'OnAfterIBlockElementUpdate', 'vettich.sp3', '\vettich\sp3\Events', 'afterIBlockElementUpdateHandler');
+		UnRegisterModuleDependences('iblock', 'OnBeforeIBlockElementUpdate', 'vettich.sp3', '\vettich\sp3\Events', 'beforeIBlockElementUpdateHandler');
 		UnRegisterModuleDependences('iblock', 'OnAfterIBlockElementDelete', 'vettich.sp3', '\vettich\sp3\Events', 'afterIBlockElementDeleteHandler');
 		return true;
 	}

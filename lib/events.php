@@ -21,6 +21,11 @@ class Events
 		TemplateHelpers::publish($arFields, ['event' => 'add']);
 	}
 
+	public static function beforeIblockElementUpdateHandler($arFields = [])
+	{
+		TemplateHelpers::cacheIblockElement($arFields['ID'], $arFields['IBLOCK_ID']);
+	}
+
 	public static function afterIblockElementUpdateHandler($arFields = [])
 	{
 		TemplateHelpers::update($arFields, ['event' => 'update']);

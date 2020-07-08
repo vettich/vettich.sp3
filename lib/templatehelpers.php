@@ -5,6 +5,20 @@ use vettich\sp3\db;
 
 class TemplateHelpers
 {
+	private static $_iblockElements = [];
+
+	/**
+	 * publishes a post from an infoblock
+	 *
+	 * a template for publishing is selected automatically
+	 * based on conditions in saved templates
+	 *
+	 * @param array $arFields can be ['ID' => <elemID>, 'IBLOCK_ID' => <iblockID>]
+	 * @param array $params (optional)
+	 * @return array
+	 *   'errors' - if errors exists
+	 *   'post_ids' - array of added post ids
+	 */
 	public static function publish($arFields, $params=[])
 	{
 		if (empty($arFields)
@@ -13,34 +27,35 @@ class TemplateHelpers
 				&& $arFields['ID'] != $arFields['WF_PARENT_ELEMENT_ID'])) {
 			return false;
 		}
-		IBlockHelpers::iblockValueFill($arFields, true);
 
+		IBlockHelpers::iblockValueFill($arFields, true);
 		$arTemplates = [];
 		if (!empty($params['arTemplate'])) {
 			$arTemplates[$params['arTemplate']['ID']] = $params['arTemplate'];
 		} else {
-			$filter = [
-				/* 'IS_ENABLE' => 'Y', */
-				'IBLOCK_ID' => $arFields['IBLOCK_ID'],
-			];
+			$filter = ['IBLOCK_ID' => $arFields['IBLOCK_ID']];
 			if ($params['event'] == 'add') {
 				$filter['IS_AUTO'] = 'Y';
 			}
+
 			$rsTemplate = db\TemplateTable::getList(['filter' => $filter]);
 			while ($ar = $rsTemplate->fetch()) {
 				$arTemplates[$ar['ID']] = $ar;
 			}
 		}
 
+		$result = ['errors' => [], 'post_ids' => []];
 		foreach ((array)$arTemplates as $arTemplate) {
 			$fields = $arFields + $arTemplate;
 			if (!IBlockHelpers::cmpFields($fields) || !IBlockHelpers::inSections($fields)) {
 				continue;
 			}
+
 			$post = self::preparePostData($arFields, $arTemplate);
 			if (empty($post)) {
 				continue;
 			}
+
 			$res = Api::createPost($post);
 			if (empty($res['error'])) {
 				$postIblockData = [
@@ -49,9 +64,14 @@ class TemplateHelpers
 					'TEMPLATE_ID' => $arTemplate['ID'],
 					'POST_ID' => $res['response']['post_id'],
 				];
+				$result['post_ids'][] = $res['response']['post_id'];
 				db\PostIBlockTable::add($postIblockData);
+			} else {
+				$result['errors'][] = $res['error'];
 			}
 		}
+
+		return $result;
 	}
 
 	public static function publishWithTemplate($arFilter, $templateIds, $checkConditions=false)
@@ -81,10 +101,12 @@ class TemplateHelpers
 				if ($checkConditions && !IBlockHelpers::cmpFields($fields)) {
 					continue;
 				}
+
 				$post = self::preparePostData($arFields, $arTemplate);
 				if (empty($post)) {
 					continue;
 				}
+
 				$res = Api::createPost($post);
 				if (empty($res['error'])) {
 					$arResult[] = $res['response']['post_id'];
@@ -105,9 +127,19 @@ class TemplateHelpers
 		return $arResult;
 	}
 
+	public static function cacheIblockElement($id, $iblockId)
+	{
+		if (empty($id) || empty($iblockId)) {
+			return;
+		}
+		$elem = IBlockHelpers::iblockElemId($id, $iblockId, false);
+		self::$_iblockElements[$id] = $elem;
+	}
+
 	public static function update($arFields, $params=[])
 	{
-		IBlockHelpers::iblockValueFill($arFields, true);
+		IBlockHelpers::iblockValueFill($arFields, true, false);
+		$found = false;
 		try {
 			$filter = [
 				'ELEM_ID' => $arFields['ID'],
@@ -121,22 +153,31 @@ class TemplateHelpers
 				} else {
 					$arTemplate = $arPostIBlock['TEMPLATE'];
 				}
-				if (empty($arTemplate)) {
+
+				if (empty($arTemplate) ||
+					$arTemplate['UPDATE_IN_NETWORKS'] != 'Y') {
 					continue;
 				}
-				if ($arTemplate['UPDATE_IN_NETWORKS'] != 'Y') {
-					continue;
-				}
+
 				$post = self::preparePostData($arFields, $arTemplate);
 				if (empty($post)) {
 					continue;
 				}
+
+				$found = true;
 				$post['id'] = $arPostIBlock['POST_ID'];
 				$res = Api::updatePost($post);
 			}
 		} catch (\Exception $e) {
 			Module::log(['code' => $e->getCode(), 'msg' => $e->getMessage()]);
 			return;
+		}
+
+		if (!$found &&
+			$arFields['ACTIVE'] == 'Y' &&
+			isset(self::$_iblockElements[$arFields['ID']]) &&
+			self::$_iblockElements[$arFields['ID']]['ACTIVE'] != $arFields['ACTIVE']) {
+			self::publish($arFields, ['event' => 'add']);
 		}
 	}
 
@@ -179,6 +220,14 @@ class TemplateHelpers
 			'fields' => [
 				'text' => self::prepareText($arTemplate['PUBLISH']['COMMON']['TEXT'], $fields),
 				'link' => TextProcessor::macroValue($arTemplate['PUBLISH']['COMMON']['LINK'], $fields),
+				'need_utm' => $arTemplate['NEED_UTM'] == 'Y',
+				'utm_params' => [
+					'utm_source' => TextProcessor::replace($arTemplate['UTM_SOURCE'], $fields, false),
+					'utm_medium' => TextProcessor::replace($arTemplate['UTM_MEDIUM'], $fields, false),
+					'utm_campaign' => TextProcessor::replace($arTemplate['UTM_CAMPAIGN'], $fields, false),
+					'utm_term' => TextProcessor::replace($arTemplate['UTM_TERM'], $fields, false),
+					'utm_content' => TextProcessor::replace($arTemplate['UTM_CONTENT'], $fields, false),
+				],
 				'tags' => TextProcessor::macroValue($arTemplate['PUBLISH']['COMMON']['TAGS'], $fields),
 				'images' => $images,
 				'extra' => [
