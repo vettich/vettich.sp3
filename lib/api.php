@@ -8,8 +8,9 @@ IncludeModuleLangFile(__FILE__);
  */
 class Api
 {
-	const FROM = 'bitrix';
+	const FROM               = 'bitrix';
 	const SERVER_UNAVAILABLE = -11;
+	const UNLOAD_ENDPOINT    = '/bitrix/tools/vettich.sp3.ajax.php?method=unload';
 
 	public static function userId()
 	{
@@ -39,7 +40,7 @@ class Api
 	{
 		Config::setConfig([
 			'user_id' => $userId,
-			'token' => $token,
+			'token'   => $token,
 		]);
 	}
 
@@ -83,7 +84,7 @@ class Api
 		}
 		return [
 			'error' => [
-				'msg' => 'server is unavailable',
+				'msg'  => 'server is unavailable',
 				'code' => self::SERVER_UNAVAILABLE,
 			],
 		];
@@ -119,9 +120,9 @@ class Api
 	private static function callGet($endpoint, $queries=[], $needAuth=true)
 	{
 		Module::log(['endpoint' => $endpoint, 'queries' => $queries], ['trace_n' => 3]);
-		$q = self::buildQuery($queries);
+		$q   = self::buildQuery($queries);
 		$url = self::buildEndpoint($endpoint, $q);
-		$c = self::buildCurl($url, $needAuth);
+		$c   = self::buildCurl($url, $needAuth);
 		if (!$c) {
 			return false;
 		}
@@ -134,7 +135,7 @@ class Api
 	{
 		Module::log(['endpoint' => $endpoint, 'data' => $data], ['trace_n' => 3]);
 		$url = self::buildEndpoint($endpoint);
-		$c = self::buildCurl($url, $needAuth, ['Content-Type: application/json']);
+		$c   = self::buildCurl($url, $needAuth, ['Content-Type: application/json']);
 		if (!$c) {
 			return false;
 		}
@@ -149,9 +150,9 @@ class Api
 	private static function callDelete($endpoint, $queries=[], $needAuth=true)
 	{
 		Module::log(['endpoint' => $endpoint, 'queries' => $queries], ['trace_n' => 3]);
-		$q = self::buildQuery($queries);
+		$q   = self::buildQuery($queries);
 		$url = self::buildEndpoint($endpoint, $q);
-		$c = self::buildCurl($url, $needAuth);
+		$c   = self::buildCurl($url, $needAuth);
 		if (!$c) {
 			return false;
 		}
@@ -189,7 +190,7 @@ class Api
 		$queries = [
 			'username' => $username,
 			'password' => $password,
-			'from' => self::FROM,
+			'from'     => self::FROM,
 		];
 		$result = self::callPost('tokens', $queries, false);
 		Module::log($result);
@@ -206,7 +207,7 @@ class Api
 		$queries = [
 			'username' => $username,
 			'password' => $password,
-			'from' => self::FROM,
+			'from'     => self::FROM,
 		];
 		$result = self::callPost('users', $queries, false);
 		Module::log($result);
@@ -220,9 +221,9 @@ class Api
 	public static function forgotPassword($username, $callback_url)
 	{
 		$q = [
-			'username' => $username,
+			'username'     => $username,
 			'callback_url' => $callback_url,
-			'from' => self::FROM,
+			'from'         => self::FROM,
 		];
 		$result = self::callPost('passwords/forgot', $q, false);
 		return self::resultWrapper($result);
@@ -231,7 +232,7 @@ class Api
 	public static function resetPassword($token, $password)
 	{
 		$queries = [
-			'token' => $token,
+			'token'    => $token,
 			'password' => $password,
 		];
 		$result = self::callPost('passwords/new', $queries, false);
@@ -272,7 +273,7 @@ class Api
 	public static function connectUrl($accType, $callback)
 	{
 		$queries = [
-			'type' => $accType,
+			'type'     => $accType,
 			'callback' => $callback,
 		];
 		$res = self::callGet('connect_url', $queries);
@@ -282,7 +283,7 @@ class Api
 	public static function connect($accType, $fields)
 	{
 		$queries = [
-			'type' => $accType,
+			'type'   => $accType,
 			'fields' => $fields,
 		];
 		$res = self::callPost('connect', $queries);
@@ -295,8 +296,8 @@ class Api
 		$q = [
 			'username' => trim($uname),
 			'password' => trim($pass),
-			'proxy' => trim($proxy),
-			'code' => trim($code),
+			'proxy'    => trim($proxy),
+			'code'     => trim($code),
 		];
 		$res = self::callPost('connect-insta', $q);
 		return self::resultWrapper($res);
@@ -323,7 +324,7 @@ class Api
 	public static function postsList($queries=[])
 	{
 		$queries['filter']['from'] = self::FROM;
-		$res = self::callGet('posts', $queries);
+		$res                       = self::callGet('posts', $queries);
 		return self::resultWrapper($res);
 	}
 
@@ -362,10 +363,10 @@ class Api
 		}
 
 		// step 2: upload file
-		$fileID = $res['response']['file_id'];
+		$fileID    = $res['response']['file_id'];
 		$uploadUrl = $res['response']['url'];
-		$data = ['file' => self::filenameWrapper($filepath, $filename)];
-		$c = self::buildCurl($uploadUrl, $needAuth=true, ['Content-Type:multipart/form-data']);
+		$data      = ['file' => self::filenameWrapper($filepath, $filename)];
+		$c         = self::buildCurl($uploadUrl, $needAuth=true, ['Content-Type:multipart/form-data']);
 		if (!$c) {
 			return ['error' => ['msg' => 'failed file upload']];
 		}
@@ -401,7 +402,7 @@ class Api
 			return [];
 		}
 		$queries = ['ids' => $fileIDs];
-		$res = self::callGet('files_url', $queries);
+		$res     = self::callGet('files_url', $queries);
 		return self::resultWrapper($res);
 	}
 
@@ -423,7 +424,7 @@ class Api
 	public static function setUserTariff($tariffID)
 	{
 		$params = ['tariff_id' => $tariffID];
-		$res = self::callPost('me/set-tariff', $params);
+		$res    = self::callPost('me/set-tariff', $params);
 		return self::resultWrapper($res);
 	}
 
@@ -437,5 +438,19 @@ class Api
 	{
 		$logData['from'] = self::FROM;
 		self::callPost('logs', $logData, false);
+	}
+
+	public static function createCron()
+	{
+		$params = ['url' => TextProcessor::createLink(self::UNLOAD_ENDPOINT, [])];
+		$res    = self::callPost('cron', $params);
+		return self::resultWrapper($res);
+	}
+
+	public static function deleteCron()
+	{
+		$params = ['url' => TextProcessor::createLink(self::UNLOAD_ENDPOINT, [])];
+		$res    = self::callDelete('cron', $params);
+		return self::resultWrapper($res);
 	}
 }

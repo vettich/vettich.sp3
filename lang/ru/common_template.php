@@ -76,7 +76,7 @@ $MESS['VETTICH_SP3_<=']              = 'Меньше или равно';
 $MESS['VETTICH_SP3_COND_INCLUDE']    = 'Содержит';
 $MESS['VETTICH_SP3_COND_NOTINCLUDE'] = 'НЕ содержит';
 
-$MESS['VETTICH_SP3_PROPERTIES'] = 'Свойства';
+$MESS['VETTICH_SP3_PROPERTIES']     = 'Свойства';
 $MESS['VETTICH_SP3_CATALOG_FIELDS'] = 'Поля каталога';
 
 $MESS['VETTICH_SP3_QUEUE_SETTINGS']                    = 'Настройки очереди';
@@ -88,6 +88,26 @@ $MESS['VETTICH_SP3_PENDING_QUEUE_DUPLICATE']           = 'Исключать дубликаты';
 $MESS['VETTICH_SP3_PENDING_QUEUE_DUPLICATE_HELP']      = 'Если в списке очереди уже есть элемент с ID, то еще один такой же опубликован не будет.';
 $MESS['VETTICH_SP3_PENDING_POSTING']                   = 'Очередь';
 $MESS['VETTICH_SP3_PENDING_POSTING_SETTINGS']          = 'Настройка отложенного постинга';
+
+$MESS['VETTICH_SP3_UNLOAD_DATETIME_HEADER']      = 'Настройка расписания выгрузки';
+$MESS['VETTICH_SP3_UNLOAD_SORTING_HEADER']       = 'Настройка выборки элементов для выгрузки';
+$MESS['VETTICH_SP3_UNLOAD_ENABLE']               = 'Автоматическая выгрузка';
+$MESS['VETTICH_SP3_UNLOAD_ENABLE_HELP']          = 'Если галочка поставлена, то существующие элементы из инфоблока будут выгружаться в соц. сети согласно расписанию ниже.';
+$MESS['VETTICH_SP3_UNLOAD_DATETIME_SELECT']      = 'Выберите время для выгрузки';
+$MESS['VETTICH_SP3_UNLOAD_DATETIME_SELECT_HELP'] = 'Вы можете выбрать общее время выгрузки для всех дней, и (или же) настроить для каждого дня недели свое время выгрузки';
+$MESS['VETTICH_SP3_TEMPLATE_UNLOAD']             = 'Выгрузка';
+$MESS['VETTICH_SP3_TEMPLATE_UNLOAD_SETTINGS']    = 'Настройки выгрузки';
+$MESS['VETTICH_SP3_UNLOAD_TIMEZONE']             = 'Часовой пояс';
+$MESS['VETTICH_SP3_UNLOAD_TIMEZONE_HELP']        = 'Настроенное расписание выгрузки будет работать в указанном часовом поясе';
+$MESS['VETTICH_SP3_UNLOAD_SORT_FIELD']           = 'Поле инфоблока для сортировки';
+$MESS['VETTICH_SP3_UNLOAD_SORT_FIELD_HELP']      = 'Выберите, по какому полю необходимо сортировать выборку, чтобы происходила выгрузка нужных элементов как можно быстрее';
+$MESS['VETTICH_SP3_UNLOAD_SORT_ORDER']           = 'Направление сортировки';
+$MESS['VETTICH_SP3_UNLOAD_SORT_ORDER_HELP']      = 'Как необходимо сортировать: по возрастанию, по убыванию или рандомно';
+$MESS['VETTICH_SP3_UNLOAD_SORT_ASC']             = 'По возрастанию';
+$MESS['VETTICH_SP3_UNLOAD_SORT_DESC']            = 'По убыванию';
+$MESS['VETTICH_SP3_UNLOAD_SORT_RAND']            = 'Рандомно';
+$MESS['VETTICH_SP3_UNLOAD_KEEP_INTERVAL']        = 'Соблюдать интервал выгрузки в 30 мин.';
+$MESS['VETTICH_SP3_UNLOAD_KEEP_INTERVAL_HELP']   = 'При отмеченной галочке, будет соблюдаться 30 минутный интервал между публикациями по данному шаблону. Например, вы добавили элемент в инфоблок в 11:50, а по расписанию у вас стоит выгрузка в 12:00 - в этом случае выгрузки не будет. <br> Данная опция работает только для выгрузки!';
 
 $MESS['VETTICH_SP3_PROP_ID']                 = '[ID] <b>ID элемента</b>';
 $MESS['VETTICH_SP3_PROP_CODE']               = '[CODE] <b>Символьный идентификатор</b>';

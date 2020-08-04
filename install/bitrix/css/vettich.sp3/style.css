@@ -36,6 +36,58 @@
 .vettich-sp3-social-icon.tw:after    { background-image: url(/bitrix/images/vettich.sp3/tw.png) }
 .vettich-sp3-social-icon.insta:after { background-image: url(/bitrix/images/vettich.sp3/insta.png) }
 
+.vettich-sp3-time-line {
+  display: block;
+  margin-bottom: 1em;
+}
+
+.vettich-sp3-time-title {
+  display: inline-block;
+  font-weight: bold;
+	min-width: 2em;
+	margin-right: 1em;
+}
+
+.vettich-sp3-time-item-wrap {
+	position: relative;
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.vettich-sp3-time-item,
+select.vettich-sp3-time-item {
+  display: inline-block;
+}
+
+.vettich-sp3-time-remove-btn {
+	display: none;
+	position: absolute;
+	right: -5px;
+	top: -5px;
+	background-color: #ff5959;
+	color: white;
+	width: 20px;
+	height: 20px;
+	text-align: center;
+	cursor: pointer;
+	line-height: 20px;
+	border: 1px solid red;
+}
+
+.vettich-sp3-time-item-wrap:hover .vettich-sp3-time-remove-btn {
+	display: block;
+}
+
+.vettich-sp3-time-plus-btn {
+	display: inline-block;
+	border: 1px solid #d3c6a3;
+	width: 3em;
+	text-align: center;
+	background-color: #e9ebce;
+	padding: 2px;
+	cursor: pointer;
+}
+
 
 .instal-progress-bar-outer {
 	height: 32px;

@@ -3,8 +3,8 @@ namespace vettich\sp3;
 
 class Config
 {
-	private $_data = [];
-	private $_path = "";
+	private $_data            = [];
+	private $_path            = "";
 	private static $_instance = null;
 
 	public function __construct()
@@ -45,7 +45,7 @@ class Config
 		if (empty($data) || !is_array($data)) {
 			return false;
 		}
-		$i = self::instance();
+		$i        = self::instance();
 		$i->_data = array_merge($i->_data, $data);
 		$i->saveConfig();
 	}
@@ -58,14 +58,14 @@ class Config
 
 	public static function set($key, $value)
 	{
-		$i = self::instance();
+		$i              = self::instance();
 		$i->_data[$key] = $value;
 		$i->saveConfig();
 	}
 
 	public static function get($key)
 	{
-		$i = self::instance();
+		$i     = self::instance();
 		$value = $i->_data[$key];
 		return $value;
 	}

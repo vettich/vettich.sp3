@@ -52,17 +52,17 @@ class Log
 
 	private static function isRemote($level)
 	{
-		return $level == self::INFO ||
-			$level == self::WARNING ||
-			$level == self::ERROR;
+		return $level == self::INFO    ||
+			$level       == self::WARNING ||
+			$level       == self::ERROR;
 	}
 
 	private static function localWrite($level, $msg, $options=[])
 	{
-		$text = var_export($msg, true);
-		$date = date('Y/m/d H:i:s');
-		$trace = $options['trace'];
-		$text = "[$level:$date] $trace:\n$text\n";
+		$text    = var_export($msg, true);
+		$date    = date('Y/m/d H:i:s');
+		$trace   = $options['trace'];
+		$text    = "[$level:$date] $trace:\n$text\n";
 		$logfile = $options['logfile'] ?: self::LOCAL_FILE;
 		error_log($text, 3, VETTICH_SP3_DIR.'/'.$logfile);
 	}
@@ -70,9 +70,9 @@ class Log
 	private static function remoteWrite($level, $msg, $options=[])
 	{
 		$data = [
-			'level' => $level,
-			'trace' => $options['trace'],
-			'msg' => var_export($msg, true),
+			'level'   => $level,
+			'trace'   => $options['trace'],
+			'msg'     => var_export($msg, true),
 			'user_id' => Config::get('user_id'),
 		];
 		Api::sendLog($data);
@@ -89,9 +89,9 @@ class Log
 		}
 		$str = [];
 		foreach ($trace as $t) {
-			$file = str_replace(VETTICH_SP3_DIR, '', $t['file']);
-			$file = str_replace($_SERVER['DOCUMENT_ROOT'], '', $file);
-			$file = substr($file, 1);
+			$file  = str_replace(VETTICH_SP3_DIR, '', $t['file']);
+			$file  = str_replace($_SERVER['DOCUMENT_ROOT'], '', $file);
+			$file  = substr($file, 1);
 			$str[] = "$file:$t[line]:$t[function]";
 		}
 		$str = array_reverse($str);

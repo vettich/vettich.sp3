@@ -45,7 +45,7 @@ class Events
 		\CJSCore::Init(['vettich_sp3_script']);
 
 		$list->arActions['VETTICH_SP3_IBLOCK_MENU_SEND'] = [
-			'name' => Module::m('IBLOCK_MENU_SEND'),
+			'name'   => Module::m('IBLOCK_MENU_SEND'),
 			'action' => 'VettichSP3.MenuSendWithTemplate('.\CUtil::PhpToJSObject(['IBLOCK_ID' => $_GET['IBLOCK_ID']]).');',
 		];
 
@@ -57,10 +57,10 @@ class Events
 					$arnewActions[] = $act;
 					continue;
 				}
-				$subtype = substr($v->id, 0, 1); // S - SECTION, E - ELEMENT
+				$subtype      = substr($v->id, 0, 1); // S - SECTION, E - ELEMENT
 				$emptySubtype = !in_array($subtype, ['E', 'S']);
-				$id = !$emptySubtype ? substr($v->id, 1) : $v->id;
-				$queries = ['IBLOCK_ID' => $v->arRes["IBLOCK_ID"]];
+				$id           = !$emptySubtype ? substr($v->id, 1) : $v->id;
+				$queries      = ['IBLOCK_ID' => $v->arRes["IBLOCK_ID"]];
 				if ($emptySubtype) {
 					$subtype = strpos($curPage, 'section') !== false ? 'S' : 'E';
 				}
@@ -69,12 +69,12 @@ class Events
 				} else {
 					$queries['SECTIONS'] = [$id];
 				}
-				$q = \CUtil::PhpToJSObject($queries);
-				$actionKey = (SM_VERSION <= '18.0.4' ? 'ACTION' : 'ONCLICK');
+				$q              = \CUtil::PhpToJSObject($queries);
+				$actionKey      = (SM_VERSION <= '18.0.4' ? 'ACTION' : 'ONCLICK');
 				$arnewActions[] = [
 					'GLOBAL_ICON' => 'vettich-sp3-publish',
-					'TEXT' => Module::m('IBLOCK_MENU_SEND'),
-					'ACTION' => 'VettichSP3.MenuSendWithTemplate('.$q.');',
+					'TEXT'        => Module::m('IBLOCK_MENU_SEND'),
+					'ACTION'      => 'VettichSP3.MenuSendWithTemplate('.$q.');',
 					/* 'MENU' => [ */
 					/* 	[ */
 					/* 		'TEXT' => Module::m('IBLOCK_MENU_SEND_WITH_TEMPLATE'), */

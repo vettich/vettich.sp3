@@ -6,8 +6,8 @@ namespace vettich\sp3;
 */
 class Module
 {
-	const MID = 'vettich.sp3';
-	const LOG_FILE = 'log.txt';
+	const MID                = 'vettich.sp3';
+	const LOG_FILE           = 'log.txt';
 	private static $_version = null;
 
 	/**

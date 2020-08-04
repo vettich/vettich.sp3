@@ -9,7 +9,7 @@ VettichSP3 = {
 		result: new BX.CDialog({
 			title: BX.message('VETTICH_SP3_RESULT'),
 			content: '',
-			buttons: [BX.CDialog.prototype.btnClose]
+			buttons: [BX.CDialog.prototype.btnClose],
 		}),
 	},
 }
@@ -33,20 +33,21 @@ VettichSP3.setResult = function (elem, text, color) {
 }
 
 VettichSP3.login = function () {
-	var username = document.getElementById('lusername').value;
-	var password = document.getElementById('lpassword').value;
+	var query = {
+		method:   'login',
+		username: document.getElementById('lusername').value,
+		password: document.getElementById('lpassword').value,
+	};
 	var lresult = document.getElementById('lresult');
 	VettichSP3.clearResult(lresult);
-	if (!username.length || !password.length) {
+	if (!query.username.length || !query.password.length) {
 		VettichSP3.setResult(lresult, VettichSP3.m('FILL_ALL_FIELDS'), 'red');
 		return;
 	}
+
 	var show = BX.showWait("FORM_devform");
-	var queries = '?method=login' +
-		'&username=' + username +
-		'&password=' + password;
-	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
-		var dataJson = JSON.parse(data)
+	jQuery.get(VettichSP3.ajaxUrl + VettichSP3.queryStringify(query), function(data) {
+		var dataJson = JSON.parse(data);
 		if(!dataJson.error) {
 			VettichSP3.setResult(lresult, VettichSP3.m('SUCCESS'), 'green');
 			window.location = VettichSP3.userUrl;
@@ -105,9 +106,11 @@ VettichSP3.signup = function () {
 	}
 
 	var show = BX.showWait("FORM_devform");
-	var queries = '?method=signup' +
-		'&username=' + username +
-		'&password=' + password;
+	var queries = VettichSP3.queryStringify({
+		method: 'signup',
+		username: username,
+		password: password,
+	});
 	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
 		var dataJson = JSON.parse(data)
 		if(!dataJson.error) {
@@ -136,10 +139,11 @@ VettichSP3.forgotPassword = function () {
 	}
 
 	var show = BX.showWait("FORM_devform");
-	var callback = location.origin + '/bitrix/admin/vettich.sp3.reset_password.php';
-	var queries = '?method=forgotPassword' +
-		'&callback_url=' + callback +
-		'&username=' + username;
+	var queries = VettichSP3.queryStringify({
+		method: 'forgotPassword',
+		username: username,
+		callback_url: location.origin + '/bitrix/admin/vettich.sp3.reset_password.php',
+	});
 	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
 		var dataJson = JSON.parse(data)
 		if(!dataJson.error) {
@@ -173,9 +177,11 @@ VettichSP3.resetPassword = function () {
 	}
 
 	var show = BX.showWait("FORM_devform");
-	var queries = '?method=resetPassword' +
-		'&token=' + token +
-		'&password=' + password;
+	var queries = VettichSP3.queryStringify({
+		method: 'resetPassword',
+		token: token,
+		password: password,
+	});
 	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
 		var dataJson = JSON.parse(data)
 		if(!dataJson.error) {
@@ -210,8 +216,11 @@ VettichSP3.logout = function () {
 VettichSP3.connectAccount = function(type) {
 	var rresult = document.getElementById(type + '_login_res');
 	var show = BX.showWait("FORM_devform");
-	var callback = location.origin + '/bitrix/admin/vettich.sp3.accounts_list.php';
-	var queries = '?method=getConnectUrl&type=' + type + '&callback=' + callback;
+	var queries = VettichSP3.queryStringify({
+		method: 'getConnectUrl',
+		type: type,
+		callback: location.origin + '/bitrix/admin/vettich.sp3.accounts_list.php',
+	});
 	jQuery.get(VettichSP3.ajaxUrl + queries, function(data) {
 		var dataJson = JSON.parse(data)
 		if(!dataJson.error) {
@@ -238,11 +247,12 @@ VettichSP3.connectInsta = function() {
 		return;
 	}
 	var show = BX.showWait('adm-workarea');
-	var query = {
+	var queries = VettichSP3.queryStringify({
+		method: 'connect',
 		type: 'insta',
 		fields: fields,
-	}
-	jQuery.get(VettichSP3.ajaxUrl + '?method=connect&' + VettichSP3.queryStringify(query), function (data) {
+	});
+	jQuery.get(VettichSP3.ajaxUrl + '?' + queries, function (data) {
 		try {
 			var res = JSON.parse(data);
 			if(res.error) {
@@ -277,11 +287,12 @@ VettichSP3.connectTg = function() {
 		return;
 	}
 	var show = BX.showWait('adm-workarea');
-	var query = {
+	var query = VettichSP3.queryStringify({
+		method: 'connect',
 		type: 'tg',
 		fields: fields,
-	}
-	jQuery.get(VettichSP3.ajaxUrl + '?method=connect&' + VettichSP3.queryStringify(query), function (data) {
+	});
+	jQuery.get(VettichSP3.ajaxUrl + queries, function (data) {
 		try {
 			var res = JSON.parse(data);
 			if(res.error) {
@@ -302,7 +313,7 @@ VettichSP3.connectTg = function() {
 VettichSP3.MenuSendWithTemplate = function (query) {
 	var show = BX.showWait('adm-workarea');
 	// VettichSP3.fixClosePopupMenu();
-	jQuery.get(VettichSP3.ajaxUrl + '?method=listTemplates&' + VettichSP3.queryStringify(query), function (data) {
+	jQuery.get(VettichSP3.ajaxUrl + '?method=listTemplates&' + VettichSP3.queryStringify(query, true), function (data) {
 		var publishBtn = {
 			title: VettichSP3.m('PUBLISH'),
 			onclick: 'VettichSP3.MenuSendWithTemplateStep2(' + JSON.stringify(query) + ');',
@@ -334,7 +345,7 @@ VettichSP3.MenuSendWithTemplate = function (query) {
 		if(!query.ELEMS && !query.SECTIONS) {
 			query = VettichSP3.getSelectedIblockElements(query);
 		}
-		var link = '/bitrix/admin/vettich.sp3.posts_custom.php?' + VettichSP3.queryStringify(query);
+		var link = '/bitrix/admin/vettich.sp3.posts_custom.php' + VettichSP3.queryStringify(query);
 		html += '<br/><br/><a href="{link}" target="_blank" onclick="{onclick}">{text}</a>'
 			.split('{link}').join(link)
 			.split('{onclick}').join('VettichSP3.dialogs.templatesList.Close()')
@@ -368,7 +379,7 @@ VettichSP3.MenuSendWithTemplateStep2 = function(query) {
 		query.TEMPLATES.push(selectedTemplates[i].value);
 	}
 	query.method = 'publishWithTemplate';
-	squery = '?' + VettichSP3.queryStringify(query);
+	squery = VettichSP3.queryStringify(query);
 	jQuery.get(VettichSP3.ajaxUrl + squery).always(function(data) {
 		BX.closeWait(prevDialog.DIV.id, show);
 		var html = '';
@@ -422,7 +433,7 @@ VettichSP3.getSelectedIblockElements = function(query) {
 	return query;
 }
 
-VettichSP3.queryStringify = function(query, prefix) {
+VettichSP3.queryStringify = function(query, onlyQS, prefix) {
 	var res = [];
 	prefix = prefix || "";
 	function buildKey(key) {
@@ -435,13 +446,35 @@ VettichSP3.queryStringify = function(query, prefix) {
 	Object.keys(query).map(function(key) {
 		if(Array.isArray(query[key])) {
 			query[key].map(function(val) {
-				res.push(buildKey(key) + '[]=' + val);
+				res.push(buildKey(key) + '[]=' + encodeURIComponent(val));
 			});
 		} else if(typeof query[key] == "object") {
-			res = res.concat(VettichSP3.queryStringify(query[key], key).split('&'));
+			res = res.concat(VettichSP3.queryStringify(query[key], true, buildKey(key)).split('&'));
 		} else {
-			res.push(buildKey(key) + '=' + query[key]);
+			res.push(buildKey(key) + '=' + encodeURIComponent(query[key]));
 		}
 	});
-	return res.join('&');
+	var s = res.join('&');
+	return onlyQS ? s : '?'+s;
+}
+
+VettichSP3.unloadDateTimeAdd = function(event, weekKey) {
+	var val;
+	var select = '<span class="vettich-sp3-time-item-wrap">';
+	select += '<select class="vettich-sp3-time-item" name="_UNLOAD_DATETIME[' + weekKey + '][]">';
+	for(var i = 0; i < 24; i++) {
+		val = '' + i + ':00';
+		select += '<option value="'+val+'">'+val+'</option>';
+		val = '' + i + ':30';
+		select += '<option value="'+val+'">'+val+'</option>';
+	}
+	select += '</select>';
+	select += '<span class="vettich-sp3-time-remove-btn" onclick="VettichSP3.unloadDateTimeRemove(event)">x</span>';
+	select += '</span>';
+	select = jQuery(select);
+	select.insertBefore(event.target);
+}
+
+VettichSP3.unloadDateTimeRemove = function(event) {
+	jQuery(event.target).parent().remove();
 }

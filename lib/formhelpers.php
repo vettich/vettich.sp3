@@ -17,18 +17,18 @@ class FormHelpers
 			$accountsMap = [];
 			foreach ($accounts as $account) {
 				$name = TextProcessor::replace(self::ACC_NAME, [
-					'PIC' => $account['photo'],
-					'TYPE' => $account['type'],
-					'LINK' => $account['link'],
-					'NAME' => $account['name'],
+					'PIC'             => $account['photo'],
+					'TYPE'            => $account['type'],
+					'LINK'            => $account['link'],
+					'NAME'            => $account['name'],
 					'OPEN_IN_NEW_TAB' => Module::m('OPEN_IN_NEW_TAB'),
 				]);
 				$accountsMap[$account['id']] = $name;
 			}
 
 			$tabParams[] = new checkbox($id, [
-				'title' => Module::m(strtoupper($t)),
-				'options' => $accountsMap,
+				'title'    => Module::m(strtoupper($t)),
+				'options'  => $accountsMap,
 				'multiple' => true,
 			]);
 

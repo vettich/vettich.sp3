@@ -5,22 +5,22 @@ use vettich\sp3\devform;
 
 class IBlockHelpers
 {
-	const ANY_TYPE = 0;
+	const ANY_TYPE    = 0;
 	const STRING_TYPE = 1;
-	const FILE_TYPE = 2;
-	const DATE_TYPE = 3;
-	const URL_TYPE = 4;
+	const FILE_TYPE   = 2;
+	const DATE_TYPE   = 3;
+	const URL_TYPE    = 4;
 
-	private static $_allPropsFor = [];
-	private static $_allPropsMacrosFor = [];
-	private static $_iblockFields = null;
-	private static $_iblockProps = [];
-	private static $_catalogFields = [];
-	private static $_iblocktypes = null;
-	private static $_iblocktypesisall = false;
-	private static $_iblockids = [];
-	private static $_iblockElemIds = [];
-	private static $_iblockSections = [];
+	private static $_allPropsFor         = [];
+	private static $_allPropsMacrosFor   = [];
+	private static $_iblockFields        = null;
+	private static $_iblockProps         = [];
+	private static $_catalogFields       = [];
+	private static $_iblocktypes         = null;
+	private static $_iblocktypesisall    = false;
+	private static $_iblockids           = [];
+	private static $_iblockElemIds       = [];
+	private static $_iblockSections      = [];
 	private static $_iblockElementFilled = [];
 
 	public static function allPropsFor($iblockId, $fieldsType=0)
@@ -31,7 +31,7 @@ class IBlockHelpers
 		if (isset(self::$_allPropsFor["$iblockId-$fieldsType"])) {
 			return self::$_allPropsFor["$iblockId-$fieldsType"];
 		}
-		$result = [];
+		$result   = [];
 		$result[] = [
 			'label' => Module::m('MAIN_FIELDS'),
 			'items' => self::iblockFields($fieldsType),
@@ -42,7 +42,7 @@ class IBlockHelpers
 		];
 		$result[] = [
 			'label' => Module::m('CATALOG_FIELDS'),
-			'items'=> self::catalogFields($iblockId, $fieldsType),
+			'items' => self::catalogFields($iblockId, $fieldsType),
 		];
 		self::$_allPropsFor["$iblockId-$fieldsType"] = $result;
 		return $result;
@@ -133,13 +133,13 @@ class IBlockHelpers
 			];
 			$rsProperties = \CIBlockProperty::GetList(
 				[],
-				['ACTIVE'=>'Y', 'IBLOCK_ID'=>$iblockId]
+				['ACTIVE'=> 'Y', 'IBLOCK_ID'=>$iblockId]
 			);
 			while ($prop_fields = $rsProperties->GetNext()) {
-				$str = "[PROPERTY_$prop_fields[CODE]] <b>$prop_fields[NAME]</b>";
-				$str = str_replace("'", '"', $str);
-				$str = str_replace(["\"", '&quot;', '&#34;'], "'", $str);
-				$propKey = 'PROPERTY_'.$prop_fields['CODE'];
+				$str                               = "[PROPERTY_$prop_fields[CODE]] <b>$prop_fields[NAME]</b>";
+				$str                               = str_replace("'", '"', $str);
+				$str                               = str_replace(["\"", '&quot;', '&#34;'], "'", $str);
+				$propKey                           = 'PROPERTY_'.$prop_fields['CODE'];
 				$arProps[self::ANY_TYPE][$propKey] = $str;
 				// var_dump($prop_fields);
 
@@ -174,20 +174,20 @@ class IBlockHelpers
 			if (\CModule::IncludeModule('catalog')
 				&& \CCatalog::GetByID($iblockId)) {
 				$arProps['CATALOG_QUANTITY'] = Module::m('PROP_CAT_QUANTITY');
-				$arProps['CATALOG_WEIGHT'] = Module::m('PROP_CAT_WEIGHT');
-				$arProps['CATALOG_WIDTH'] = Module::m('PROP_CAT_WIDTH');
-				$arProps['CATALOG_LENGTH'] = Module::m('PROP_CAT_LENGTH');
-				$arProps['CATALOG_HEIGHT'] = Module::m('PROP_CAT_HEIGHT');
+				$arProps['CATALOG_WEIGHT']   = Module::m('PROP_CAT_WEIGHT');
+				$arProps['CATALOG_WIDTH']    = Module::m('PROP_CAT_WIDTH');
+				$arProps['CATALOG_LENGTH']   = Module::m('PROP_CAT_LENGTH');
+				$arProps['CATALOG_HEIGHT']   = Module::m('PROP_CAT_HEIGHT');
 
-				$rs = \CCatalogGroup::GetList([], [], false, false, ['ID', 'NAME_LANG']);
+				$rs         = \CCatalogGroup::GetList([], [], false, false, ['ID', 'NAME_LANG']);
 				$arCurrency = [];
 				while ($ar = $rs->Fetch()) {
 					$arProps['CATALOG_PRICE_'.$ar['ID']] = Module::m('PROP_CAT_PRICE', [
-						'#TYPE#' => $ar['NAME_LANG'],
+						'#TYPE#'     => $ar['NAME_LANG'],
 						'#PRICE_ID#' => $ar['ID'],
 					]);
 					$arCurrency['CATALOG_CURRENCY_'.$ar['ID']] = Module::m('PROP_CAT_CURRENCY', [
-						'#TYPE#' => $ar['NAME_LANG'],
+						'#TYPE#'     => $ar['NAME_LANG'],
 						'#PRICE_ID#' => $ar['ID'],
 					]);
 				}
@@ -195,15 +195,15 @@ class IBlockHelpers
 					$arProps[$key] = $value;
 				}
 
-				$arProps['CATALOG_DISCOUNT_NAME'] = Module::m('PROP_CAT_DISCOUNT_NAME');
+				$arProps['CATALOG_DISCOUNT_NAME']        = Module::m('PROP_CAT_DISCOUNT_NAME');
 				$arProps['CATALOG_DISCOUNT_ACTIVE_FROM'] = Module::m('PROP_CAT_DISCOUNT_ACTIVE_FROM');
-				$arProps['CATALOG_DISCOUNT_ACTIVE_TO'] = Module::m('PROP_CAT_DISCOUNT_ACTIVE_TO');
-				self::$_catalogFields[$iblockId] = $arProps;
+				$arProps['CATALOG_DISCOUNT_ACTIVE_TO']   = Module::m('PROP_CAT_DISCOUNT_ACTIVE_TO');
+				self::$_catalogFields[$iblockId]         = $arProps;
 			}
 		}
 
 		if ($fieldsType != self::ANY_TYPE) {
-			$props = self::$_catalogFields[$iblockId];
+			$props      = self::$_catalogFields[$iblockId];
 			$dateFields = ['CATALOG_DISCOUNT_ACTIVE_FROM', 'CATALOG_DISCOUNT_ACTIVE_TO'];
 
 			if ($fieldsType == self::DATE_TYPE) {
@@ -283,9 +283,9 @@ class IBlockHelpers
 					$arFields['PROPERTY_'.$arProp['CODE']]['~VALUES'][] = $arProp['~VALUE'];
 				}
 
-				$arFields['PROPERTY_'.$arProp['CODE']]['VALUES_ENUM'][] = $arProp['VALUE_ENUM'];
-				$arFields['PROPERTY_'.$arProp['CODE']]['~VALUES_ENUM'][] = $arProp['~VALUE_ENUM'];
-				$arFields['PROPERTY_'.$arProp['CODE']]['VALUES_XML_ID'][] = $arProp['VALUE_XML_ID'];
+				$arFields['PROPERTY_'.$arProp['CODE']]['VALUES_ENUM'][]    = $arProp['VALUE_ENUM'];
+				$arFields['PROPERTY_'.$arProp['CODE']]['~VALUES_ENUM'][]   = $arProp['~VALUE_ENUM'];
+				$arFields['PROPERTY_'.$arProp['CODE']]['VALUES_XML_ID'][]  = $arProp['VALUE_XML_ID'];
 				$arFields['PROPERTY_'.$arProp['CODE']]['~VALUES_XML_ID'][] = $arProp['~VALUE_XML_ID'];
 			}
 		}
@@ -316,7 +316,7 @@ class IBlockHelpers
 					$rsPrice = \CPrice::GetListEx(
 						[],
 						[
-							'PRODUCT_ID' => $arFields['ID'],
+							'PRODUCT_ID'       => $arFields['ID'],
 							'CATALOG_GROUP_ID' => $ar['ID'],
 						],
 						false,
@@ -328,7 +328,7 @@ class IBlockHelpers
 						]
 					);
 					if ($arPrice = $rsPrice->Fetch()) {
-						$arFields['CATALOG_PRICE_'.$ar['ID']] = $arPrice['PRICE'];
+						$arFields['CATALOG_PRICE_'.$ar['ID']]    = $arPrice['PRICE'];
 						$arFields['CATALOG_CURRENCY_'.$ar['ID']] = $arPrice['CURRENCY'];
 					}
 				}
@@ -348,9 +348,9 @@ class IBlockHelpers
 					]
 				);
 				if ($arDiscount = $rsDiscount->Fetch()) {
-					$arFields['CATALOG_DISCOUNT_NAME'] = $arDiscount['NAME'];
+					$arFields['CATALOG_DISCOUNT_NAME']        = $arDiscount['NAME'];
 					$arFields['CATALOG_DISCOUNT_ACTIVE_FROM'] = $arDiscount['ACTIVE_FROM'];
-					$arFields['CATALOG_DISCOUNT_ACTIVE_TO'] = $arDiscount['ACTIVE_TO'];
+					$arFields['CATALOG_DISCOUNT_ACTIVE_TO']   = $arDiscount['ACTIVE_TO'];
 				}
 			}
 
@@ -371,10 +371,10 @@ class IBlockHelpers
 			$rsIBlockType = \CIBlockType::GetList();
 			while ($arIBlockType = $rsIBlockType->GetNext()) {
 				if ($arIBType = \CIBlockType::GetByIDLang($arIBlockType["ID"], LANG)) {
-					$arIBlockType['NAME'] = $arIBType['NAME'];
+					$arIBlockType['NAME']         = $arIBType['NAME'];
 					$arIBlockType['SECTION_NAME'] = $arIBType['SECTION_NAME'];
 					$arIBlockType['ELEMENT_NAME'] = $arIBType['ELEMENT_NAME'];
-					self::$_iblocktypes[$type] = $arIBlockType;
+					self::$_iblocktypes[$type]    = $arIBlockType;
 				}
 			}
 			self::$_iblocktypesisall = true;
@@ -387,13 +387,13 @@ class IBlockHelpers
 		if (self::$_iblocktypes === null
 			or !isset(self::$_iblocktypes[$type])) {
 			self::$_iblocktypes[$type] = null;
-			$rsIBlockType = \CIBlockType::GetByID($type);
+			$rsIBlockType              = \CIBlockType::GetByID($type);
 			if ($arIBlockType = $rsIBlockType->GetNext()) {
 				if ($arIBType = \CIBlockType::GetByIDLang($arIBlockType["ID"], LANG)) {
-					$arIBlockType['NAME'] = $arIBType['NAME'];
+					$arIBlockType['NAME']         = $arIBType['NAME'];
 					$arIBlockType['SECTION_NAME'] = $arIBType['SECTION_NAME'];
 					$arIBlockType['ELEMENT_NAME'] = $arIBType['ELEMENT_NAME'];
-					self::$_iblocktypes[$type] = $arIBlockType;
+					self::$_iblocktypes[$type]    = $arIBlockType;
 				}
 			}
 		}
@@ -407,7 +407,7 @@ class IBlockHelpers
 		}
 		if (!isset(self::$_iblockids[$id])) {
 			self::$_iblockids[$id] = null;
-			$rs = \CIBlock::GetByID($id);
+			$rs                    = \CIBlock::GetByID($id);
 			if ($rs = $rs->GetNext()) {
 				self::$_iblockids[$id] = $rs;
 			}
@@ -431,7 +431,7 @@ class IBlockHelpers
 				if ($isFill) {
 					self::iblockValueFill($ar);
 				}
-				$ar['filled'] = $isFill;
+				$ar['filled']                    = $isFill;
 				self::$_iblockElemIds[$ar['ID']] = $ar;
 			}
 		}
@@ -485,9 +485,18 @@ class IBlockHelpers
 			$conditions = $fields['CONDITIONS'];
 		}
 		if ($conditions) {
+			$valueKeys = ['', 'VALUE', 'VALUE_XML_ID', 'XML_ID', 'VALUE_ENUM'];
 			foreach ((array)$conditions as $cond) {
-				$fieldVal = TextProcessor::macroValue($cond['field'], $fields);
-				if (!self::cmp($fieldVal, $cond['cmp'], $cond['value'])) {
+				$isRight = false;
+				foreach ($valueKeys as $valKey) {
+					$macro    = [$cond['field'], $valKey];
+					$fieldVal = TextProcessor::macroValue($macro, $fields);
+					if (self::cmp($fieldVal, $cond['cmp'], $cond['value'])) {
+						$isRight = true;
+						break;
+					}
+				}
+				if (!$isRight) {
 					return false;
 				}
 			}
@@ -521,7 +530,7 @@ class IBlockHelpers
 		if ($fields['IS_SECTIONS'] == 'Y'
 			&& !empty($fields['IBLOCK_SECTIONS'])) {
 			$isFound = false;
-			$rsSect = \CIBlockSection::GetNavChain(
+			$rsSect  = \CIBlockSection::GetNavChain(
 				IntVal($fields['IBLOCK_ID']),
 				IntVal($fields['IBLOCK_SECTION_ID']),
 				['ID']

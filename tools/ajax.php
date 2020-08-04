@@ -13,48 +13,48 @@ use vettich\sp3\TemplateHelpers;
 
 function _result($data)
 {
+	// header('Content-Type: application/json');
 	echo json_encode($data);
 	exit;
 }
 
 switch ($_GET['method']) {
 	case 'login':
-		$username = $_GET['username'];
-		$password = $_GET['password'];
-		$res = Api::login($username, $password);
+		$res = Api::login($_GET['username'], $_GET['password']);
+		if (empty($res['error'])) {
+			Api::createCron();
+		}
 		_result($res);
 		break;
 
 	case 'signup':
-		$username = $_GET['username'];
-		$password = $_GET['password'];
-		$res = Api::signup($username, $password);
+		$res = Api::signup($_GET['username'], $_GET['password']);
+		if (empty($res['error'])) {
+			Api::createCron();
+		}
 		_result($res);
 		break;
 
 	case 'forgotPassword':
-		$username = $_GET['username'];
-		$callback_url = $_GET['callback_url'];
-		$res = Api::forgotPassword($username, $callback_url);
+		$res = Api::forgotPassword($_GET['username'], $_GET['callback_url']);
 		_result($res);
 		break;
 
 	case 'resetPassword':
-		$token = $_GET['token'];
-		$password = $_GET['password'];
-		$res = Api::resetPassword($token, $password);
+		$res = Api::resetPassword($_GET['token'], $_GET['password']);
 		_result($res);
 		break;
 
 	case 'logout':
 		$res = Api::logout();
+		if (empty($res['error'])) {
+			Api::deleteCron();
+		}
 		_result($res);
 		break;
 
 	case 'getConnectUrl':
-		$type = $_GET['type'];
-		$callback = $_GET['callback'];
-		$res = Api::connectUrl($type, $callback);
+		$res = Api::connectUrl($_GET['type'], $_GET['callback']);
 		_result($res);
 		break;
 
@@ -73,14 +73,14 @@ switch ($_GET['method']) {
 		break;
 
 	case 'publishWithTemplate':
-		$arFilter = ['IBLOCK_ID' => $_GET['IBLOCK_ID']];
+		$arFilter      = ['IBLOCK_ID' => $_GET['IBLOCK_ID']];
 		$arFilterLogic = ['LOGIC' => 'OR'];
 		if (!empty($_GET['ELEMS'])) {
 			$arFilterLogic[] = ['ID' => $_GET['ELEMS']];
 		}
 		if (!empty($_GET['SECTIONS'])) {
 			$arFilterLogic[] = [
-				'SECTION_ID' => $_GET['SECTIONS'],
+				'SECTION_ID'          => $_GET['SECTIONS'],
 				'INCLUDE_SUBSECTIONS' => true
 			];
 		}
@@ -89,11 +89,14 @@ switch ($_GET['method']) {
 			break;
 		}
 		$arFilter[] = $arFilterLogic;
-		Module::log([$arFilter, $_GET['TEMPLATES']]);
-		$res = TemplateHelpers::publishWithTemplate($arFilter, $_GET['TEMPLATES']);
+		$res        = TemplateHelpers::publishWithTemplate($arFilter, $_GET['TEMPLATES']);
 		_result($res);
 		break;
 
+	case 'unload':
+		_result(TemplateHelpers::unload());
+
+		// no break
 	default:
 		_result(['error' => ['msg' => 'method not found']]);
 }

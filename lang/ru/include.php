@@ -65,7 +65,7 @@ $MESS['VETTICH_SP3_TG_HELP_BLOCK']            = 'Чтобы подключить канал или груп
 $MESS['VETTICH_SP3_IBLOCK']      = 'Инфоблок';
 $MESS['VETTICH_SP3_IBLOCK_ELEM'] = 'Элемент инфоблока';
 
-$MESS['VETTICH_SP3_SERVER_UNAVAILABLE']    = 'Облачный сервис в данный момент недоступен. Приносим свои извинения. Повторите попытку позже. Если проблема не устранилась, то сообщите, пожалуйста, об этой проблеме vetti.ch@mail.ru';
+$MESS['VETTICH_SP3_SERVER_UNAVAILABLE']    = 'Облачный сервис в данный момент недоступен. Приносим свои извинения. Повторите попытку позже. Если проблема не устранилась, то сообщите, пожалуйста, об этой проблеме support@parrotposter.com';
 
 $MESS['VETTICH_SP3_PAYMENT_SUCCESS_TITLE'] = 'Оплата произведена успешно!';
 $MESS['VETTICH_SP3_PAYMENT_FAIL_TITLE']    = 'Ошибка при проведении оплаты!';
@@ -87,6 +87,15 @@ $MESS['VETTICH_SP3_UTM_TERM']          = 'Ключевое слово [<i>utm_term</i>]';
 $MESS['VETTICH_SP3_UTM_TERM_HELP']     = 'Определяет ключевые слова (необязательный)';
 $MESS['VETTICH_SP3_UTM_CONTENT']       = 'Вид контента [<i>utm_content</i>]';
 $MESS['VETTICH_SP3_UTM_CONTENT_HELP']  = 'Дополнительная информация, позволяющая различать объявления/посты (необязательный)';
+
+$MESS['VETTICH_SP3_WEEKDAY_ALL'] = 'Все дни';
+$MESS['VETTICH_SP3_WEEKDAY_MON'] = 'Пн';
+$MESS['VETTICH_SP3_WEEKDAY_TUE'] = 'Вт';
+$MESS['VETTICH_SP3_WEEKDAY_WEN'] = 'Ср';
+$MESS['VETTICH_SP3_WEEKDAY_THU'] = 'Чт';
+$MESS['VETTICH_SP3_WEEKDAY_FRI'] = 'Пт';
+$MESS['VETTICH_SP3_WEEKDAY_SAT'] = 'Сб';
+$MESS['VETTICH_SP3_WEEKDAY_SUN'] = 'Вс';
 
 // from devform
 $MESS['VDF_NAME']                 = 'Имя';

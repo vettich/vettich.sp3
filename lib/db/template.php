@@ -17,12 +17,12 @@ class TemplateTable extends OrmBase
 		global $USER;
 		$arMap = [
 			new Entity\IntegerField('ID', [
-				'primary' => true,
+				'primary'      => true,
 				'autocomplete' => true
 			]),
 
 			new Entity\BooleanField('IS_ENABLE', [
-				'values'=>['N', 'Y'],
+				'values'        => ['N', 'Y'],
 				'default_value' => 'Y'
 			]),
 
@@ -37,12 +37,12 @@ class TemplateTable extends OrmBase
 			]),
 
 			new Entity\BooleanField('IS_SECTIONS', [
-				'values'=>['N', 'Y'],
+				'values'        => ['N', 'Y'],
 				'default_value' => 'N'
 			]),
 
 			new Entity\BooleanField('NEED_UTM', [
-				'values'=>['N', 'Y'],
+				'values'        => ['N', 'Y'],
 				'default_value' => 'Y'
 			]),
 
@@ -66,12 +66,8 @@ class TemplateTable extends OrmBase
 				'default_value' => ''
 			]),
 
-			/* (new Entity\TextField('URL_PARAMS', [ */
-			/* 	'default_value' => '' */
-			/* ]))->addValidator(new LengthValidator(0, 1000)), */
-
 			new Entity\BooleanField('IS_AUTO', [
-				'values'=>['N', 'Y'],
+				'values'        => ['N', 'Y'],
 				'default_value' => 'Y'
 			]),
 
@@ -80,18 +76,44 @@ class TemplateTable extends OrmBase
 			]),
 
 			new Entity\BooleanField('UPDATE_IN_NETWORKS', [
-				'values'=>['N', 'Y'],
+				'values'        => ['N', 'Y'],
 				'default_value' => 'Y'
 			]),
 
 			new Entity\BooleanField('DELETE_IN_NETWORKS', [
-				'values'=>['N', 'Y'],
+				'values'        => ['N', 'Y'],
 				'default_value' => 'Y'
 			]),
 
 			new Entity\BooleanField('QUEUE_DUPLICATE', [
-				'values'=>['N', 'Y'],
+				'values'        => ['N', 'Y'],
 				'default_value' => 'N'
+			]),
+
+			new Entity\BooleanField('UNLOAD_ENABLE', [
+				'values'        => ['N', 'Y'],
+				'default_value' => 'N'
+			]),
+
+			new Entity\StringField('UNLOAD_TIMEZONE', [
+				'default_value' => ''
+			]),
+
+			new Entity\StringField('UNLOAD_SORT_FIELD', [
+				'default_value' => ''
+			]),
+
+			new Entity\StringField('UNLOAD_SORT_ORDER', [
+				'default_value' => ''
+			]),
+
+			new Entity\BooleanField('UNLOAD_KEEP_INTERVAL', [
+				'values'        => ['N', 'Y'],
+				'default_value' => 'Y'
+			]),
+
+			new Entity\DatetimeField('LAST_PUBLISHED_AT', [
+				'default_value' => Type\DateTime::createFromTimestamp(strtotime('now -1hour')),
 			]),
 
 			new Entity\IntegerField('USER_ID', [
@@ -109,22 +131,26 @@ class TemplateTable extends OrmBase
 
 		if (version_compare(SM_VERSION, '18.1.4') < 0) {
 			$arMap[] = new Entity\TextField('IBLOCK_SECTIONS', [
-				'serialized' => true,
+				'serialized'    => true,
 				'default_value' => ''
 			]);
 			$arMap[] = new Entity\StringField('DOMAIN', [
 				'default_value' => ''
 			]);
 			$arMap[] = new Entity\TextField('CONDITIONS', [
-				'serialized' => true,
+				'serialized'    => true,
 				'default_value' => ''
 			]);
 			$arMap[] = new Entity\TextField('ACCOUNTS', [
-				'serialized' => true,
+				'serialized'    => true,
 				'default_value' => ''
 			]);
 			$arMap[] = new Entity\TextField('PUBLISH', [
-				'serialized' => true,
+				'serialized'    => true,
+				'default_value' => ''
+			]);
+			$arMap[] = new Entity\TextField('UNLOAD_DATETIME', [
+				'serialized'    => true,
 				'default_value' => ''
 			]);
 		} else {
@@ -149,15 +175,27 @@ class TemplateTable extends OrmBase
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('PUBLISH', [
 				'default_value' => []
 			]))->configureSerializationPhp()->addValidator($v);
+
+			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('UNLOAD_DATETIME', [
+				'default_value' => []
+			]))->configureSerializationPhp()->addValidator($v);
 		}
 		return $arMap;
 	}
 
+	public static function updateLastPublishTime($id)
+	{
+		self::update($id, [
+			'LAST_PUBLISHED_AT' => Type\DateTime::createFromPhp(new \DateTime()),
+		]);
+	}
+
 	public static function OnBeforeAdd(Entity\Event $event)
 	{
-		$data = $event->getParameter('fields');
-		$result = new Entity\EventResult;
+		$data      = $event->getParameter('fields');
+		$result    = new Entity\EventResult;
 		$modFields = self::cleanConditions($data);
+
 		$modFields['UPDATED_AT'] = new Type\DateTime();
 		$result->modifyFields($modFields);
 		return $result;
@@ -165,9 +203,10 @@ class TemplateTable extends OrmBase
 
 	public static function OnBeforeUpdate(Entity\Event $event)
 	{
-		$data = $event->getParameter('fields');
-		$result = new Entity\EventResult;
+		$data      = $event->getParameter('fields');
+		$result    = new Entity\EventResult;
 		$modFields = self::cleanConditions($data);
+
 		$modFields['UPDATED_AT'] = new Type\DateTime();
 		$result->modifyFields($modFields);
 		return $result;
