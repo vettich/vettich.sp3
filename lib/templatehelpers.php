@@ -277,7 +277,7 @@ class TemplateHelpers
 		$curWeekday = Tools::getCurrentWeekday();
 		$arTime     = array_merge(
 			(array)$arTemplate['UNLOAD_DATETIME']['ALL'],
-			(array)$arTemplate['UNLOAD_DATETIME'][$curWeekday],
+			(array)$arTemplate['UNLOAD_DATETIME'][$curWeekday]
 		);
 
 		$result = false;
