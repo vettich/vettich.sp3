@@ -252,7 +252,7 @@ VettichSP3.connectInsta = function() {
 		type: 'insta',
 		fields: fields,
 	});
-	jQuery.get(VettichSP3.ajaxUrl + '?' + queries, function (data) {
+	jQuery.get(VettichSP3.ajaxUrl + queries, function (data) {
 		try {
 			var res = JSON.parse(data);
 			if(res.error) {
