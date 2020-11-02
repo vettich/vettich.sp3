@@ -26,22 +26,22 @@ use vettich\sp3\devform\data\orm;
 */
 class AdminList extends Module
 {
-	protected $pageTitle = '';
-	protected $sTableID = '';
-	protected $navLabel = '';
-	protected $sort = null;
-	protected $list = null;
-	protected $datas = null;
-	protected $params = [];
-	protected $hiddenParams = [];
-	protected $dontEdit = ['ID', 'id'];
-	protected $dontEditAll = false;
+	protected $pageTitle      = '';
+	protected $sTableID       = '';
+	protected $navLabel       = '';
+	protected $sort           = null;
+	protected $list           = null;
+	protected $datas          = null;
+	protected $params         = [];
+	protected $hiddenParams   = [];
+	protected $dontEdit       = ['ID', 'id'];
+	protected $dontEditAll    = false;
 	protected $linkEditInsert = [];
 	protected $editLinkParams = [];
-	protected $editLink = '';
-	protected $hideFilters = false;
-	protected $idKey = 'ID';
-	protected $actions = ['edit', 'delete'];
+	protected $editLink       = '';
+	protected $hideFilters    = false;
+	protected $idKey          = 'ID';
+	protected $actions        = ['edit', 'delete'];
 
 	/**
 	 * @param string $pageTitle
@@ -53,8 +53,8 @@ class AdminList extends Module
 	{
 		parent::__construct($args);
 		$this->pageTitle = self::mess($pageTitle);
-		$this->sTableID = $sTableID;
-		$this->params = _type::createTypes($args['params']);
+		$this->sTableID  = $sTableID;
+		$this->params    = _type::createTypes($args['params']);
 
 		$this->setSort($args);
 
@@ -119,11 +119,11 @@ class AdminList extends Module
 	public function getLinkEdit($params=[])
 	{
 		$params = array_merge($this->editLinkParams, $params);
-		$p = $_GET;
+		$p      = $_GET;
 		unset($p['mode']);
-		$p = http_build_query($p);
+		$p                  = http_build_query($p);
 		$params['back_url'] = $_SERVER['SCRIPT_NAME'].(empty($p) ? '' : '?'.$p);
-		$link = $this->editLink;
+		$link               = $this->editLink;
 		if (empty($link)) {
 			$search = '.php';
 			if (strpos($_SERVER['SCRIPT_NAME'], '_list.php') !== false) {
@@ -144,7 +144,7 @@ class AdminList extends Module
 		if (($arID = $this->list->GroupAction())) {
 			if ($_REQUEST['action_target']=='selected') {
 				$arID = [];
-				$rs = $this->getDataSource([], [], [$this->idKey]);
+				$rs   = $this->getDataSource([], [], [$this->idKey]);
 				while ($ar = $rs->fetch()) {
 					$arID[] = $ar[$this->idKey];
 				}
@@ -186,19 +186,19 @@ class AdminList extends Module
 			$this->sort = false;
 		} else {
 			if (isset($args['sortDefault'])) {
-				$sBy = key($args['sortDefault']);
+				$sBy    = key($args['sortDefault']);
 				$sOrder = current($args['sortDefault']);
 				if (!$sBy) {
-					$sBy = $sOrder;
+					$sBy    = $sOrder;
 					$sOrder = 'ASC';
 				}
 			} else {
-				$sBy = $this->idKey;
+				$sBy    = $this->idKey;
 				$sOrder = 'ASC';
 			}
-			$this->sortBy = $sBy;
+			$this->sortBy    = $sBy;
 			$this->sortOrder = $sOrder;
-			$this->sort = new CAdminSorting($this->sTableID, $sBy, $sOrder);
+			$this->sort      = new CAdminSorting($this->sTableID, $sBy, $sOrder);
 		}
 	}
 
@@ -211,9 +211,9 @@ class AdminList extends Module
 				$sort = (strpos($id, '[') === false ? $param->id : false);
 			}
 			$arHeaders[] = [
-				'id' => $param->id,
+				'id'      => $param->id,
 				'content' => $param->title,
-				'sort' => $sort,
+				'sort'    => $sort,
 				// 'align' => $param->info['align'],
 				'default' => !$this->isHiddenParam($param->id),
 			];
@@ -294,21 +294,21 @@ class AdminList extends Module
 		foreach ($this->actions as $act) {
 			if ($act == 'edit') {
 				$arActions['edit'] = [
-					'ICON' => 'edit',
+					'ICON'    => 'edit',
 					'DEFAULT' => true,
-					'TEXT' => GetMessage('VDF_LIST_EDIT'),
-					'ACTION' => $this->list->ActionRedirect($this->getLinkEdit([$this->idKey => $row->arRes[$this->idKey]])),
+					'TEXT'    => GetMessage('VDF_LIST_EDIT'),
+					'ACTION'  => $this->list->ActionRedirect($this->getLinkEdit([$this->idKey => $row->arRes[$this->idKey]])),
 				];
 			} elseif ($act == 'copy') {
 				$arActions['copy'] = [
-					'ICON' => 'copy',
-					'TEXT' => GetMessage('VDF_LIST_COPY'),
+					'ICON'   => 'copy',
+					'TEXT'   => GetMessage('VDF_LIST_COPY'),
 					'ACTION' => $this->list->ActionRedirect($this->getLinkEdit(['FROM_'.$this->idKey => $row->arRes[$this->idKey]])),
 				];
 			} elseif ($act == 'delete') {
 				$arActions['delete'] = [
-					'ICON' => 'delete',
-					'TEXT' => GetMessage('VDF_LIST_DELETE'),
+					'ICON'   => 'delete',
+					'TEXT'   => GetMessage('VDF_LIST_DELETE'),
 					'ACTION' => 'if(confirm("'
 						.(GetMessage('VDF_LIST_DELETE_CONFIRM', ['#NAME#' => $row->arRes['NAME']])).'")) '
 						.$this->list->ActionDoGroup($row->arRes[$this->idKey], 'delete'),
@@ -346,14 +346,14 @@ class AdminList extends Module
 		global $APPLICATION, $find, $find_type;
 
 		$findFilter = [
-			'reference' => [],
+			'reference'    => [],
 			'reference_id' => [],
 		];
 		$listFilter = [];
 		$filterRows = [];
 		foreach ((array)$this->params as $param) {
-			$listFilter[$param->id] = $param->title;
-			$findFilter['reference'][] = $param->title;
+			$listFilter[$param->id]       = $param->title;
+			$findFilter['reference'][]    = $param->title;
 			$findFilter['reference_id'][] = 'find_'.$param->id;
 		}
 
@@ -379,8 +379,8 @@ class AdminList extends Module
 				}
 			$filter->Buttons([
 					'table_id' => $this->sTableID,
-					'url' => $APPLICATION->GetCurPage(),
-					'form' => 'find_form',
+					'url'      => $APPLICATION->GetCurPage(),
+					'form'     => 'find_form',
 				]);
 			$filter->End(); ?>
 			</form>
@@ -395,11 +395,11 @@ class AdminList extends Module
 	public function render()
 	{
 		$this->renderBegin();
-		$select = $this->getSelectedFields();
+		$select     = $this->getSelectedFields();
 		$dataSource = $this->getDataSource($this->getOrder(), $this->getFilter(), $select);
-		$data = new CAdminResult($dataSource, $this->sTableID);
+		$data       = new CAdminResult($dataSource, $this->sTableID);
 		$data->NavStart();
-		$this->list->NavText($data->GetNavPrint($this->navLabel));
+		$this->list->NavText($data->GetNavPrint($this->navLabel, true));
 		while ($arRes = $data->NavNext(false)) {
 			$row = $this->list->AddRow($arRes[$this->idKey], $arRes);
 			$this->onHandler('renderRow', $this, $row);
@@ -418,16 +418,16 @@ class AdminList extends Module
 					continue;
 				}
 				if (($pos = strpos($param->id, '[')) !== false) {
-					$prekey = substr($param->id, 0, $pos);
+					$prekey  = substr($param->id, 0, $pos);
 					$postkey = substr($param->id, $pos);
-					$name = "FIELDS[{$arRes[$this->idKey]}][$prekey]$postkey";
+					$name    = "FIELDS[{$arRes[$this->idKey]}][$prekey]$postkey";
 				} else {
 					$name = "FIELDS[{$arRes[$this->idKey]}][{$param->id}]";
 				}
 				$edit = $param->renderTemplate('{content}', [
-					'{id}' => 'FIELDS-'.$arRes[$this->idKey].'-'.str_replace(['][', ']', '['], ['-', '', '-'], $param->id),
+					'{id}'    => 'FIELDS-'.$arRes[$this->idKey].'-'.str_replace(['][', ']', '['], ['-', '', '-'], $param->id),
 					'{value}' => self::arrayChain($arRes, self::strToChain($param->id)),
-					'{name}' => $name,
+					'{name}'  => $name,
 				]);
 				$row->AddEditField($param->id, $edit);
 			}
@@ -438,7 +438,7 @@ class AdminList extends Module
 		$this->renderEnd();
 	}
 
-	private function renderBegin()
+	protected function renderBegin()
 	{
 		\CJSCore::Init(['ajax']);
 		\CJSCore::Init(['jquery']);
@@ -447,7 +447,7 @@ class AdminList extends Module
 		$this->list->addHeaders($this->getHeaders());
 	}
 
-	private function renderEnd()
+	protected function renderEnd()
 	{
 		$this->list->AddFooter($this->getFooter());
 		$this->list->AddAdminContextMenu($this->getContextMenu());

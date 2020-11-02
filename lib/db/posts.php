@@ -10,7 +10,7 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 
 	public function __construct($args = [])
 	{
-		$args['on afterSave'] = [$this, 'afterSave'];
+		$args['on afterSave']       = [$this, 'afterSave'];
 		$args['on afterFillValues'] = [$this, 'afterFillValues'];
 		parent::__construct($args);
 		if (isset($args['filter'])) {
@@ -26,8 +26,8 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 			if (empty($this->filter['id'])) {
 				return $default;
 			}
-			$res = Api::getPost($this->filter['id']);
-			$res = Module::convertToSiteCharset($res);
+			$res          = Api::getPost($this->filter['id']);
+			$res          = Module::convertToSiteCharset($res);
 			$this->values = $res['response'];
 			$this->inited = true;
 		}
@@ -40,7 +40,7 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 		return self::arrayChain($this->values, self::strToChain($name), $default);
 	}
 
-	public function getList($params=[])
+	public function getList($params=[], $onlyPosts=true)
 	{
 		$queries = ['sort' => []];
 		if (!empty($params['order'])) {
@@ -50,10 +50,15 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 				/* $queries['sort.order'] = strtoupper($order); */
 			}
 		}
+		if (!empty($params['paging'])) {
+			$queries['paging'] = $params['paging'];
+		}
 		$res = Api::postsList($queries);
 		$res = Module::convertToSiteCharset($res);
-		$posts = $res['response']['posts'];
-		return $posts;
+		if ($onlyPosts) {
+			return $res['response']['posts'];
+		}
+		return $res['response'];
 	}
 
 	public function afterFillValues($obj, $arValues)
@@ -130,8 +135,8 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 		$images = [];
 		foreach ($imagesField as $image) {
 			$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image["tmp_name"]);
-			$mime = mime_content_type($pathinfo['tmp_name']);
-			$res = Api::uploadFile($pathinfo['tmp_name'], Module::convertToUtf8($image['name']));
+			$mime     = mime_content_type($pathinfo['tmp_name']);
+			$res      = Api::uploadFile($pathinfo['tmp_name'], Module::convertToUtf8($image['name']));
 			if (empty($res['error'])) {
 				$images[] = $res['response']['file_id'];
 			}

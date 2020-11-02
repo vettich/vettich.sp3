@@ -7,17 +7,17 @@ use vettich\sp3\Api;
 
 CModule::IncludeModule('iblock');
 
-(new \vettich\sp3\devform\AdminList('#.POSTS_LIST_PAGE#', 'sp3_posts', [
-	'data' => new vettich\sp3\db\Posts(),
+(new \vettich\sp3\PostsAdminList('#.POSTS_LIST_PAGE#', 'sp3_posts', [
+	'data'        => new vettich\sp3\db\Posts(),
 	'hideFilters' => true,
-	'idKey' => 'id',
-	'params' => [
-		'id' => 'plaintext:ID',
+	'idKey'       => 'id',
+	'params'      => [
+		'id'           => 'plaintext:ID',
 		'fields[text]' => [
-			'type' => 'plaintext',
-			'title' => '#.POST_TEXT#',
-			'sortKey' => 'fields.text',
-			'defaultValue' => '<empty>',
+			'type'          => 'plaintext',
+			'title'         => '#.POST_TEXT#',
+			'sortKey'       => 'fields.text',
+			'defaultValue'  => '<empty>',
 			'on renderView' => function (&$obj, &$value) {
 				if (empty($value)) {
 					return;
@@ -29,8 +29,8 @@ CModule::IncludeModule('iblock');
 			},
 		],
 		'fields[images]' => [
-			'type' => 'html',
-			'title' => '#.POST_PICTURE#',
+			'type'          => 'html',
+			'title'         => '#.POST_PICTURE#',
 			'on renderView' => function (&$obj, &$value, $arRow=[]) {
 				$tpl = '<img src="{value}" width=40 height=40 /> ';
 				$value = '';
@@ -40,8 +40,8 @@ CModule::IncludeModule('iblock');
 			},
 		],
 		'fields[extra][id]' => [
-			'type' => 'html',
-			'title' => '#.IBLOCK_ELEM#',
+			'type'          => 'html',
+			'title'         => '#.IBLOCK_ELEM#',
 			'on renderView' => function (&$obj, &$value, $arRow=[]) {
 				if (empty($value)) {
 					$value = '-';
@@ -57,17 +57,17 @@ CModule::IncludeModule('iblock');
 			},
 		],
 		'publish_at' => 'datetime:#.POST_PUBLISH_AT#',
-		'status' => [
-			'type' => 'plaintext',
-			'title' => '#.POST_STATUS#',
+		'status'     => [
+			'type'          => 'plaintext',
+			'title'         => '#.POST_STATUS#',
 			'on renderView' => function (&$obj, &$value) {
 				$key = empty($value) ? 'SUCCESS' : strtoupper($value);
 				$value = Module::m('POST_STATUS_'.$key);
 			},
 		],
 		'networks[accounts]' => [
-			'type' => 'plaintext',
-			'title' => '#.SOCIALS#',
+			'type'          => 'plaintext',
+			'title'         => '#.SOCIALS#',
 			'on renderView' => function (&$obj, &$value) {
 				$res = [];
 				$types = [];
@@ -85,9 +85,9 @@ CModule::IncludeModule('iblock');
 	],
 	/* 'actions' => ['edit', 'copy', 'delete'], */
 	'hiddenParams' => ['id', 'fields[images]'],
-	'dontEditAll' => true,
-	'editLink' => 'vettich.sp3.posts_edit.php',
-	'sortDefault' => ['publish_at' => 'desc'],
+	'dontEditAll'  => true,
+	'editLink'     => 'vettich.sp3.posts_edit.php',
+	'sortDefault'  => ['publish_at' => 'desc'],
 	/* 'buttons' => [ */
 	/* 	'add' => 'buttons\newLink:#VDF_ADD#:/bitrix/admin/vettich.sp3.posts_edit.php?back_url\=vettich.sp3.posts_list.php', */
 	/* ], */
