@@ -83,7 +83,7 @@ class TemplateHelpers
 		}
 
 		$arTemplates = [];
-		$rsTemplate  = db\TemplateTable::getList(['filter' => ['id' => $templateIds]]);
+		$rsTemplate  = db\TemplateTable::getList(['filter' => ['ID' => $templateIds]]);
 		while ($arTemplate = $rsTemplate->fetch()) {
 			$arTemplates[$arTemplate['ID']] = $arTemplate;
 		}
