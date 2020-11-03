@@ -141,6 +141,9 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 				$images[] = $res['response']['file_id'];
 			}
 			DeleteDirFilesEx(dirname($pathinfo['tmp_name']));
+			if (count($images) >= 10) {
+				break;
+			}
 		}
 		return $images;
 	}
