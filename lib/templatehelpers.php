@@ -363,10 +363,11 @@ class TemplateHelpers
 
 	protected static function preparePostData($arFields, $arTemplate)
 	{
-		$fields = $arFields + $arTemplate;
-		$images = self::prepareImages($arTemplate['PUBLISH']['COMMON']['MAIN_PICTURE'], $fields);
-		$images = array_merge($images, self::prepareImages($arTemplate['PUBLISH']['COMMON']['OTHER_PICTURE'], $fields));
-		$post   = [
+		$fields       = $arFields + $arTemplate;
+		$mainPicture  = $arTemplate['PUBLISH']['COMMON']['MAIN_PICTURE'];
+		$otherPicture = $arTemplate['PUBLISH']['COMMON']['OTHER_PICTURE'];
+		$images       = self::prepareImages([$mainPicture, $otherPicture], $fields);
+		$post         = [
 			'fields' => [
 				'text'       => self::prepareText($arTemplate['PUBLISH']['COMMON']['TEXT'], $fields),
 				'link'       => TextProcessor::macroValue($arTemplate['PUBLISH']['COMMON']['LINK'], $fields),
@@ -404,21 +405,26 @@ class TemplateHelpers
 		return $text;
 	}
 
-	protected static function prepareImages($fieldKey, $fields)
+	protected static function prepareImages($fieldKeys, $fields)
 	{
-		$files = TextProcessor::getFileNames($fields[$fieldKey]);
-		if (empty($files)) {
-			return [];
-		}
 		$images = [];
-		foreach ((array)$files as $filepath) {
-			$filepath = Module::convertToUtf8($filepath);
-			if (!db\Posts::checkImageMime($filepath) or !db\Posts::checkImageSize($filepath)) {
+		foreach ($fieldKeys as $fieldKey) {
+			$files = TextProcessor::getFileNames($fields[$fieldKey]);
+			if (empty($files)) {
 				continue;
 			}
-			$res = Api::uploadFile($filepath, basename($filepath));
-			if (empty($res['error'])) {
-				$images[] = $res['response']['file_id'];
+			foreach ((array)$files as $filepath) {
+				$filepath = Module::convertToUtf8($filepath);
+				if (!db\Posts::checkImageMime($filepath) or !db\Posts::checkImageSize($filepath)) {
+					continue;
+				}
+				$res = Api::uploadFile($filepath, basename($filepath));
+				if (empty($res['error'])) {
+					$images[] = $res['response']['file_id'];
+				}
+				if (count($images) >= 10) {
+					break;
+				}
 			}
 		}
 		return $images;
