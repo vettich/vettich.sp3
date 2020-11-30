@@ -110,7 +110,7 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 				$errors['format'] = Module::m('POST_PICTURE_ERROR');
 			}
 			if (!isset($errors['size']) && !self::checkImageSize($pathinfo['tmp_name'])) {
-				$errors['format'] = Module::m('POST_PICTURE_SIZE_ERR');
+				$errors['size'] = Module::m('POST_PICTURE_SIZE_ERR');
 			}
 			if (isset($errors['format']) && isset($errors['size'])) {
 				break;
@@ -122,7 +122,7 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 	public static function checkImageMime($imagePath)
 	{
 		$mime = mime_content_type($imagePath);
-		return in_array($mime, ['image/png', 'image/jpeg']);
+		return in_array($mime, ['image/png', 'image/jpeg', 'image/webp']);
 	}
 
 	public static function checkImageSize($imagePath)
@@ -135,7 +135,6 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 		$images = [];
 		foreach ($imagesField as $image) {
 			$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image["tmp_name"]);
-			$mime     = mime_content_type($pathinfo['tmp_name']);
 			$res      = Api::uploadFile($pathinfo['tmp_name'], Module::convertToUtf8($image['name']));
 			if (empty($res['error'])) {
 				$images[] = $res['response']['file_id'];

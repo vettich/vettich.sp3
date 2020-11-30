@@ -8,12 +8,12 @@ use CFile;
 */
 class image extends _type
 {
-	public $content = '<input name="{name}" value="{value}" {params}>';
-	public $params = ['type' => 'file'];
+	public $content   = '<input name="{name}" value="{value}" {params}>';
+	public $params    = ['type' => 'file'];
 	public $module_id = 'vettich.sp3';
-	public $maxCount = 1;
-	public $multiple = false;
-	public $raw = false;
+	public $maxCount  = 1;
+	public $multiple  = false;
+	public $raw       = false;
 
 	public function __construct($id, $args)
 	{
@@ -52,15 +52,16 @@ class image extends _type
 				$inputName .= '[n#IND#]';
 			}
 			$this->content = \Bitrix\Main\UI\FileInput::createInstance([
-					"name" => $inputName,
-					"description" => false,
-					"upload" => true,
-					"allowUpload" => "I",
-					"medialib" => false,
-					"fileDialog" => false,
-					"cloud" => false,
-					"delete" => true,
-					"maxCount" => $this->maxCount,
+					"name"           => $inputName,
+					"description"    => false,
+					"upload"         => true,
+					"allowUpload"    => "F",
+					"allowUploadExt" => ".png, .jpg, .jpeg, .webp",
+					"medialib"       => false,
+					"fileDialog"     => false,
+					"cloud"          => false,
+					"delete"         => true,
+					"maxCount"       => $this->maxCount,
 				])->show($value);
 		} else {
 			$this->content = CFile::InputFile($this->name, 20, $value);
@@ -96,16 +97,16 @@ class image extends _type
 		}
 		$results = [];
 		foreach ($arIMAGE as $key => $img) {
-			$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($img["tmp_name"]);
-			$img['tmp_name'] = $pathinfo['tmp_name'];
-			$img['tmp_url'] = $pathinfo['tmp_url'];
-			$img['old_file'] = self::post($this->name.'_old');
-			$img['del'] = self::post($this->name.'_del');
+			$pathinfo         = \Bitrix\Main\UI\Uploader\Uploader::getPaths($img["tmp_name"]);
+			$img['tmp_name']  = $pathinfo['tmp_name'];
+			$img['tmp_url']   = $pathinfo['tmp_url'];
+			$img['old_file']  = self::post($this->name.'_old');
+			$img['del']       = self::post($this->name.'_del');
 			$img['MODULE_ID'] = $this->module_id;
 			if (!empty($img['name']) || !empty($img['del'])) {
-				$fid = CFile::SaveFile($img, $this->module_id);
+				$fid         = CFile::SaveFile($img, $this->module_id);
 				$this->value = $fid;
-				$results[] = $fid;
+				$results[]   = $fid;
 			}
 		}
 		if ($this->multiple) {
