@@ -338,18 +338,24 @@ class TemplateHelpers
 
 		if ($arTemplate['CONDITIONS']) {
 			foreach ($arTemplate['CONDITIONS'] as $arCondition) {
-				switch ($arCondition['cmp']) {
-				case '==':
-				case 'include':
-					$arFilter[$arCondition['field']] = $arCondition['value'];
-					break;
-				case '!=':
-				case 'notinclude':
-					$arFilter['!'.$arCondition['field']] = $arCondition['value'];
-					break;
-				default:
-					$arFilter[$arCondition['cmp'].$arCondition['field']] = $arCondition['value'];
+				$cmp = self::filterCmp($arCondition['cmp']);
+				if (empty($cmp)) {
+					continue;
 				}
+
+				$field = $arCondition['field'];
+				$value = $arCondition['value'];
+				if (strpos($arCondition['field'], 'PROPERTY_') === 0) {
+					$enums = \CIBlockPropertyEnum::GetList([], [
+						'IBLOCK_ID'=> $arTemplate['IBLOCK_ID'],
+						'CODE'     => substr($field, strlen('PROPERTY_')),
+						'XML_ID'   => $value
+					]);
+					if ($fields = $enums->GetNext()) {
+						$value = $fields['ID'];
+					}
+				}
+				$arFilter[$cmp.$field] = $value;
 			}
 		}
 
@@ -440,5 +446,20 @@ class TemplateHelpers
 		}
 		$arResult['templates'] = $templatesMap;
 		return $arResult;
+	}
+
+	private static function filterCmp($cmp)
+	{
+		switch ($cmp) {
+			case '==':
+				return '=';
+			case '!=':
+				return '!=';
+			case 'include':
+				return '%';
+			case 'notinclude':
+				return '!%';
+		}
+		return $cmp;
 	}
 }
