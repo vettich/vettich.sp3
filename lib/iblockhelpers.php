@@ -489,7 +489,10 @@ class IBlockHelpers
 			foreach ((array)$conditions as $cond) {
 				$isRight = false;
 				foreach ($valueKeys as $valKey) {
-					$macro    = [$cond['field'], $valKey];
+					$macro = [$cond['field']];
+					if (!empty($valKey)) {
+						$macro = [$cond['field'], $valKey];
+					}
 					$fieldVal = TextProcessor::macroValue($macro, $fields);
 					if (self::cmp($fieldVal, $cond['cmp'], $cond['value'])) {
 						$isRight = true;

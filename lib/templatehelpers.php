@@ -345,7 +345,7 @@ class TemplateHelpers
 
 				$field = $arCondition['field'];
 				$value = $arCondition['value'];
-				if (strpos($arCondition['field'], 'PROPERTY_') === 0) {
+				if (strpos($field, 'PROPERTY_') === 0) {
 					$enums = \CIBlockPropertyEnum::GetList([], [
 						'IBLOCK_ID'=> $arTemplate['IBLOCK_ID'],
 						'CODE'     => substr($field, strlen('PROPERTY_')),
@@ -354,6 +354,8 @@ class TemplateHelpers
 					if ($fields = $enums->GetNext()) {
 						$value = $fields['ID'];
 					}
+				} elseif (strpos($field, 'CATALOG_') === 0) {
+					$field = substr($field, strlen('CATALOG_'));
 				}
 				$arFilter[$cmp.$field] = $value;
 			}
