@@ -11,7 +11,7 @@ class Module
 	const MODULE_ID = 'vettich.sp3';
 
 	private static $messPrefix = '';
-	private static $messStack = [];
+	private static $messStack  = [];
 
 	public $_handlers = [];
 	public function __construct($args=[])
@@ -27,7 +27,7 @@ class Module
 	*/
 	public static function createObject($params)
 	{
-		$namespaces = (array) $params['namespace'];
+		$namespaces   = (array) $params['namespace'];
 		$namespaces[] = '';
 
 		$clName = (string) $params['class'];
@@ -55,14 +55,14 @@ class Module
 	*/
 	public static function mess($text)
 	{
-		$len = strlen($text);
-		$start = -1;
+		$len    = strlen($text);
+		$start  = -1;
 		$search = [];
 		for ($i=0; $i < $len; ++$i) {
 			if ($text[$i] == '#') {
 				if ($start >= 0) {
 					$search[] = substr($text, $start, $i - $start + 1);
-					$start = -1;
+					$start    = -1;
 				} else {
 					$start = $i;
 				}
@@ -84,7 +84,7 @@ class Module
 	public function pushMessPrefix($prefix)
 	{
 		self::$messStack[] = self::$messPrefix;
-		self::$messPrefix = $prefix;
+		self::$messPrefix  = $prefix;
 	}
 
 	public static function popMessPrefix()
@@ -117,11 +117,11 @@ class Module
 	*/
 	public static function explode($delimiter, $string, $eq='=', $ar=['[', ']'], &$i=0)
 	{
-		$arParam = [];
-		$len = strlen($string);
-		$sParam = '';
-		$aParam = [];
-		$sKey = '';
+		$arParam  = [];
+		$len      = strlen($string);
+		$sParam   = '';
+		$aParam   = [];
+		$sKey     = '';
 		$prevChar = '';
 		for ($i=0; $i<$len; $i++) {
 			$ch = $string[$i];
@@ -139,7 +139,7 @@ class Module
 			} elseif ($ch == $eq) {
 				if ($prevChar != '\\') {
 					if (!empty($sParam)) {
-						$sKey = $sParam;
+						$sKey   = $sParam;
 						$sParam = '';
 					}
 				} else {
@@ -213,8 +213,8 @@ class Module
 	{
 		if (is_array($data)) {
 			foreach ((array)$data as $key => $value) {
-				$newKey = \Bitrix\Main\Text\Encoding::convertEncodingToCurrent($key);
-				$newValue = self::convertEncodingToCurrent($value);
+				$newKey        = \Bitrix\Main\Text\Encoding::convertEncodingToCurrent($key);
+				$newValue      = self::convertEncodingToCurrent($value);
 				$data[$newKey] = $newValue;
 				if ($newKey != $key) {
 					unset($data[$key]);
@@ -261,7 +261,7 @@ class Module
 		}
 
 		$args = [&$arg1, &$arg2, &$arg3, &$arg4, &$arg5, &$arg6, &$arg7];
-		$len = count($args);
+		$len  = count($args);
 		for ($i=count($args)-1; $i >= 0; $i--) {
 			if ($args[$i] === null) {
 				unset($args[$i]);
@@ -281,7 +281,7 @@ class Module
 			return null;
 		}
 		$args = [&$arg1, &$arg2, &$arg3, &$arg4, &$arg5, &$arg6, &$arg7];
-		$len = count($args);
+		$len  = count($args);
 		for ($i=count($args)-1; $i >= 0; $i--) {
 			if ($args[$i] === null) {
 				unset($args[$i]);
@@ -295,7 +295,7 @@ class Module
 	public static function valueFrom($arr, $key, $default=null)
 	{
 		if (($pos = strpos($key, '[')) !== false) {
-			$_key = substr($key, 0, $pos);
+			$_key     = substr($key, 0, $pos);
 			$_postkey = substr($key, $pos);
 			$_postkey = str_replace(['[', ']'], ['["', '"]'], $_postkey);
 			eval('$ret = isset($arr["'.$_key.'"]'.$_postkey.') ? $arr["'.$_key.'"]'.$_postkey.' : $default;');
@@ -308,7 +308,7 @@ class Module
 	public static function valueTo(&$arr, $key, $value)
 	{
 		if (($pos = strpos($key, '[')) !== false) {
-			$prekey = substr($key, 0, $pos);
+			$prekey  = substr($key, 0, $pos);
 			$postkey = substr($key, $pos);
 			$postkey = str_replace(['[', ']'], ['["', '"]'], $postkey);
 			eval('$arr["'.$prekey.'"]'.$postkey.' = $value;');
@@ -443,7 +443,7 @@ class Module
 
 	public static function mb_substr($str, $start, $len=null, $encoding=null)
 	{
-		if (function_exists('mb_substr')) {
+		if (SITE_CHARSET == "UTF-8" && function_exists('mb_substr')) {
 			return mb_substr($str, $start, $len, $encoding ?: 'UTF-8');
 		}
 		return substr($str, $start, $len);
@@ -451,7 +451,7 @@ class Module
 
 	public static function mb_strripos($haystack, $needle, $offset=0, $encoding=null)
 	{
-		if (function_exists('mb_strripos')) {
+		if (SITE_CHARSET == "UTF-8" && function_exists('mb_strripos')) {
 			return mb_strripos($haystack, $needle, $offset, $encoding ?: 'UTF-8');
 		}
 		return strripos($haystack, $needle, $offset);
@@ -459,7 +459,7 @@ class Module
 
 	public static function mb_strlen($str, $encoding=null)
 	{
-		if (function_exists('mb_strlen')) {
+		if (SITE_CHARSET == "UTF-8" && function_exists('mb_strlen')) {
 			return mb_strlen($str, $encoding ?: 'UTF-8');
 		}
 		return strlen($str);

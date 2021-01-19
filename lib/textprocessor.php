@@ -52,8 +52,8 @@ class TextProcessor
 	{
 		$strlen = devform\Module::mb_strlen($string);
 		while ($strlen) {
-			$array[] = devform\Module::mb_substr($string, 0, 1, "UTF-8");
-			$string  = devform\Module::mb_substr($string, 1, $strlen, "UTF-8");
+			$array[] = devform\Module::mb_substr($string, 0, 1);
+			$string  = devform\Module::mb_substr($string, 1, $strlen);
 			$strlen  = devform\Module::mb_strlen($string);
 		}
 		return $array;
