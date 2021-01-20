@@ -78,7 +78,7 @@ class Api
 	private static function decodeResult($res)
 	{
 		$newRes = json_decode($res, true);
-		Module::log($res);
+		// Module::log($res);
 		if ($newRes !== null) {
 			return $newRes;
 		}
@@ -357,7 +357,7 @@ class Api
 		// step 1: get upload url and new file id
 		Module::log([$filepath, $filename]);
 		$res = self::callGet('file_upload_url', ['type' => 'image', 'filename' => $filename]);
-		Module::log($res);
+		// Module::log($res);
 		if (!empty($res['error'])) {
 			return $res;
 		}

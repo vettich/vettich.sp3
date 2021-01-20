@@ -6,6 +6,28 @@ use vettich\sp3\db;
 
 class TemplateHelpers
 {
+
+	// В этой папке можно размещать картинки, которые будут применяться к водяным знакам
+	// Файлам следует давать названия в следующем формате:
+	// <templateID>_<verticalAlign>_<horizontalAlign>_<width>_<height>.png
+	// где,
+	// 		templateID - ид шаблона для которого предназначена картинка - водяной знак;
+	// 			если 0 - то будет применяться ко всем шаблонам по умолчанию,
+	// 			у которых не задана другая картинка
+	// 		verticalAlign - расположение водяного знака по вертикали
+	// 			может принимать значения: top, center, bottom
+	// 		horizontalAlign - расположение водяного знака по вертикали
+	// 			может принимать значения: left, center, right
+	// 		width - максимальная ширина водяного знака.
+	//			Mожет быть указано значение в процентах (%) или в пикселях (px)
+	// 		height - максимальная высота водяного знака.
+	//			Mожет быть указано значение в процентах (%) или в пикселях (px)
+	//
+	// Пример файла:
+	// 		0_bottom_right_30%_30%.png
+	// 		1_top_right_100px_100px.png
+	const WATEMARKS_DIR = VETTICH_SP3_DIR.'/watemarks';
+
 	private static $_iblockElements = [];
 
 	/**
@@ -371,11 +393,12 @@ class TemplateHelpers
 
 	protected static function preparePostData($arFields, $arTemplate)
 	{
-		$fields       = $arFields + $arTemplate;
-		$mainPicture  = $arTemplate['PUBLISH']['COMMON']['MAIN_PICTURE'];
-		$otherPicture = $arTemplate['PUBLISH']['COMMON']['OTHER_PICTURE'];
-		$images       = self::prepareImages([$mainPicture, $otherPicture], $fields);
-		$post         = [
+		$fields                = $arFields + $arTemplate;
+		$fields['TEMPLATE_ID'] = $arTemplate['ID'];
+		$mainPicture           = $arTemplate['PUBLISH']['COMMON']['MAIN_PICTURE'];
+		$otherPicture          = $arTemplate['PUBLISH']['COMMON']['OTHER_PICTURE'];
+		$images                = self::prepareImages([$mainPicture, $otherPicture], $fields);
+		$post                  = [
 			'fields' => [
 				'text'       => self::prepareText($arTemplate['PUBLISH']['COMMON']['TEXT'], $fields),
 				'link'       => TextProcessor::macroValue($arTemplate['PUBLISH']['COMMON']['LINK'], $fields),
@@ -426,7 +449,8 @@ class TemplateHelpers
 				if (!db\Posts::checkImageMime($filepath) or !db\Posts::checkImageSize($filepath)) {
 					continue;
 				}
-				$res = Api::uploadFile($filepath, basename($filepath));
+				$imgpath = self::watemarkImage($filepath, $fields['TEMPLATE_ID']);
+				$res     = Api::uploadFile($imgpath, basename($filepath));
 				if (empty($res['error'])) {
 					$images[] = $res['response']['file_id'];
 				}
@@ -436,6 +460,136 @@ class TemplateHelpers
 			}
 		}
 		return $images;
+	}
+
+	protected static function watemarkImage($imagepath, $templateID=0)
+	{
+		if (!is_dir(self::WATEMARKS_DIR)) {
+			return $imagepath;
+		}
+
+		// ищем картинки в папке с водяными знаками
+		$watemarks = scandir(self::WATEMARKS_DIR);
+		if ($watemarks === false) {
+			return $imagepath;
+		}
+
+		// находим нужный водяной знак для применения
+		$common       = "";
+		$found        = "";
+		$commonpieces = [];
+		$foundpieces  = [];
+		foreach ($watemarks as $imgname) {
+			// $name must be format like <templateID>_<vertical>_<horizontal>_<width>_<height>.png
+			$name   = str_replace(".png", "", $imgname);
+			$pieces = explode("_", $name);
+			if (count($pieces) != 5) {
+				continue;
+			}
+			if ($pieces[0] == "0") {
+				$common       = $imgname;
+				$commonpieces = $pieces;
+			}
+			if ($templateID == $pieces[0]) {
+				$found       = $imgname;
+				$foundpieces = $pieces;
+				break;
+			}
+		}
+		if (empty($found) && !empty($common)) {
+			$found       = $common;
+			$foundpieces = $commonpieces;
+		}
+		if (empty($found)) {
+			return $imagepath;
+		}
+
+		// читаем изображения
+		$stamp = imagecreatefrompng(self::WATEMARKS_DIR.'/'.$found);
+		$mime  = getimagesize($imagepath);
+		if ($mime['mime']=='image/png') {
+			$im = imagecreatefrompng($imagepath);
+		} elseif ($mime['mime']=='image/jpg' || $mime['mime']=='image/jpeg' || $mime['mime']=='image/pjpeg') {
+			$im = imagecreatefromjpeg($imagepath);
+		}
+
+		// начинаем подгонять размеры водяного знака
+		$padding = 20;
+		$stamp_w = imagesx($stamp);
+		$stamp_h = imagesy($stamp);
+
+		$new_w = $stamp_w;
+		if (substr_compare($foundpieces[3], '%', -1, 1) == 0) {
+			$percent = intval(substr($foundpieces[3], 0, -1));
+			$new_w   = imagesx($im) * $percent / 100;
+		} elseif (substr_compare($foundpieces[3], 'px', -2, 2)) {
+			$new_w = intval(substr($foundpieces[3], 0, -2));
+		}
+
+		$new_h = $stamp_h;
+		if (substr_compare($foundpieces[4], '%', -1, 1) == 0) {
+			$percent = intval(substr($foundpieces[4], 0, -1));
+			$new_h   = imagesy($im) * $percent / 100;
+		} elseif (substr_compare($foundpieces[4], 'px', -2, 2)) {
+			$new_h = intval(substr($foundpieces[4], 0, -2));
+		}
+
+		if ($new_w > $new_h) {
+			$new_w = $new_h;
+		} else {
+			$new_h = $new_w;
+		}
+
+		$old_w = $stamp_w;
+		$old_h = $stamp_h;
+		if ($old_w > $old_h) {
+			$stamp_w = $new_w;
+			$stamp_h = $old_h * $new_h / $old_w;
+		} elseif ($old_w < $old_h) {
+			$stamp_w = $old_w * $new_w / $old_h;
+			$stamp_h = $new_h;
+		} else {
+			$stamp_w = $new_w;
+			$stamp_h = $new_h;
+		}
+
+		// изменяем размер водяного знака с сохранением прозрачности
+		$old_stamp = $stamp;
+		$stamp     = imagecreatetruecolor($stamp_w, $stamp_h);
+		imagealphablending($stamp, false);
+		imagesavealpha($stamp, true);
+		$transparent = imagecolorallocatealpha($stamp, 255, 255, 255, 0);
+		imagefilledrectangle($stamp, 0, 0, $stamp_w, $stamp_h, $transparent);
+		imagecopyresampled($stamp, $old_stamp, 0, 0, 0, 0, $stamp_w, $stamp_h, $old_w, $old_h);
+
+		// вычисляем y координату для водяного знака
+		if ($foundpieces[1] == 'top') {
+			$y = $padding;
+		} elseif ($foundpieces[1] == 'center') {
+			$y = imagesy($im) / 2 - $stamp_h / 2;
+		} elseif ($foundpieces[1] == 'bottom') {
+			$y = imagesy($im) - $stamp_h - $padding;
+		}
+
+		// вычисляем x координату для водяного знака
+		if ($foundpieces[2] == 'left') {
+			$x = $padding;
+		} elseif ($foundpieces[2] == 'center') {
+			$x = imagesx($im) / 2 - $stamp_w / 2;
+		} elseif ($foundpieces[2] = 'right') {
+			$x = imagesx($im) - $stamp_w - $padding;
+		}
+
+		// накладываем водяной знак поверх изображения
+		imagecopy($im, $stamp, $x, $y, 0, 0, $stamp_w, $stamp_h);
+
+		// сохраняем во временный файл
+		$tmpfilename = \CTempFile::GetFileName(basename($imagepath));
+		CheckDirPath($tmpfilename);
+		imagejpeg($im, $tmpfilename);
+
+		// возвращяем путь к изображению с водяным знаком
+		return $tmpfilename;
 	}
 
 	public static function listTemplates($iblockId)

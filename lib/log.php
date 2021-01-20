@@ -41,7 +41,7 @@ class Log
 		if (Config::get('log') != true && Config::get('remote_log') != true) {
 			return;
 		}
-		$options['trace'] = self::traceFormatted(($options['rm_trace'] ?: 0) + 1);
+		$options['trace'] = self::traceFormatted(($options['rm_trace'] ?: 0));
 		if (Config::get('log') == true) {
 			self::localWrite($level, $msg, $options);
 		}
