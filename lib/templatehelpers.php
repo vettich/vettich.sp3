@@ -522,7 +522,7 @@ class TemplateHelpers
 		if (substr_compare($foundpieces[3], '%', -1, 1) == 0) {
 			$percent = intval(substr($foundpieces[3], 0, -1));
 			$new_w   = imagesx($im) * $percent / 100;
-		} elseif (substr_compare($foundpieces[3], 'px', -2, 2)) {
+		} elseif (substr_compare($foundpieces[3], 'px', -2, 2) == 0) {
 			$new_w = intval(substr($foundpieces[3], 0, -2));
 		}
 
@@ -530,27 +530,29 @@ class TemplateHelpers
 		if (substr_compare($foundpieces[4], '%', -1, 1) == 0) {
 			$percent = intval(substr($foundpieces[4], 0, -1));
 			$new_h   = imagesy($im) * $percent / 100;
-		} elseif (substr_compare($foundpieces[4], 'px', -2, 2)) {
+		} elseif (substr_compare($foundpieces[4], 'px', -2, 2) == 0) {
 			$new_h = intval(substr($foundpieces[4], 0, -2));
-		}
-
-		if ($new_w > $new_h) {
-			$new_w = $new_h;
-		} else {
-			$new_h = $new_w;
 		}
 
 		$old_w = $stamp_w;
 		$old_h = $stamp_h;
-		if ($old_w > $old_h) {
-			$stamp_w = $new_w;
-			$stamp_h = $old_h * $new_h / $old_w;
-		} elseif ($old_w < $old_h) {
-			$stamp_w = $old_w * $new_w / $old_h;
-			$stamp_h = $new_h;
-		} else {
-			$stamp_w = $new_w;
-			$stamp_h = $new_h;
+		if ($new_w != $stamp_w && $new_h != $stamp_h) {
+			if ($new_w > $new_h) {
+				$new_w = $new_h;
+			} else {
+				$new_h = $new_w;
+			}
+
+			if ($old_w > $old_h) {
+				$stamp_w = $new_w;
+				$stamp_h = $old_h * $new_h / $old_w;
+			} elseif ($old_w < $old_h) {
+				$stamp_w = $old_w * $new_w / $old_h;
+				$stamp_h = $new_h;
+			} else {
+				$stamp_w = $new_w;
+				$stamp_h = $new_h;
+			}
 		}
 
 		// изменяем размер водяного знака с сохранением прозрачности
