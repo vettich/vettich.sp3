@@ -135,6 +135,10 @@ class TextProcessor
 		if ($macro[0] == 'BR') {
 			return '#BR#';
 		}
+		if ($macro[0] == 'THIS') {
+			$macro  = array_slice($macro, 1);
+			$fields = $fields['THIS'];
+		}
 		if ($macro[0] == 'DETAIL_PAGE_URL' or $macro[0] == 'LIST_PAGE_URL') {
 			return self::createLink($fields[$macro[0]], $fields);
 		}
@@ -160,11 +164,16 @@ class TextProcessor
 		$value = devform\Module::arrayChain($fields, $macro);
 		if (is_array($value)) {
 			$macro[] = 'VALUES';
-			$value   = devform\Module::arrayChain($fields, $macro);
-			if ($value === null) {
+			$v       = devform\Module::arrayChain($fields, $macro);
+			if ($v !== null) {
+				$value = $v;
+			} else {
 				array_pop($macro);
 				$macro[] = 'VALUE';
-				$value   = devform\Module::arrayChain($fields, $macro);
+				$v       = devform\Module::arrayChain($fields, $macro);
+				if ($v !== null) {
+					$value = $v;
+				}
 			}
 		}
 		if (!$raw && is_array($value)) {
@@ -305,7 +314,7 @@ class TextProcessor
 				$rr             = str_replace("\n", '#BR#', self::replace($matches[3], $fields, $isCreateLink));
 				$result .= $rr;
 				/* $result .= '#BR#'; */
-				print_r([$rr]);
+				// print_r([$rr]);
 			}
 			$fields['THIS'] = $old;
 			/* $result = implode('#BR#', $result); */
