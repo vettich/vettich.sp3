@@ -11,21 +11,21 @@ class vettich_sp3 extends CModule
 	public $PARTNER_NAME;
 	public $PARTNER_URI;
 	public $MODULE_GROUP_RIGHTS = 'Y';
-	public $MODULE_ROOT_DIR = '';
+	public $MODULE_ROOT_DIR     = '';
 
 	public function vettich_sp3()
 	{
 		$arModuleVersion = [];
 		include(__DIR__.'/version.php');
 		if (is_array($arModuleVersion) && array_key_exists('VERSION', $arModuleVersion)) {
-			$this->MODULE_VERSION = $arModuleVersion['VERSION'];
+			$this->MODULE_VERSION      = $arModuleVersion['VERSION'];
 			$this->MODULE_VERSION_DATE = $arModuleVersion['VERSION_DATE'];
 		}
-		$this->MODULE_ROOT_DIR = dirname(__DIR__);
-		$this->MODULE_NAME = GetMessage('VETTICH_SP3_MODULE_NAME');
+		$this->MODULE_ROOT_DIR    = dirname(__DIR__);
+		$this->MODULE_NAME        = GetMessage('VETTICH_SP3_MODULE_NAME');
 		$this->MODULE_DESCRIPTION = GetMessage('VETTICH_SP3_MODULE_DESCRIPTION');
-		$this->PARTNER_NAME = GetMessage('VETTICH_SP3_PARTNER_NAME');
-		$this->PARTNER_URI = GetMessage('VETTICH_SP3_PARTNER_URI');
+		$this->PARTNER_NAME       = GetMessage('VETTICH_SP3_PARTNER_NAME');
+		$this->PARTNER_URI        = GetMessage('VETTICH_SP3_PARTNER_URI');
 	}
 
 	public function DoInstall()
@@ -94,7 +94,6 @@ class vettich_sp3 extends CModule
 
 	public function InstallEvents()
 	{
-		RegisterModuleDependences('main', 'OnBeforeProlog', 'vettich.sp3', '\vettich\sp3\Events', 'beforePrologHandler');
 		RegisterModuleDependences('main', 'OnAdminListDisplay', 'vettich.sp3', '\vettich\sp3\Events', 'adminListDisplayHandler');
 		RegisterModuleDependences('iblock', 'OnAfterIblockElementAdd', 'vettich.sp3', '\vettich\sp3\Events', 'afterIblockElementAddHandler');
 		RegisterModuleDependences('iblock', 'OnAfterIBlockElementUpdate', 'vettich.sp3', '\vettich\sp3\Events', 'afterIBlockElementUpdateHandler');
@@ -105,7 +104,6 @@ class vettich_sp3 extends CModule
 
 	public function UnInstallEvents()
 	{
-		UnRegisterModuleDependences('main', 'OnBeforeProlog', 'vettich.sp3', '\vettich\sp3\Events', 'beforePrologHandler');
 		UnRegisterModuleDependences('main', 'OnAdminListDisplay', 'vettich.sp3', '\vettich\sp3\Events', 'adminListDisplayHandler');
 		UnRegisterModuleDependences('iblock', 'OnAfterIblockElementAdd', 'vettich.sp3', '\vettich\sp3\Events', 'afterIblockElementAddHandler');
 		UnRegisterModuleDependences('iblock', 'OnAfterIBlockElementUpdate', 'vettich.sp3', '\vettich\sp3\Events', 'afterIBlockElementUpdateHandler');
@@ -122,7 +120,7 @@ class vettich_sp3 extends CModule
 
 	public function UnInstallFiles()
 	{
-		$thisPath = $this->MODULE_ROOT_DIR.'/install/bitrix';
+		$thisPath      = $this->MODULE_ROOT_DIR.'/install/bitrix';
 		$installedPath = $_SERVER['DOCUMENT_ROOT'].'/bitrix';
 		DeleteDirFiles($thisPath.'/admin', $installedPath.'/admin');
 		DeleteDirFiles($thisPath.'/css/vettich.sp3', $installedPath.'/css/vettich.sp3');

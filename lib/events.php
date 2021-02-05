@@ -7,6 +7,11 @@ use Bitrix\Main\EventManager;
 
 class Events
 {
+	const ADD     = 'add';
+	const POP_ADD = 'pop_add';
+	const UPDATE  = 'update';
+	const DELETE  = 'delete';
+
 	public static $iblockPages = [
 		'/bitrix/admin/iblock_element_admin.php',
 		'/bitrix/admin/iblock_list_admin.php',
@@ -18,7 +23,7 @@ class Events
 
 	public static function afterIblockElementAddHandler($arFields = [])
 	{
-		TemplateHelpers::publish($arFields, ['event' => 'add']);
+		TemplateHelpers::publish($arFields, ['event' => self::ADD]);
 	}
 
 	public static function beforeIblockElementUpdateHandler($arFields = [])
@@ -28,12 +33,12 @@ class Events
 
 	public static function afterIblockElementUpdateHandler($arFields = [])
 	{
-		TemplateHelpers::update($arFields, ['event' => 'update']);
+		TemplateHelpers::update($arFields, ['event' => self::UPDATE]);
 	}
 
 	public static function afterIblockElementDeleteHandler($arFields = [])
 	{
-		TemplateHelpers::delete($arFields, ['event' => 'delete']);
+		TemplateHelpers::delete($arFields, ['event' => self::DELETE]);
 	}
 
 	public static function adminListDisplayHandler(&$list)
@@ -75,16 +80,6 @@ class Events
 					'GLOBAL_ICON' => 'vettich-sp3-publish',
 					'TEXT'        => Module::m('IBLOCK_MENU_SEND'),
 					'ACTION'      => 'VettichSP3.MenuSendWithTemplate('.$q.');',
-					/* 'MENU' => [ */
-					/* 	[ */
-					/* 		'TEXT' => Module::m('IBLOCK_MENU_SEND_WITH_TEMPLATE'), */
-					/* 		$actionKey => 'VettichSP3.MenuSendWithTemplate('.$q.');', */
-					/* 	], */
-					/* 	[ */
-					/* 		'TEXT' => Module::m('IBLOCK_MENU_SEND_CUSTOM'), */
-					/* 		$actionKey => 'VettichSP3.MenuSendCustom('.$q.');', */
-					/* 	], */
-					/* ], */
 				];
 				$arnewActions[] = ['SEPARATOR' => true];
 				$arnewActions[] = $act;
@@ -95,9 +90,43 @@ class Events
 
 	public static function beforePrologHandler()
 	{
-		if (!in_array($GLOBALS['APPLICATION']->GetCurPage(), self::$iblockPages) &&
-			$_REQUEST['action'] == 'VETTICH_SP3_MENU_TEMPLATES') {
+		$arElem = self::popPostElemID();
+		if (!$arElem) {
+			self::unRegPageStart();
 			return;
 		}
+		$arFields = ['ID' => $arElem[0], 'IBLOCK_ID' => $arElem[1]];
+		TemplateHelpers::publish($arFields, ['event' => self::POP_ADD]);
+	}
+
+	public static function regPageStart()
+	{
+		RegisterModuleDependences('main', 'OnBeforeProlog', 'vettich.sp3', get_class(), 'beforePrologHandler');
+	}
+
+	public static function unRegPageStart()
+	{
+		UnRegisterModuleDependences('main', 'OnBeforeProlog', 'vettich.sp3', get_class(), 'beforePrologHandler');
+	}
+
+	public static function pushPostElemID($ID, $IBLOCK_ID)
+	{
+		$arElems = unserialize(\COption::GetOptionString('vettich.sp3', 'post_elems', ''));
+		if (empty($arElems)) {
+			$arElems = [];
+		}
+		$arElems[] = [$ID, $IBLOCK_ID];
+		\COption::SetOptionString('vettich.sp3', 'post_elems', serialize($arElems));
+	}
+
+	public static function popPostElemID()
+	{
+		$arElems = unserialize(\COption::GetOptionString('vettich.sp3', 'post_elems', ''));
+		if (empty($arElems)) {
+			return null;
+		}
+		$ret = array_shift($arElems);
+		\COption::SetOptionString('vettich.sp3', 'post_elems', serialize($arElems));
+		return $ret;
 	}
 }

@@ -290,8 +290,8 @@ class IBlockHelpers
 			}
 		}
 
-		if (\CModule::IncludeModule('catalog')
-			&& \CCatalog::GetByID($arFields['IBLOCK_ID'])) {
+		$isCatalog = \CModule::IncludeModule('catalog') && \CCatalog::GetByID($arFields['IBLOCK_ID']);
+		if ($isCatalog) {
 			$db_res = \CCatalogProduct::GetList(
 				[],
 				["ID" => $arFields['ID']],
