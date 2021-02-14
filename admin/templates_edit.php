@@ -219,6 +219,13 @@ if (!$iblock_id) {
 			'options'       => IBlockHelpers::allPropsFor($iblock_id, IBlockHelpers::FILE_TYPE),
 			'default_value' => 'PROPERTY_MORE_PICTURES',
 		],
+		'_PUBLISH[COMMON][OTHER_PICTURE_2]' => [
+			'type'          => 'select',
+			'title'         => '#.PUBLISH_OTHER_PICTURE_2#',
+			'help'          => '#.PUBLISH_OTHER_PICTURE_2_HELP#',
+			'options'       => IBlockHelpers::allPropsFor($iblock_id, IBlockHelpers::FILE_TYPE),
+			'default_value' => '',
+		],
 		'_PUBLISH[COMMON][PUBLISH_AT]' => [
 			'type'          => 'select',
 			'title'         => '#.POST_PUBLISH_AT#',

@@ -6,7 +6,7 @@ use vettich\sp3\Api;
 
 class Posts extends \vettich\sp3\devform\data\ArrayList
 {
-	public const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+	const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 	public function __construct($args = [])
 	{

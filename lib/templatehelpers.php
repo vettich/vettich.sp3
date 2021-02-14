@@ -295,8 +295,7 @@ class TemplateHelpers
 		}
 
 		$now         = new \DateTime();
-		$bxnow       = BxDateTime::createFromPhp($now);
-		$diff        = $arTemplate['LAST_PUBLISHED_AT']->getDiff($bxnow);
+		$diff        = (new \DateTime($arTemplate['LAST_PUBLISHED_AT']->toString()))->diff($now);
 		$diffMinutes = Tools::getTotalInterval($diff, 'minutes');
 		if ($arTemplate['UNLOAD_KEEP_INTERVAL'] == 'Y' && $diffMinutes < 25) {
 			date_default_timezone_set($defaultTimezone);
@@ -402,10 +401,13 @@ class TemplateHelpers
 	{
 		$fields                = $arFields + $arTemplate;
 		$fields['TEMPLATE_ID'] = $arTemplate['ID'];
-		$mainPicture           = $arTemplate['PUBLISH']['COMMON']['MAIN_PICTURE'];
-		$otherPicture          = $arTemplate['PUBLISH']['COMMON']['OTHER_PICTURE'];
-		$images                = self::prepareImages([$mainPicture, $otherPicture], $fields);
-		$post                  = [
+		$pics                  = [
+			$arTemplate['PUBLISH']['COMMON']['MAIN_PICTURE'],
+			$arTemplate['PUBLISH']['COMMON']['OTHER_PICTURE'],
+			$arTemplate['PUBLISH']['COMMON']['OTHER_PICTURE_2'],
+		];
+		$images = self::prepareImages($pics, $fields);
+		$post   = [
 			'fields' => [
 				'text'       => self::prepareText($arTemplate['PUBLISH']['COMMON']['TEXT'], $fields),
 				'link'       => TextProcessor::macroValue($arTemplate['PUBLISH']['COMMON']['LINK'], $fields),

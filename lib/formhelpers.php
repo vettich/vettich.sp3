@@ -6,7 +6,7 @@ use vettich\sp3\devform\types\checkbox;
 
 class FormHelpers
 {
-	private const ACC_NAME = '<span class="vettich-sp3-acc-link" target="_blank"><img src="#PIC#"><span>#NAME#</span></span>';
+	const ACC_NAME = '<span class="vettich-sp3-acc-link" target="_blank"><img src="#PIC#"><span>#NAME#</span></span>';
 
 	public static function buildAccountsList($id)
 	{
