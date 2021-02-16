@@ -11,6 +11,7 @@ class Api
 	const FROM               = 'bitrix';
 	const SERVER_UNAVAILABLE = -11;
 	const UNLOAD_ENDPOINT    = '/bitrix/tools/vettich.sp3.ajax.php?method=unload';
+	const RFC3339_EXTENDED   = 'Y-m-d\TH:i:s.vP';
 
 	public static function userId()
 	{
@@ -33,7 +34,7 @@ class Api
 				$strtime = $nowtime;
 			}
 		}
-		return date(\DateTime::RFC3339_EXTENDED, $strtime);
+		return date(self::RFC3339_EXTENDED, $strtime);
 	}
 
 	private static function setUserData($userId, $token)
