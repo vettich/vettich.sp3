@@ -11,7 +11,7 @@ class Api
 	const FROM               = 'bitrix';
 	const SERVER_UNAVAILABLE = -11;
 	const UNLOAD_ENDPOINT    = '/bitrix/tools/vettich.sp3.ajax.php?method=unload';
-	const RFC3339_EXTENDED   = 'Y-m-d\TH:i:s.vP';
+	const RFC3339_EXTENDED   = 'Y-m-d\TH:i:s.uP';
 
 	public static function userId()
 	{

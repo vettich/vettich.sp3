@@ -212,15 +212,15 @@ class TextProcessor
 		}
 
 		if ($type == 'S' && $userType == 'HTML') {
-			if (!empty($macro[1]) && $macro[1] != 'VALUE') {
+			if (!empty($macro[1]) && $macro[1] != 'VALUE' && $macro[1] != '~VALUE') {
 				return $fields[$macro[0]][$macro[1]];
 			}
 
 			if (!$isMulti) {
-				return $fields[$macro[0]]['VALUE']['TEXT'];
+				return $fields[$macro[0]]['~VALUE']['TEXT'];
 			} else {
 				$vals = [];
-				foreach ($fields[$macro[0]]['VALUES'] as $val) {
+				foreach ($fields[$macro[0]]['~VALUES'] as $val) {
 					$vals[] = $val['TEXT'];
 				}
 				return $raw ? $vals : implode("\n", $vals);
