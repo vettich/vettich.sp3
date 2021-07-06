@@ -129,6 +129,7 @@ class TemplateHelpers
 		while ($arFields = $rs->Fetch()) {
 			IBlockHelpers::iblockValueFill($arFields, true);
 			foreach ($arTemplates as $arTemplate) {
+				$fields = $arFields + $arTemplate;
 				if ($checkConditions && !IBlockHelpers::cmpFields($fields)) {
 					continue;
 				}
@@ -357,7 +358,7 @@ class TemplateHelpers
 			$arExistsIDs[] = $arPostIBlockElem['ELEM_ID'];
 		}
 		if (!empty($arExistsIDs)) {
-			$arFilter['!ID'] = $arExistsIDs;
+			$arFilter['!ID'] = array_keys(array_flip($arExistsIDs)); // distinct ids
 		}
 
 		if ($arTemplate['PUBLISH']['CONDITIONS']['ACTIVE'] == 'Y') {
@@ -374,17 +375,24 @@ class TemplateHelpers
 				$field = $arCondition['field'];
 				$value = $arCondition['value'];
 				if (strpos($field, 'PROPERTY_') === 0) {
+					$propCode = substr($field, strlen('PROPERTY_'));
 					$enums = \CIBlockPropertyEnum::GetList([], [
 						'IBLOCK_ID'=> $arTemplate['IBLOCK_ID'],
-						'CODE'     => substr($field, strlen('PROPERTY_')),
+						'CODE'     => $propCode,
 						'XML_ID'   => $value
 					]);
 					if ($fields = $enums->GetNext()) {
 						$value = $fields['ID'];
 					}
+					$arProp = CIBlockProperty::GetByID($propCode, $arTemplate['IBLOCK_ID'])->Fetch();
 				} elseif (strpos($field, 'CATALOG_') === 0) {
 					$field = substr($field, strlen('CATALOG_'));
 				}
+
+				if (IBlockHelpers::isDatetime($field, [], $arProp)) {
+					$value = ConvertDateTime($value, 'YYYY-MM-DD');
+				}
+
 				$arFilter[$cmp.$field] = $value;
 			}
 		}

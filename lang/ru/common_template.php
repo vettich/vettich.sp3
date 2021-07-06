@@ -77,6 +77,7 @@ $MESS['VETTICH_SP3_>=']              = 'Больше или равно';
 $MESS['VETTICH_SP3_<=']              = 'Меньше или равно';
 $MESS['VETTICH_SP3_COND_INCLUDE']    = 'Содержит';
 $MESS['VETTICH_SP3_COND_NOTINCLUDE'] = 'НЕ содержит';
+$MESS['VETTICH_SP3_CONDITIONS_HELP'] = 'При вводе даты используйте формат который указан на сайте, например 31.02.2031';
 
 $MESS['VETTICH_SP3_PROPERTIES']     = 'Свойства';
 $MESS['VETTICH_SP3_CATALOG_FIELDS'] = 'Поля каталога';

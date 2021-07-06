@@ -380,7 +380,7 @@ class TextProcessor
 			$link .= '/';
 		}
 		if (strpos($slink, '/') === 0) {
-			$link .= devform\Module::mb_substr($slink, 1);
+			$link .= substr($slink, 1);
 		} else {
 			$link .= $slink;
 		}

@@ -2,6 +2,7 @@
 namespace vettich\sp3;
 
 use vettich\sp3\devform;
+use Bitrix\Main\Type\DateTime;
 
 class IBlockHelpers
 {
@@ -481,9 +482,11 @@ class IBlockHelpers
 		if ($fields['PUBLISH']['CONDITIONS']['ACTIVE'] == 'Y' && $fields['ACTIVE'] != 'Y') {
 			return false;
 		}
+
 		if (!$conditions) {
 			$conditions = $fields['CONDITIONS'];
 		}
+
 		if ($conditions) {
 			$valueKeys = ['', 'VALUE', 'VALUE_XML_ID', 'XML_ID', 'VALUE_ENUM'];
 			foreach ((array)$conditions as $cond) {
@@ -493,12 +496,21 @@ class IBlockHelpers
 					if (!empty($valKey)) {
 						$macro = [$cond['field'], $valKey];
 					}
+
 					$fieldVal = TextProcessor::macroValue($macro, $fields);
-					if (self::cmp($fieldVal, $cond['cmp'], $cond['value'])) {
-						$isRight = true;
+					if (self::isDatetime($cond['field'], $fields)) {
+						$fieldVal = (new DateTime($fieldVal))->getTimestamp();
+						$condVal = (new DateTime($cond['value']))->getTimestamp();
+						$isRight = self::cmp($fieldVal, $cond['cmp'], $condVal);
+					} else {
+						$isRight = self::cmp($fieldVal, $cond['cmp'], $cond['value']);
+					}
+
+					if ($isRight) {
 						break;
 					}
 				}
+
 				if (!$isRight) {
 					return false;
 				}
@@ -546,5 +558,22 @@ class IBlockHelpers
 			}
 		}
 		return $isFound;
+	}
+
+	public static function isDatetime($name, $fields, $arProp=[]) {
+		if (in_array($name, ['DATE_ACTIVE_FROM', 'DATE_ACTIVE_TO', 'DATE_CREATE'])) {
+			return true;
+		}
+
+		if (strpos($name, 'PROPERTY_') === 0) {
+			if (!empty($fields)) {
+				$arProp = $fields[$name];
+			}
+			if (!empty($arProp) && in_array($arProp['USER_TYPE'], ['Date', 'DateTime'])) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

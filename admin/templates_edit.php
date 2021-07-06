@@ -148,6 +148,7 @@ if (!$iblock_id) {
 		'_CONDITIONS'                  => [
 			'type'    => 'group',
 			'title'   => '#.CONDITIONS#',
+			'help'    => '#.CONDITIONS_HELP#',
 			'options' => [
 				'field' => [
 					'type'    => 'select',

@@ -287,7 +287,7 @@ VettichSP3.connectTg = function() {
 		return;
 	}
 	var show = BX.showWait('adm-workarea');
-	var query = VettichSP3.queryStringify({
+	var queries = VettichSP3.queryStringify({
 		method: 'connect',
 		type: 'tg',
 		fields: fields,
