@@ -389,10 +389,6 @@ class TemplateHelpers
 					$field = substr($field, strlen('CATALOG_'));
 				}
 
-				if (IBlockHelpers::isDatetime($field, [], $arProp)) {
-					$value = ConvertDateTime($value, 'YYYY-MM-DD');
-				}
-
 				$arFilter[$cmp.$field] = $value;
 			}
 		}

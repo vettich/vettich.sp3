@@ -105,11 +105,11 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 	{
 		$errors = [];
 		foreach ($imagesField as $image) {
-			$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image["tmp_name"]);
-			if (!isset($errors['format']) && !self::checkImageMime($pathinfo['tmp_name'])) {
+			$img_path = self::getImagePath($image);
+			if (!isset($errors['format']) && !self::checkImageMime($img_path)) {
 				$errors['format'] = Module::m('POST_PICTURE_ERROR');
 			}
-			if (!isset($errors['size']) && !self::checkImageSize($pathinfo['tmp_name'])) {
+			if (!isset($errors['size']) && !self::checkImageSize($img_path)) {
 				$errors['size'] = Module::m('POST_PICTURE_SIZE_ERR');
 			}
 			if (isset($errors['format']) && isset($errors['size'])) {
@@ -134,16 +134,36 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 	{
 		$images = [];
 		foreach ($imagesField as $image) {
-			$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image["tmp_name"]);
-			$res      = Api::uploadFile($pathinfo['tmp_name'], Module::convertToUtf8($image['name']));
+			$img_path = self::getImagePath($image);
+			$res = Api::uploadFile($img_path, Module::convertToUtf8(basename($img_path)));
 			if (empty($res['error'])) {
 				$images[] = $res['response']['file_id'];
 			}
-			DeleteDirFilesEx(dirname($pathinfo['tmp_name']));
+			self::deleteTmpImage($image);
 			if (count($images) >= 10) {
 				break;
 			}
 		}
 		return $images;
+	}
+
+	private static function getImagePath($image)
+	{
+		if (is_array($image) && isset($image['tmp_name'])) {
+			$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image['tmp_name']);
+			$img_path = $pathinfo['tmp_name'];
+		} elseif(is_string($image)) {
+			$img_path = $_SERVER['DOCUMENT_ROOT'].$image;
+		}
+	}
+
+	private static function deleteTmpImage($image)
+	{
+		if (is_array($image) && isset($image['tmp_name'])) {
+			$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image['tmp_name']);
+			if (!empty($pathinfo)) {
+				DeleteDirFilesEx(dirname($pathinfo['tmp_name']));
+			}
+		}
 	}
 }
