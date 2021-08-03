@@ -135,7 +135,7 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 		$images = [];
 		foreach ($imagesField as $image) {
 			$img_path = self::getImagePath($image);
-			$res = Api::uploadFile($img_path, Module::convertToUtf8(basename($img_path)));
+			$res      = Api::uploadFile($img_path, Module::convertToUtf8(basename($img_path)));
 			if (empty($res['error'])) {
 				$images[] = $res['response']['file_id'];
 			}
@@ -152,9 +152,10 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 		if (is_array($image) && isset($image['tmp_name'])) {
 			$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image['tmp_name']);
 			$img_path = $pathinfo['tmp_name'];
-		} elseif(is_string($image)) {
+		} elseif (is_string($image)) {
 			$img_path = $_SERVER['DOCUMENT_ROOT'].$image;
 		}
+		return $img_path;
 	}
 
 	private static function deleteTmpImage($image)
