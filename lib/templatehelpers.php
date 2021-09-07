@@ -186,6 +186,14 @@ class TemplateHelpers
 					$arTemplate = $arPostIBlock['TEMPLATE'];
 				}
 
+				$postRes = Api::getPost($arPostIBlock['POST_ID']);
+				if (empty($postRes) || isset($postRes['error'])) {
+					continue;
+				}
+				if (in_array($postRes['response']['status'], ['success', 'fail'])) {
+					continue;
+				}
+
 				if (empty($arTemplate) ||
 					$arTemplate['UPDATE_IN_NETWORKS'] != 'Y') {
 					continue;
@@ -376,7 +384,7 @@ class TemplateHelpers
 				$value = $arCondition['value'];
 				if (strpos($field, 'PROPERTY_') === 0) {
 					$propCode = substr($field, strlen('PROPERTY_'));
-					$enums = \CIBlockPropertyEnum::GetList([], [
+					$enums    = \CIBlockPropertyEnum::GetList([], [
 						'IBLOCK_ID'=> $arTemplate['IBLOCK_ID'],
 						'CODE'     => $propCode,
 						'XML_ID'   => $value
@@ -470,6 +478,9 @@ class TemplateHelpers
 				if (count($images) >= 10) {
 					break;
 				}
+			}
+			if (count($images) >= 10) {
+				break;
 			}
 		}
 		return $images;

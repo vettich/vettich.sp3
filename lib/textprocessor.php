@@ -227,6 +227,14 @@ class TextProcessor
 			}
 		}
 
+		if ($type == 'S') {
+			if ($isMulti) {
+				$vals = $fields[$macro[0]]['VALUES'] ?: [];
+				return $raw ? $vals : implode(", ", $vals);
+			}
+			return $fields[$macro[0]]['VALUE'] ?: '';
+		}
+
 		if ($type == 'E' or $type == 'G') {
 			if (!empty($macro[1]) && $macro[1] == 'REF') {
 				$id       = $fields[$macro[0]]['VALUES'] ?: $fields[$macro[0]]['VALUE'];
