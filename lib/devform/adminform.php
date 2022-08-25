@@ -37,6 +37,7 @@ class AdminForm extends Module
 		</div>';
 	public $js = '';
 	public $css = '';
+	public $groupRightIsWrite = true;
 
 	public $errorMessage = '';
 	public $errorTemplate = '<div class="adm-info-message">{errors}</div>';
@@ -74,6 +75,9 @@ class AdminForm extends Module
 		}
 		if (isset($args['data'])) {
 			$this->datas = _data::createDatas($args['data']);
+		}
+		if (isset($args['groupRightIsWrite'])) {
+			$this->groupRightIsWrite = $args['groupRightIsWrite'];
 		}
 
 		$this->onHandler('tabsCreate', $this, $this->tabs);
@@ -165,7 +169,7 @@ class AdminForm extends Module
 				'ICON'  => 'btn_list',
 			];
 		}
-		if (isset($_GET[$this->getID]) && $_GET[$this->getID] > 0) {
+		if (isset($_GET[$this->getID]) && $_GET[$this->getID] > 0 && $this->groupRightIsWrite) {
 			$get = $_GET;
 			unset($get[$this->getID]);
 			$arResult['add'] = [

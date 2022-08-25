@@ -20,14 +20,11 @@ use vettich\sp3\Module;
 			/* 'on renderView' => ['Vettich\SP\Module', 'onRenderViewIblockId'], */
 		],
 	],
-	'actions' => ['edit', 'copy', 'delete'],
+	'actions' => Module::hasGroupWrite() ? ['edit', 'copy', 'delete'] : [],
 	'dontEdit' => ['ID', 'IBLOCK_TYPE', 'IBLOCK_ID'],
 	'dontEditAll' => true,
-	'buttons' => [
-		// 'add' => null,
-		// 'unload' => 'buttons\simple:Unload goods',
-	],
 	'linkEditInsert' => ['NAME'],
+	'buttons' => !Module::hasGroupWrite() ? ['add' => ''] : [],
 ]))->render();
 
 require(__DIR__.'/../include/epilog_authorized_page.php');

@@ -343,10 +343,11 @@ if ($iblock_id) {
 (new \vettich\sp3\devform\AdminForm('devform', [
 	'pageTitle' => ($issetID ? '#.EDIT_TEMPLATE#' : '#.ADD_TEMPLATE#'),
 	'tabs'      => $tabs,
-	'buttons'   => [
+	'buttons'   => Module::hasGroupWrite() ? [
 		'_save'  => 'buttons\saveSubmit:#VDF_SAVE#',
 		'_apply' => 'buttons\submit:#VDF_APPLY#',
-	],
+	] : [],
+	'groupRightIsWrite' => Module::hasGroupWrite(),
 	'data'          => $data,
 	'idKey'         => '_ID',
 	'on beforeSave' => function ($arValues, $args, $obj) {

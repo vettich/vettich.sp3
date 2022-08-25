@@ -11,3 +11,7 @@ $MESS['VETTICH_SP3_INST_BUTTON_SETTING_TITLE'] = "Настройки модуля $MESS[VETTICH
 $MESS['VETTICH_SP3_UNINSTALL_TITLE'] = "Удаление модуля $MESS[VETTICH_SP3_MODULE_NAME]";
 $MESS['VETTICH_SP3_UNINST_OK'] = 'Удаление прошло успешно.';
 $MESS['VETTICH_SP3_BACK'] = 'Вернуться в список';
+
+$MESS['VETTICH_SP3_ACCESS_DENIED'] = 'Запрещен';
+$MESS['VETTICH_SP3_ACCESS_READ'] = 'Только просмотр';
+$MESS['VETTICH_SP3_ACCESS_WRITE'] = 'Полный доступ';

@@ -87,14 +87,11 @@ function updatePageTitle() {
 			},
 		],
 	],
-	'on actionsBuild' => function ($obj, $row, $arActions) {
-		unset($arActions['edit']);
-		return $arActions;
-	},
 	'hiddenParams' => ['id'],
 	'dontEditAll' => true,
+	'actions' => Module::hasGroupWrite() ? ['delete'] : [],
 	'buttons' => [
-		'add' => $addBtn,
+		'add' => Module::hasGroupWrite() ? $addBtn : '',
 	],
 ]))->render();
 

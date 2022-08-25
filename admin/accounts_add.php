@@ -3,18 +3,20 @@ require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
 
+$APPLICATION->SetTitle(Module::m('ACCOUNTS_ADD_PAGE'));
+
+$errorMsg = false;
 if ($userTariffExpired) {
-	$APPLICATION->SetTitle(Module::m('ACCOUNTS_ADD_PAGE')); ?>
-	<div class="adm-info-message" style="display:block">
-		<?=Module::m('ACC_ADD_TARIFF_EXPIRED')?>
-	</div><?php
-	require(__DIR__.'/../include/epilog_authorized_page.php');
-	exit;
+	$errorMsg = Module::m('ACC_ADD_TARIFF_EXPIRED');
+} else if (!Module::hasGroupWrite()) {
+	$errorMsg = Module::m('ACC_DENIED');
+} else if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['accounts_cnt']) {
+	$errorMsg = Module::m('ACC_ADD_LIMITED');
 }
-if ($user['tariff_limits']['accounts_current_cnt'] >= $user['tariff_limits']['accounts_cnt']) {
-	$APPLICATION->SetTitle(Module::m('ACCOUNTS_ADD_PAGE')); ?>
-	<div class="adm-info-message" style="display:block">
-		<?=Module::m('ACC_ADD_LIMITED')?>
+
+if (!empty($errorMsg)) {
+	?><div class="adm-info-message" style="display:block">
+		<?=$errorMsg?>
 	</div><?php
 	require(__DIR__.'/../include/epilog_authorized_page.php');
 	exit;

@@ -66,7 +66,7 @@ if ($days_left < 7) {
 					'link' => '/bitrix/admin/vettich.sp3.tariffs.php',
 					'text' => Module::m('GOTO'),
 				],
-				'logout_btn' => 'divbutton::#.LOGOUT#:onclick=VettichSP3.logout()',
+				'logout_btn' => Module::hasGroupWrite() ? 'divbutton::#.LOGOUT#:onclick=VettichSP3.logout()' : '',
 				'logout_res' => 'html::',
 			],
 		],

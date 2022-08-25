@@ -1,6 +1,6 @@
 <?php
 $module_id = 'vettich.sp3';
-if (!$APPLICATION->GetGroupRight($module_id)>'D') {
+if (!$APPLICATION->GetGroupRight($module_id) > 'D') {
 	return false;
 }
 
@@ -75,16 +75,19 @@ if (!Module::isAuth()) {
 			'/bitrix/admin/vettich.sp3.templates_edit.php',
 		]
 	];
-	//$aMenu['items'][] = [
-	//	'text'		=> Module::m('MENU_SETTINGS'),
-	//	'url'		=> '/bitrix/admin/settings.php?lang=ru&mid='.$module_id,
-	//	'items_id'	=> 'vettich_sp3_settings',
-	//];
 }
 
 $aMenu['items'][] = [
 	'text'		=> Module::m('MENU_HELP_PAGE'),
 	'url'		=> '/bitrix/admin/vettich.sp3.help.php',
 ];
+
+if (Module::hasGroupWrite()) {
+	$aMenu['items'][] = [
+		'text'		=> Module::m('MENU_SETTINGS'),
+		'url'		=> '/bitrix/admin/settings.php?mid='.$module_id.'&lang='.LANG,
+		'items_id'	=> 'vettich_sp3_settings',
+	];
+}
 
 return $aMenu;

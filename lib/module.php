@@ -70,4 +70,21 @@ class Module
 		}
 		return $arResult;
 	}
+
+	private static function hasGroupRight($level)
+	{
+		global $APPLICATION, $USER;
+		if ($USER->IsAdmin()) return true;
+		return $APPLICATION->GetGroupRight(self::MID) >= $level;
+	}
+
+	public static function hasGroupRead()
+	{
+		return self::hasGroupRight('R');
+	}
+
+	public static function hasGroupWrite()
+	{
+		return self::hasGroupRight('W');
+	}
 }

@@ -166,10 +166,11 @@ $newBtn = [
 (new \vettich\sp3\devform\AdminForm('devform', [
 	'pageTitle' => !$issetID ? '#.POST_ADD_PAGE#' : '#.POST_EDIT_PAGE#',
 	'tabs' => $tabs,
-	'buttons' => [
+	'buttons' => Module::hasGroupWrite() ? [
 		'_save' => 'buttons\saveSubmit:'.(!$issetID ? '#.POST_ADD_BTN#' : '#.POST_UPDATE_BTN#'),
-	],
-	'headerButtons' => !$issetID ? [] : [$newBtn],
+	] : [],
+	'groupRightIsWrite' => Module::hasGroupWrite(),
+	'headerButtons' => !$issetID || !Module::hasGroupWrite() ? [] : [$newBtn],
 	'data' => $data,
 	/* 'getID' => 'id', */
 ]))->render();

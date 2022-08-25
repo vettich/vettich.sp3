@@ -43,7 +43,8 @@ class Events
 
 	public static function adminListDisplayHandler(&$list)
 	{
-		if (!in_array($GLOBALS['APPLICATION']->GetCurPage(), self::$iblockPages)) {
+		$isShowMenu = Module::hasGroupWrite() && in_array($GLOBALS['APPLICATION']->GetCurPage(), self::$iblockPages);
+		if (!$isShowMenu) {
 			return;
 		}
 
@@ -57,35 +58,45 @@ class Events
 		$curPage = $GLOBALS['APPLICATION']->GetCurPage();
 		foreach ((array)$list->aRows as $id => $v) {
 			$arnewActions = [];
+			$added = false;
 			foreach ((array)$v->aActions as $i => $act) {
 				if ($act['ICON'] != 'delete') {
 					$arnewActions[] = $act;
 					continue;
 				}
-				$subtype      = substr($v->id, 0, 1); // S - SECTION, E - ELEMENT
-				$emptySubtype = !in_array($subtype, ['E', 'S']);
-				$id           = !$emptySubtype ? substr($v->id, 1) : $v->id;
-				$queries      = ['IBLOCK_ID' => $v->arRes["IBLOCK_ID"]];
-				if ($emptySubtype) {
-					$subtype = strpos($curPage, 'section') !== false ? 'S' : 'E';
-				}
-				if ($subtype == 'E') {
-					$queries['ELEMS'] = [$id];
-				} else {
-					$queries['SECTIONS'] = [$id];
-				}
-				$q              = \CUtil::PhpToJSObject($queries);
-				$actionKey      = (SM_VERSION <= '18.0.4' ? 'ACTION' : 'ONCLICK');
-				$arnewActions[] = [
-					'GLOBAL_ICON' => 'vettich-sp3-publish',
-					'TEXT'        => Module::m('IBLOCK_MENU_SEND'),
-					'ACTION'      => 'VettichSP3.MenuSendWithTemplate('.$q.');',
-				];
+				$arnewActions[] = self::getAdminListMenuActions($v->id, $v->arRes['IBLOCK_ID']);
 				$arnewActions[] = ['SEPARATOR' => true];
 				$arnewActions[] = $act;
+				$added = true;
+			}
+			if (!$added) {
+				$arnewActions[] = self::getAdminListMenuActions($v->id, $v->arRes['IBLOCK_ID']);
 			}
 			$v->aActions = $arnewActions;
 		}
+	}
+
+	private static function getAdminListMenuActions($iblockElemId, $iblockId)
+	{
+		$subtype      = substr($iblockElemId, 0, 1); // S - SECTION, E - ELEMENT
+		$emptySubtype = !in_array($subtype, ['E', 'S']);
+		$id           = !$emptySubtype ? substr($iblockElemId, 1) : $v->id;
+		$queries      = ['IBLOCK_ID' => $iblockId];
+		if ($emptySubtype) {
+			$curPage = $GLOBALS['APPLICATION']->GetCurPage();
+			$subtype = strpos($curPage, 'section') !== false ? 'S' : 'E';
+		}
+		if ($subtype == 'E') {
+			$queries['ELEMS'] = [$id];
+		} else {
+			$queries['SECTIONS'] = [$id];
+		}
+		$q              = \CUtil::PhpToJSObject($queries);
+		return [
+			'GLOBAL_ICON' => 'vettich-sp3-publish',
+			'TEXT'        => Module::m('IBLOCK_MENU_SEND'),
+			'ACTION'      => 'VettichSP3.MenuSendWithTemplate('.$q.');',
+		];
 	}
 
 	public static function beforePrologHandler()

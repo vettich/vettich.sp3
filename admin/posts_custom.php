@@ -221,10 +221,10 @@ $tabs = [
 (new \vettich\sp3\devform\AdminForm('devform', [
 	'pageTitle' => ($id > 0 ? '#.EDIT_RECORD#' : '#.ADD_RECORD#'),
 	'tabs' => $tabs,
-	'buttons' => [
+	'buttons' => Module::hasGroupWrite() ? [
 		'_save' => 'buttons\saveSubmit:#.PUBLISH_BTN#',
 		'_cancel' => 'buttons\submit:#.CANCEL#:params=[onclick=window.close();]',
-	],
+	] : [],
 	/* 'data' => $data, */
 	'on beforeSave' => function (&$arValues, $args, $obj) {
 		if (isset($arValues['_PERIOD_FROM'])) {

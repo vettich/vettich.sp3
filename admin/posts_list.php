@@ -7,7 +7,7 @@ use vettich\sp3\Api;
 
 CModule::IncludeModule('iblock');
 
-(new \vettich\sp3\PostsAdminList('#.POSTS_LIST_PAGE#', 'sp3_posts', [
+$params = [
 	'data'        => new vettich\sp3\db\Posts(),
 	'hideFilters' => true,
 	'idKey'       => 'id',
@@ -83,14 +83,17 @@ CModule::IncludeModule('iblock');
 			},
 		],
 	],
-	/* 'actions' => ['edit', 'copy', 'delete'], */
+	'actions' => Module::hasGroupWrite() ? ['edit', 'delete'] : [],
 	'hiddenParams' => ['id', 'fields[images]'],
 	'dontEditAll'  => true,
 	'editLink'     => 'vettich.sp3.posts_edit.php',
 	'sortDefault'  => ['publish_at' => 'desc'],
-	/* 'buttons' => [ */
-	/* 	'add' => 'buttons\newLink:#VDF_ADD#:/bitrix/admin/vettich.sp3.posts_edit.php?back_url\=vettich.sp3.posts_list.php', */
-	/* ], */
-]))->render();
+];
+
+if (!Module::hasGroupWrite()) {
+	$params['buttons'] = ['add' => ''];
+}
+
+(new \vettich\sp3\PostsAdminList('#.POSTS_LIST_PAGE#', 'sp3_posts', $params))->render();
 
 require(__DIR__.'/../include/epilog_authorized_page.php');

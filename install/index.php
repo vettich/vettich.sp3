@@ -11,6 +11,7 @@ class vettich_sp3 extends CModule
 	public $PARTNER_NAME;
 	public $PARTNER_URI;
 	public $MODULE_GROUP_RIGHTS = 'Y';
+	public $SHOW_SUPER_ADMIN_GROUP_RIGHTS = 'Y';
 	public $MODULE_ROOT_DIR     = '';
 
 	public function vettich_sp3()
@@ -26,6 +27,18 @@ class vettich_sp3 extends CModule
 		$this->MODULE_DESCRIPTION = GetMessage('VETTICH_SP3_MODULE_DESCRIPTION');
 		$this->PARTNER_NAME       = GetMessage('VETTICH_SP3_PARTNER_NAME');
 		$this->PARTNER_URI        = GetMessage('VETTICH_SP3_PARTNER_URI');
+	}
+
+	public function GetModuleRightList()
+	{
+		return [
+			'reference_id' => ['D', 'R', 'W'],
+			'reference' => [
+				'[D] '.GetMessage('VETTICH_SP3_ACCESS_DENIED'),
+				'[R] '.GetMessage('VETTICH_SP3_ACCESS_READ'),
+				'[W] '.GetMessage('VETTICH_SP3_ACCESS_WRITE'),
+			],
+		];
 	}
 
 	public function DoInstall()
