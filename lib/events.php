@@ -80,7 +80,7 @@ class Events
 	{
 		$subtype      = substr($iblockElemId, 0, 1); // S - SECTION, E - ELEMENT
 		$emptySubtype = !in_array($subtype, ['E', 'S']);
-		$id           = !$emptySubtype ? substr($iblockElemId, 1) : $v->id;
+		$id           = !$emptySubtype ? substr($iblockElemId, 1) : $iblockElemId;
 		$queries      = ['IBLOCK_ID' => $iblockId];
 		if ($emptySubtype) {
 			$curPage = $GLOBALS['APPLICATION']->GetCurPage();
