@@ -392,7 +392,7 @@ class TemplateHelpers
 					if ($fields = $enums->GetNext()) {
 						$value = $fields['ID'];
 					}
-					$arProp = CIBlockProperty::GetByID($propCode, $arTemplate['IBLOCK_ID'])->Fetch();
+					$arProp = \CIBlockProperty::GetByID($propCode, $arTemplate['IBLOCK_ID'])->Fetch();
 				} elseif (strpos($field, 'CATALOG_') === 0) {
 					$field = substr($field, strlen('CATALOG_'));
 				}
@@ -611,7 +611,7 @@ class TemplateHelpers
 
 		// сохраняем во временный файл
 		$tmpfilename = \CTempFile::GetFileName(basename($imagepath));
-		CheckDirPath($tmpfilename);
+		\CheckDirPath($tmpfilename);
 		imagejpeg($im, $tmpfilename);
 
 		// возвращяем путь к изображению с водяным знаком

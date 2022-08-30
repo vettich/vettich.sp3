@@ -1,9 +1,6 @@
 <?php
 namespace vettich\sp3;
 
-use Bitrix\Main\DB\ArrayResult;
-use CAdminResult;
-
 class PostsAdminList extends devform\AdminList
 {
 	private $nav;

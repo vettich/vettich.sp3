@@ -51,7 +51,7 @@ $params = [
 				if ($ar = $rs->GetNext()) {
 					/* $iblockId = $arRow['extra_fields']['iblock_id']; */
 					$iblockId = $arRow['fields']['extra']['iblock_id'];
-					$iblockType = CIBlock::GetArrayByID($iblockId, 'IBLOCK_TYPE_ID');
+					$iblockType = \CIBlock::GetArrayByID($iblockId, 'IBLOCK_TYPE_ID');
 					$value = "[$value] <a href=\"/bitrix/admin/iblock_element_edit.php?type=$iblockType&IBLOCK_ID=$iblockId&ID=$value\">$ar[NAME]</a>";
 				}
 			},
