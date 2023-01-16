@@ -2,3 +2,4 @@
 log*.txt
 local_config.json
 
+/vendor/

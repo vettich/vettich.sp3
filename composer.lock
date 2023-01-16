@@ -1,0 +1,59 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "c801da8188b0c8073add20c2ea22cc60",
+    "packages": [],
+    "packages-dev": [
+        {
+            "name": "matiaspub/bx-api-docs",
+            "version": "16.5.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/matiaspub/bxApiDocs.git",
+                "reference": "ccd6a2d3d71b08e16ab7318defb7ca17c3ce70e3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/matiaspub/bxApiDocs/zipball/ccd6a2d3d71b08e16ab7318defb7ca17c3ce70e3",
+                "reference": "ccd6a2d3d71b08e16ab7318defb7ca17c3ce70e3",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sergius",
+                    "email": "matiaspub@gmail.com"
+                }
+            ],
+            "description": "phpDoc for bitrix framework",
+            "keywords": [
+                "api",
+                "autocomplete",
+                "bitrix",
+                "ide-helper",
+                "phpdoc"
+            ],
+            "support": {
+                "issues": "https://github.com/matiaspub/bxApiDocs/issues",
+                "source": "https://github.com/matiaspub/bxApiDocs"
+            },
+            "abandoned": true,
+            "time": "2018-03-17T12:28:22+00:00"
+        }
+    ],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
+}

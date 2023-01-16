@@ -1,0 +1,15 @@
+{
+    "name": "vetti/vettich.sp3",
+    "type": "project",
+    "require-dev": {
+        "matiaspub/bx-api-docs": "^16.5"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Oleg",
+            "email": "vetti.ch@ya.ru"
+        }
+    ],
+    "require": {}
+}
