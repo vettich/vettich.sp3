@@ -375,8 +375,8 @@ class Api
 		curl_setopt($c, CURLOPT_POSTFIELDS, $data);
 		// get more debug
 		$verbose = fopen('php://temp', 'w+');
-		curl_setopt($handle, CURLOPT_VERBOSE, true);
-		curl_setopt($handle, CURLOPT_STDERR, $verbose);
+		curl_setopt($c, CURLOPT_VERBOSE, true);
+		curl_setopt($c, CURLOPT_STDERR, $verbose);
 		$result = curl_exec($c);
 		curl_close($c);
 		rewind($verbose);

@@ -3,9 +3,6 @@ namespace vettich\sp3\db;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\ORM\Fields\ArrayField;
-use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
-use Bitrix\Main\Type;
-use vettich\sp3\Module;
 
 class PostIBlockTable extends OrmBase
 {
@@ -49,8 +46,7 @@ class PostIBlockTable extends OrmBase
 			$arMap[] = (new ArrayField('TEMPLATE', [
 					'default_value' => []
 			]))
-				->configureSerializationPhp()
-				->addValidator(new LengthValidator(0, 2000));
+				->configureSerializationPhp();
 		}
 
 		return $arMap;

@@ -8,8 +8,6 @@ IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
 use vettich\sp3\FormHelpers;
 use vettich\sp3\IBlockHelpers;
-use vettich\sp3\TextProcessor;
-use vettich\sp3\devform\types;
 
 CModule::IncludeModule('iblock');
 
@@ -225,16 +223,6 @@ $tabs = [
 		'_save' => 'buttons\saveSubmit:#.PUBLISH_BTN#',
 		'_cancel' => 'buttons\submit:#.CANCEL#:params=[onclick=window.close();]',
 	] : [],
-	/* 'data' => $data, */
-	'on beforeSave' => function (&$arValues, $args, $obj) {
-		if (isset($arValues['_PERIOD_FROM'])) {
-			$arValues['_PERIOD_FROM'] = Module::timeFromUserTime($arValues['_PERIOD_FROM']);
-		}
-		if (isset($arValues['_PERIOD_TO'])) {
-			$arValues['_PERIOD_TO'] = Module::timeFromUserTime($arValues['_PERIOD_TO']);
-		}
-		return true;
-	},
 ]))->render();
 
 /* require(__DIR__.'/../include/epilog_authorized_page.php'); */

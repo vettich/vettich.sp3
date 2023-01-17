@@ -48,13 +48,13 @@ class Module
 		return !empty($token);
 	}
 
-	public function convertToSiteCharset($data)
+	public static function convertToSiteCharset($data)
 	{
 		global $APPLICATION;
 		return $APPLICATION->ConvertCharsetArray($data, 'UTF-8', SITE_CHARSET);
 	}
 
-	public function convertToUtf8($data)
+	public static function convertToUtf8($data)
 	{
 		global $APPLICATION;
 		return $APPLICATION->ConvertCharsetArray($data, SITE_CHARSET, 'UTF-8');

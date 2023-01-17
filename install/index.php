@@ -14,6 +14,10 @@ class vettich_sp3 extends CModule
 	public $SHOW_SUPER_ADMIN_GROUP_RIGHTS = 'Y';
 	public $MODULE_ROOT_DIR     = '';
 
+	public function __construct() {
+		$this->vettich_sp3();
+	}
+
 	public function vettich_sp3()
 	{
 		$arModuleVersion = [];

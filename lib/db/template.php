@@ -158,7 +158,7 @@ class TemplateTable extends OrmBase
 
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('IBLOCK_SECTIONS', [
 				'default_value' => []
-			]))->configureSerializationPhp()->addValidator($v);
+			]))->configureSerializationPhp();
 
 			$arMap[] = (new Entity\StringField('DOMAIN', [
 				'default_value' => ''
@@ -166,19 +166,19 @@ class TemplateTable extends OrmBase
 
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('CONDITIONS', [
 				'default_value' => []
-			]))->configureSerializationPhp()->addValidator($v);
+			]))->configureSerializationPhp();
 
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('ACCOUNTS', [
 				'default_value' => []
-			]))->configureSerializationPhp()->addValidator($v);
+			]))->configureSerializationPhp();
 
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('PUBLISH', [
 				'default_value' => []
-			]))->configureSerializationPhp()->addValidator($v);
+			]))->configureSerializationPhp();
 
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('UNLOAD_DATETIME', [
 				'default_value' => []
-			]))->configureSerializationPhp()->addValidator($v);
+			]))->configureSerializationPhp();
 		}
 		return $arMap;
 	}

@@ -83,7 +83,7 @@ if ($iblock_type) {
 		$name_auto = trim($s);
 	}
 
-	$isSections           = count($arSections) > 1;
+	$isSections           = is_array($arSections) && count($arSections) > 1;
 	$params['_IBLOCK_ID'] = [
 		'type'    => 'select',
 		'title'   => '#.IBLOCK#',

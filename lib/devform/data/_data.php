@@ -76,24 +76,13 @@ class _data extends \vettich\sp3\devform\Module
 		return null;
 	}
 
-
-	/**
-	*
-	* call this function:
-	*     getValue($valueName)
-	*   or
-	*     getValue($datas, $valueName)
-	*/
-	public function getValue($datas, $valueName=null)
+	public function getValue($valueName)
 	{
-		if ($valueName === null) {
-			if (!isset($this)) {
-				return null;
-			}
-			$valueName = $datas;
-			$datas = $this->datas;
-		}
+		return self::getValueFromDatas($this->datas, $valueName);
+	}
 
+	public static function getValueFromDatas($datas, $valueName)
+	{
 		if (is_array($datas)) {
 			foreach ($datas as $data) {
 				$r = $data->get($valueName);

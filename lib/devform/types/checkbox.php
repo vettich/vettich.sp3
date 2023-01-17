@@ -46,7 +46,7 @@ class checkbox extends _type
 			if (is_object($data)) {
 				$this->value = $data->getValue($this->name);
 			} else {
-				$this->value = _data::getValue($data, $this->name);
+				$this->value = _data::getValueFromDatas($data, $this->name);
 			}
 		}
 		return $this->value;

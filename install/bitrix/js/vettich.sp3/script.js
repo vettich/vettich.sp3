@@ -348,7 +348,7 @@ VettichSP3.MenuSendWithTemplate = function (query) {
 		var link = '/bitrix/admin/vettich.sp3.posts_custom.php' + VettichSP3.queryStringify(query);
 		html += '<br/><br/><a href="{link}" target="_blank" onclick="{onclick}">{text}</a>'
 			.split('{link}').join(link)
-			.split('{onclick}').join('VettichSP3.dialogs.templatesList.Close()')
+			.split('{onclick}').join('VettichSP3.GoToCustomPostCreate(event)')
 			.split('{text}').join(VettichSP3.m('WITHOUT_TEMPLATE'));
 		var publishBtn = {
 			title: VettichSP3.m('PUBLISH'),
@@ -361,6 +361,14 @@ VettichSP3.MenuSendWithTemplate = function (query) {
 	}).always(function () {
 		BX.closeWait('adm-workarea', show);
 	});
+}
+
+VettichSP3.GoToCustomPostCreate = function(event) {
+	event.preventDefault();
+
+	VettichSP3.dialogs.templatesList.Close();
+
+	window.open(event.target.href);
 }
 
 VettichSP3.MenuSendWithTemplateStep2 = function(query) {

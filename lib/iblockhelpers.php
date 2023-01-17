@@ -421,9 +421,11 @@ class IBlockHelpers
 		if (!\CModule::IncludeModule('iblock')) {
 			return null;
 		}
-		if ((is_array($id) && in_array($id, array_keys(self::$_iblockElemIds))) ||
-			empty(self::$_iblockElemIds[$id]) ||
-			!$fromCache) {
+
+		$existsArrElemsInCache = is_array($id) && Tools::array_in_array($id, array_keys(self::$_iblockElemIds));
+		$existElemInCache = !is_array($id) && !empty(self::$_iblockElemIds[$id]);
+		$needFetch = !$existsArrElemsInCache || !$existElemInCache || !$fromCache;
+		if ($needFetch) {
 			$rs = \CIBlockElement::GetList(
 				['sort'=>'asc'],
 				['ID' => $id, 'IBLOCK_ID' => $iblockId]
@@ -436,6 +438,7 @@ class IBlockHelpers
 				self::$_iblockElemIds[$ar['ID']] = $ar;
 			}
 		}
+
 		if (is_array($id)) {
 			$result = [];
 			foreach ((array)$id as $i) {
@@ -446,6 +449,7 @@ class IBlockHelpers
 			}
 			return $result;
 		}
+
 		if ($isFill && !self::$_iblockElemIds[$id]['filled']) {
 			self::iblockValueFill(self::$_iblockElemIds[$id]);
 		}

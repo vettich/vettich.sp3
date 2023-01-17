@@ -1,8 +1,6 @@
 <?php
 namespace vettich\sp3\devform\data;
 
-use vettich\sp3\devform\exceptions\DataException;
-
 /**
 * events:
 *    on get: function($thisObj, $key)

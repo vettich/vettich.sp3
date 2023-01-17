@@ -163,7 +163,7 @@ class AdminForm extends Module
 
 		if (isset($_GET['back_url'])) {
 			$arResult['back'] = [
-				'TEXT'  => GetMessage('VDF_BACK_LIST'),
+				'TEXT'  => \GetMessage('VDF_BACK_LIST'),
 				'TITLE' => GetMessage('VDF_BACK_LIST_TITLE'),
 				'LINK'  => $_GET['back_url'],
 				'ICON'  => 'btn_list',

@@ -187,10 +187,16 @@ class TemplateHelpers
 				}
 
 				$postRes = Api::getPost($arPostIBlock['POST_ID']);
-				if (empty($postRes) || isset($postRes['error'])) {
+				$hasPost = !empty($postRes) && !isset($postRes['error']);
+				if (!$hasPost) {
 					continue;
 				}
-				if (in_array($postRes['response']['status'], ['success', 'fail'])) {
+				$publishedOrReady = in_array($postRes['response']['status'], ['ready', 'success', 'fail']);
+				if (!$publishedOrReady) {
+					continue;
+				}
+				$more24Hours = strtotime($postRes['response']['publish_at']) < strtotime('-1 day');
+				if ($more24Hours) {
 					continue;
 				}
 

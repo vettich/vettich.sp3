@@ -1,7 +1,7 @@
 {
-    "api_uri": "https://parrotposter.com/api/v1",
-    "log": false,
-	"remote_log": true,
-    "user_id": "",
-    "token": ""
+    "api_uri": "https:\/\/parrotposter.com\/api\/v1",
+    "log": true,
+    "remote_log": true,
+    "user_id": "bf346ffb-2f77-449b-b5ca-addd081e81f2",
+    "token": "f1294a34bbaccecea23266fb5f13798f5cb8aa95357d9c1ec37c0b01a3a221b4"
 }

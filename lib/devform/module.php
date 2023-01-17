@@ -81,7 +81,7 @@ class Module
 		return $text;
 	}
 
-	public function pushMessPrefix($prefix)
+	public static function pushMessPrefix($prefix)
 	{
 		self::$messStack[] = self::$messPrefix;
 		self::$messPrefix  = $prefix;
@@ -193,7 +193,7 @@ class Module
 	* @param array $arr - array
 	* @param boolean $rewrite - rewrite key if one exists
 	*/
-	public function changeKey($key, $newKey, &$arr, $rewrite=true)
+	public static function changeKey($key, $newKey, &$arr, $rewrite=true)
 	{
 		if ($key !== $newKey
 			&& ($rewrite || !array_key_exists($newKey, $arr))) {

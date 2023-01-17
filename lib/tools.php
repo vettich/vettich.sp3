@@ -5,7 +5,7 @@ class Tools
 {
 	public static function filterByKeys($arr, $keys)
 	{
-		if (empty($keys)) {
+		if (empty($keys) || !$arr) {
 			return [];
 		}
 
@@ -17,13 +17,26 @@ class Tools
 
 	public static function filterByUnKeys($arr, $keys)
 	{
-		if (empty($keys)) {
+		if (empty($keys) || !$arr) {
 			return $arr;
 		}
 
 		return array_filter($arr, function ($k) use ($keys) {
 			return !in_array($k, $keys);
 		}, ARRAY_FILTER_USE_KEY);
+	}
+
+	public static function array_in_array($needle, $haystack) 
+	{
+		if(!is_array($needle)) {
+			return false;
+		}
+		foreach($needle as $v) {
+			if (in_array($v, $haystack)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static function timezoneFromUtcOffset($offset)
@@ -43,7 +56,7 @@ class Tools
 	}
 
 	// https://www.php.net/manual/ru/dateinterval.format.php#121237
-	public function getTotalInterval($interval, $type)
+	public static function getTotalInterval($interval, $type)
 	{
 		switch ($type) {
 		case 'years':
