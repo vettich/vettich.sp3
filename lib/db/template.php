@@ -154,11 +154,11 @@ class TemplateTable extends OrmBase
 				'default_value' => ''
 			]);
 		} else {
-			$v = new \Bitrix\Main\ORM\Fields\Validators\LengthValidator(0, 2000);
+			$v = new \Bitrix\Main\ORM\Fields\Validators\LengthValidator(0, 2048);
 
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('IBLOCK_SECTIONS', [
 				'default_value' => []
-			]))->configureSerializationPhp();
+			]))->configureSerializationPhp()->addValidator($v);
 
 			$arMap[] = (new Entity\StringField('DOMAIN', [
 				'default_value' => ''
@@ -166,19 +166,19 @@ class TemplateTable extends OrmBase
 
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('CONDITIONS', [
 				'default_value' => []
-			]))->configureSerializationPhp();
+			]))->configureSerializationPhp()->addValidator($v);
 
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('ACCOUNTS', [
 				'default_value' => []
-			]))->configureSerializationPhp();
+			]))->configureSerializationPhp()->addValidator($v);
 
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('PUBLISH', [
 				'default_value' => []
-			]))->configureSerializationPhp();
+			]))->configureSerializationPhp()->addValidator($v);
 
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('UNLOAD_DATETIME', [
 				'default_value' => []
-			]))->configureSerializationPhp();
+			]))->configureSerializationPhp()->addValidator($v);
 		}
 		return $arMap;
 	}
