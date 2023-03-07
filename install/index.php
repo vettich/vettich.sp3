@@ -80,14 +80,14 @@ class vettich_sp3 extends CModule
 
 	public function InstallDB($arModuleParams = [])
 	{
-		$lib = $this->MODULE_ROOT_DIR.'/lib';
-		include $lib.'/db/ormbase.php';
-		include $lib.'/db/postiblock.php';
-		include $lib.'/db/template.php';
-		if (!vettich\sp3\db\PostIBlockTable::createTable()) {
-			return false;
+		global $APPLICATION, $DB;
+		$errors = false;
+		// Database tables creation
+		if(!$DB->Query("SELECT 'x' FROM vettich_sp3_template WHERE 1=0", true)) {
+			$errors = $DB->RunSQLBatch($this->MODULE_ROOT_DIR.'/install/db/mysql/install.sql');
 		}
-		if (!vettich\sp3\db\TemplateTable::createTable()) {
+		if($errors !== false) {
+			$APPLICATION->ThrowException(implode("<br>", $errors));
 			return false;
 		}
 
@@ -97,12 +97,12 @@ class vettich_sp3 extends CModule
 
 	public function UnInstallDB($arParams = [])
 	{
+		global $APPLICATION, $DB;
 		COption::RemoveOption($this->MODULE_ID);
-		if (!$arParams['savedata'] && \CModule::IncludeModule($this->MODULE_ID)) {
-			if (!vettich\sp3\db\TemplateTable::dropTable()) {
-				return false;
-			}
-			if (!vettich\sp3\db\PostIBlockTable::dropTable()) {
+		if (!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y") {
+			$errors = $DB->RunSQLBatch($this->MODULE_ROOT_DIR."/install/db/mysql/uninstall.sql");
+			if (!empty($errors)) {
+				$APPLICATION->ThrowException(implode("", $errors));
 				return false;
 			}
 		}
