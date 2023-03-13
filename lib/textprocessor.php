@@ -405,27 +405,27 @@ class TextProcessor
 		if (is_array($arField) && $arField['PROPERTY_TYPE'] == 'F') {
 			if ($arField['MULTIPLE'] == 'Y') {
 				foreach ((array)$arField['VALUES'] as $k=>$arValue) {
-					if ($withDocumentRoot) {
-						$arResult[] = $_SERVER['DOCUMENT_ROOT'].\CFile::GetPath($arValue);
-					} else {
-						$arResult[] = \CFile::GetPath($arValue);
-					}
+					$arResult[] = \CFile::GetPath($arValue);
 				}
-			} elseif ($withDocumentRoot) {
-				$arResult[] = $_SERVER['DOCUMENT_ROOT'].\CFile::GetPath($arField['VALUE']);
 			} else {
 				$arResult[] = \CFile::GetPath($arField['VALUE']);
 			}
 		} else {
 			$img_path = \CFile::GetPath($arField);
 			if ($img_path != '') {
-				if ($withDocumentRoot) {
-					$arResult[] = $_SERVER['DOCUMENT_ROOT'].$img_path;
-				} else {
-					$arResult[] = $img_path;
-				}
+				$arResult[] = $img_path;
 			}
 		}
+
+		if ($withDocumentRoot) {
+			foreach ($arResult as $k => $v) {
+				if (substr($v, 0, 4) == "http") {
+					continue;
+				}
+				$arResult[$k] = $_SERVER['DOCUMENT_ROOT'].$v;
+			}
+		}
+
 		return $arResult;
 	}
 }

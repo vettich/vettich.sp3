@@ -355,6 +355,10 @@ class Api
 
 	public static function uploadFile($filepath, $filename)
 	{
+		if (substr($filepath, 0, 4) == 'http') {
+			return self::uploadFileFromUrl($filepath);
+		}
+
 		// step 1: get upload url and new file id
 		Module::log([$filepath, $filename]);
 		$res = self::callGet('file_upload_url', ['type' => 'image', 'filename' => $filename]);
@@ -395,6 +399,15 @@ class Api
 			return ['response' => ['file_id' => $fileID]];
 		}
 		return $res;
+	}
+
+	public static function uploadFileFromUrl($url)
+	{
+		$data = [
+			'url' => $url,
+		];
+		$res = self::callPost('files/from_url', $data);
+		return self::resultWrapper($res);
 	}
 
 	public static function getFilesURL($fileIDs)
