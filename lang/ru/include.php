@@ -65,7 +65,14 @@ $MESS['VETTICH_SP3_TG_HELP_BLOCK']            = 'Чтобы подключить канал или груп
 $MESS['VETTICH_SP3_IBLOCK']      = 'Инфоблок';
 $MESS['VETTICH_SP3_IBLOCK_ELEM'] = 'Элемент инфоблока';
 
-$MESS['VETTICH_SP3_SERVER_UNAVAILABLE']    = 'Облачный сервис в данный момент недоступен. Приносим свои извинения. Повторите попытку позже. Если проблема не устранилась, то сообщите, пожалуйста, об этой проблеме support@parrotposter.com';
+$MESS['VETTICH_SP3_SERVER_UNAVAILABLE']    = 'Облачный сервис в данный момент недоступен. Приносим свои извинения. Повторите попытку позже. Если проблема не устранилась, то сообщите, пожалуйста, об этой проблеме <a href="mailto:support@parrotposter.com">support@parrotposter.com</a>. <br>
+Возможные причины:
+<ul>
+	<li>Отсутствует PHP библиотека CURL - для ее установки обратитесь к разработчику сайта/хостинг провайдеру</li>
+	<li>На сервере parrotposter.com ведутся технические работы - обычно не более 5-10 минут</li>
+	<li>Сервер parrotposter.com не доступен на вашем сервере - с таким еще не сталкивались</li>
+</ul>
+';
 
 $MESS['VETTICH_SP3_PAYMENT_SUCCESS_TITLE'] = 'Оплата произведена успешно!';
 $MESS['VETTICH_SP3_PAYMENT_FAIL_TITLE']    = 'Ошибка при проведении оплаты!';
@@ -73,7 +80,7 @@ $MESS['VETTICH_SP3_GOTO_USER_PAGE']        = 'Перейти на страницу Пользователя';
 
 $MESS['VETTICH_SP3_ACCOUNTS_LIMIT_USAGE'] = 'Использовано #current# из #max#';
 $MESS['VETTICH_SP3_TARIFF_EXPIRED']       = 'Истек срок действия тарифа. Вам необходимо <a href="/bitrix/admin/vettich.sp3.tariffs.php">продлить тариф</a> или перейти на новый. Публикация постов приостановлена.';
-$MESS['VETTICH_SP3_CURL_NOT_FOUND']       = 'Для работы модуля требуется наличие php библиотеки <b>curl</b>. Пожалуйста, установите ее, или обратитесь к своему хостинг провайдеру.';
+$MESS['VETTICH_SP3_CURL_NOT_FOUND']       = 'Для работы модуля требуется наличие PHP библиотеки <b>CURL</b>. Пожалуйста, установите ее, или обратитесь к своему хостинг провайдеру.';
 
 $MESS['VETTICH_SP3_NEED_UTM']          = 'UTM метки';
 $MESS['VETTICH_SP3_NEED_UTM_HELP']     = 'Добавить к URL адресу UTM метки для отслеживания источника трафика';

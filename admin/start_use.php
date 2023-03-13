@@ -11,6 +11,8 @@ use vettich\sp3\Module;
 use vettich\sp3\Api;
 use vettich\sp3\devform;
 
+require(__DIR__.'/../include/check_curl.php');
+
 $pingRes = Api::ping();
 Module::log($pingRes);
 if ($pingRes['response'] != 'pong' ||

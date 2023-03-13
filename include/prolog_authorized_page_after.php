@@ -4,13 +4,7 @@ CModule::IncludeModule('vettich.sp3');
 use vettich\sp3\Module;
 use vettich\sp3\Api;
 
-if (!in_array('curl', get_loaded_extensions())) {
-	?>
-	<div class="adm-info-message" style="display:block">
-		<?=Module::m('CURL_NOT_FOUND')?>
-	</div>
-	<?php
-}
+require(__DIR__.'/../include/check_curl.php');
 
 $validateTokenRes = Module::isAuth(true);
 if ($validateTokenRes['error'] &&
