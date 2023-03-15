@@ -65,6 +65,7 @@ if (!empty($errorMsg)) {
 				],
 				'insta_login' => 'divbutton::#.INSTA_LOGIN_BTN#:onclick=VettichSP3.connectInsta()',
 				'insta_login_res' => 'html::',
+				'insta_help' => 'note:#.INSTA_HELP_BLOCK#',
 			],
 		],
 		[
