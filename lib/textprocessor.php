@@ -228,6 +228,10 @@ class TextProcessor
 		}
 
 		if ($type == 'S') {
+			if (count($macro) == 2 && !empty($fields[$macro[0]][$macro[1]])) {
+				$v = $fields[$macro[0]][$macro[1]];
+				return is_array($v) && !$raw ? implode(', ', $v) : $v;
+			}
 			if ($isMulti) {
 				$vals = $fields[$macro[0]]['VALUES'] ?: [];
 				return $raw ? $vals : implode(", ", $vals);

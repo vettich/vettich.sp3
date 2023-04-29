@@ -271,23 +271,30 @@ class IBlockHelpers
 
 		$rsProp = \CIBlockElement::GetProperty($arFields['IBLOCK_ID'], $arFields['ID'], [], []);
 		while ($arProp = $rsProp->GetNext()) {
-			if (!isset($arFields['PROPERTY_'.$arProp['CODE']])) {
-				$arFields['PROPERTY_'.$arProp['CODE']] = $arProp;
+			$propCode = 'PROPERTY_'.$arProp['CODE'];
+			if (!isset($arFields[$propCode])) {
+				$arFields[$propCode] = $arProp;
 			}
 
 			if ($arProp['MULTIPLE'] == 'Y') {
 				if ($arProp['VALUE']) {
-					$arFields['PROPERTY_'.$arProp['CODE']]['VALUES'][] = $arProp['VALUE'];
+					$arFields[$propCode]['VALUES'][] = $arProp['VALUE'];
+
+					$valueWithDesc = $arProp['VALUE'];
+					if ($arProp['DESCRIPTION']) {
+						$valueWithDesc .= ': '.$arProp['DESCRIPTION'];
+					}
+					$arFields[$propCode]['VALUES_WITH_DESC'][] = $valueWithDesc;
 				}
 
 				if ($arProp['~VALUE']) {
-					$arFields['PROPERTY_'.$arProp['CODE']]['~VALUES'][] = $arProp['~VALUE'];
+					$arFields[$propCode]['~VALUES'][] = $arProp['~VALUE'];
 				}
 
-				$arFields['PROPERTY_'.$arProp['CODE']]['VALUES_ENUM'][]    = $arProp['VALUE_ENUM'];
-				$arFields['PROPERTY_'.$arProp['CODE']]['~VALUES_ENUM'][]   = $arProp['~VALUE_ENUM'];
-				$arFields['PROPERTY_'.$arProp['CODE']]['VALUES_XML_ID'][]  = $arProp['VALUE_XML_ID'];
-				$arFields['PROPERTY_'.$arProp['CODE']]['~VALUES_XML_ID'][] = $arProp['~VALUE_XML_ID'];
+				$arFields[$propCode]['VALUES_ENUM'][]    = $arProp['VALUE_ENUM'];
+				$arFields[$propCode]['~VALUES_ENUM'][]   = $arProp['~VALUE_ENUM'];
+				$arFields[$propCode]['VALUES_XML_ID'][]  = $arProp['VALUE_XML_ID'];
+				$arFields[$propCode]['~VALUES_XML_ID'][] = $arProp['~VALUE_XML_ID'];
 			}
 		}
 
