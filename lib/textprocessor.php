@@ -1,11 +1,12 @@
 <?php
+
 namespace vettich\sp3;
 
 use vettich\sp3\devform;
 
 class TextProcessor
 {
-	public static function replace($text, $fields, $isEmptyReplace=true)
+	public static function replace($text, $fields, $isEmptyReplace = true)
 	{
 		$result = $text;
 		$macros = self::parse($text);
@@ -123,7 +124,7 @@ class TextProcessor
 		return explode('.', $tmp);
 	}
 
-	public static function macroValue($macro, $fields, $isCreateLink=true, $raw=false)
+	public static function macroValue($macro, $fields, $isCreateLink = true, $raw = false)
 	{
 		if (!is_array($macro)) {
 			$macro = [$macro];
@@ -190,7 +191,7 @@ class TextProcessor
 		return $value;
 	}
 
-	protected static function propertyValue($macro, $fields, $isCreateLink=true, $raw=false)
+	protected static function propertyValue($macro, $fields, $isCreateLink = true, $raw = false)
 	{
 		$type     = $fields[$macro[0]]['PROPERTY_TYPE'];
 		$userType = $fields[$macro[0]]['USER_TYPE'];
@@ -200,7 +201,7 @@ class TextProcessor
 		}
 
 		if ($type == 'L') {
-			$key = 'VALUE_ENUM';
+			$key = $isMulti ? 'VALUES_ENUM' : 'VALUE_ENUM';
 			if (!empty($macro[1])) {
 				$key = $macro[1];
 			}
@@ -304,7 +305,7 @@ class TextProcessor
 		return null;
 	}
 
-	protected function blockReplace($text, $fields, $isCreateLink=true)
+	protected function blockReplace($text, $fields, $isCreateLink = true)
 	{
 		$result = '';
 		if (!preg_match(
@@ -315,64 +316,64 @@ class TextProcessor
 			return '';
 		}
 		$macro = self::macroExplode($matches[2]);
-		$field = self::macroValue($macro, $fields, $isCreateLink, $raw=true);
+		$field = self::macroValue($macro, $fields, $isCreateLink, $raw = true);
 		switch (strtoupper($matches[1])) {
-		case 'LIST':
-			$macros = self::parse($matches[3]);
-			// $result = array();
-			$old = $fields['THIS'];
-			foreach ((array)$field as $val) {
-				$fields['THIS'] = $val;
-				$rr             = str_replace("\n", '#BR#', self::replace($matches[3], $fields, $isCreateLink));
-				$result .= $rr;
-				/* $result .= '#BR#'; */
-				// print_r([$rr]);
-			}
-			$fields['THIS'] = $old;
-			/* $result = implode('#BR#', $result); */
-			break;
-
-		case 'TABLE':
-			$txt = trim($matches[3]);
-			$txt = explode("\n", $txt);
-			if (!isset($txt[1])) {
-				break;
-			}
-			$headers      = explode('|', $txt[0]);
-			$body         = explode('|', $txt[1]);
-			$columnsWidth = [];
-			foreach ((array)$headers as $head) {
-				$val            = trim(self::replace($head, $fields, $isCreateLink));
-				$columnsWidth[] = devform\Module::mb_strlen($val);
-				$headerValues[] = $val;
-			}
-			$len = count($headerValues);
-			$j   = 0;
-			$old = $fields['THIS'];
-			foreach ((array)$field as $f) {
-				$fields['THIS'] = $f;
-				for ($i=0; $i < $len; $i++) {
-					$val = trim(self::replace($body[$i], $fields, $isCreateLink));
-					if ($columnsWidth[$i] < devform\Module::mb_strlen($val)) {
-						$columnsWidth[$i] = devform\Module::mb_strlen($val);
-					}
-					$bodyValues[$j][$i] = $val;
+			case 'LIST':
+				$macros = self::parse($matches[3]);
+				// $result = array();
+				$old = $fields['THIS'];
+				foreach ((array)$field as $val) {
+					$fields['THIS'] = $val;
+					$rr             = str_replace("\n", '#BR#', self::replace($matches[3], $fields, $isCreateLink));
+					$result .= $rr;
+					/* $result .= '#BR#'; */
+					// print_r([$rr]);
 				}
-				$j++;
-			}
-			$fields['THIS'] = $old;
-			$result         = '';
-			for ($i=0; $i < $len; $i++) {
-				$result .= $headerValues[$i] . str_repeat(' ', $columnsWidth[$i] + 2 - devform\Module::mb_strlen($headerValues[$i]));
-			}
-			$result .= '#BR#';
-			foreach ((array)$bodyValues as $body) {
-				for ($i=0; $i < $len; $i++) {
-					$result .= $body[$i] . str_repeat(' ', $columnsWidth[$i] + 2 - devform\Module::mb_strlen($body[$i]));
+				$fields['THIS'] = $old;
+				/* $result = implode('#BR#', $result); */
+				break;
+
+			case 'TABLE':
+				$txt = trim($matches[3]);
+				$txt = explode("\n", $txt);
+				if (!isset($txt[1])) {
+					break;
+				}
+				$headers      = explode('|', $txt[0]);
+				$body         = explode('|', $txt[1]);
+				$columnsWidth = [];
+				foreach ((array)$headers as $head) {
+					$val            = trim(self::replace($head, $fields, $isCreateLink));
+					$columnsWidth[] = devform\Module::mb_strlen($val);
+					$headerValues[] = $val;
+				}
+				$len = count($headerValues);
+				$j   = 0;
+				$old = $fields['THIS'];
+				foreach ((array)$field as $f) {
+					$fields['THIS'] = $f;
+					for ($i = 0; $i < $len; $i++) {
+						$val = trim(self::replace($body[$i], $fields, $isCreateLink));
+						if ($columnsWidth[$i] < devform\Module::mb_strlen($val)) {
+							$columnsWidth[$i] = devform\Module::mb_strlen($val);
+						}
+						$bodyValues[$j][$i] = $val;
+					}
+					$j++;
+				}
+				$fields['THIS'] = $old;
+				$result         = '';
+				for ($i = 0; $i < $len; $i++) {
+					$result .= $headerValues[$i] . str_repeat(' ', $columnsWidth[$i] + 2 - devform\Module::mb_strlen($headerValues[$i]));
 				}
 				$result .= '#BR#';
-			}
-			break;
+				foreach ((array)$bodyValues as $body) {
+					for ($i = 0; $i < $len; $i++) {
+						$result .= $body[$i] . str_repeat(' ', $columnsWidth[$i] + 2 - devform\Module::mb_strlen($body[$i]));
+					}
+					$result .= '#BR#';
+				}
+				break;
 		}
 		return $result;
 	}
@@ -383,12 +384,12 @@ class TextProcessor
 		$link .= SITE_DIR;
 		if (strpos($link, 'http') !== 0) {
 			if ($_SERVER['HTTPS']) {
-				$link = 'https://'.$link;
+				$link = 'https://' . $link;
 			} else {
-				$link = 'http://'.$link;
+				$link = 'http://' . $link;
 			}
 		}
-		if ($link[devform\Module::mb_strlen($link)-1] != '/') {
+		if ($link[devform\Module::mb_strlen($link) - 1] != '/') {
 			$link .= '/';
 		}
 		if (strpos($slink, '/') === 0) {
@@ -403,12 +404,12 @@ class TextProcessor
 		return $link;
 	}
 
-	public static function getFileNames($arField, $withDocumentRoot=true)
+	public static function getFileNames($arField, $withDocumentRoot = true)
 	{
 		$arResult = [];
 		if (is_array($arField) && $arField['PROPERTY_TYPE'] == 'F') {
 			if ($arField['MULTIPLE'] == 'Y') {
-				foreach ((array)$arField['VALUES'] as $k=>$arValue) {
+				foreach ((array)$arField['VALUES'] as $k => $arValue) {
 					$arResult[] = \CFile::GetPath($arValue);
 				}
 			} else {
@@ -426,7 +427,7 @@ class TextProcessor
 				if (substr($v, 0, 4) == "http") {
 					continue;
 				}
-				$arResult[$k] = $_SERVER['DOCUMENT_ROOT'].$v;
+				$arResult[$k] = $_SERVER['DOCUMENT_ROOT'] . $v;
 			}
 		}
 
