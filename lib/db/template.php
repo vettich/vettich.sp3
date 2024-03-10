@@ -1,4 +1,5 @@
 <?php
+
 namespace vettich\sp3\db;
 
 use Bitrix\Main\Entity;
@@ -174,7 +175,13 @@ class TemplateTable extends OrmBase
 
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('PUBLISH', [
 				'default_value' => []
-			]))->configureSerializationPhp();
+			]))->configureUnserializeCallback(function ($value) {
+				try {
+					return \Bitrix\Main\Web\Json::decode($value);
+				} catch (\Exception $ex) {
+					return unserialize($value);
+				}
+			});
 
 			$arMap[] = (new \Bitrix\Main\ORM\Fields\ArrayField('UNLOAD_DATETIME', [
 				'default_value' => []
