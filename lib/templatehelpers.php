@@ -51,8 +51,7 @@ class TemplateHelpers
 			return false;
 		}
 
-		$isCatalog = \CModule::IncludeModule('catalog') && \CCatalog::GetByID($arFields['IBLOCK_ID']);
-		if ($params['event'] == Events::ADD && $isCatalog) {
+		if ($params['event'] == Events::ADD) {
 			Events::PushPostElemID($arFields['ID'], $arFields['IBLOCK_ID']);
 			Events::RegPageStart();
 			return;
@@ -64,7 +63,7 @@ class TemplateHelpers
 			$arTemplates[$params['arTemplate']['ID']] = $params['arTemplate'];
 		} else {
 			$filter = ['IBLOCK_ID' => $arFields['IBLOCK_ID']];
-			if ($params['event'] == Events::ADD) {
+			if ($params['event'] == Events::ADD || $params['event'] == Events::POP_ADD) {
 				$filter['IS_AUTO'] = 'Y';
 			}
 
