@@ -115,6 +115,24 @@ class Api
 		if (!empty($headers)) {
 			curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
 		}
+		return self::applyProxy($c);
+	}
+
+	private static function applyProxy($c)
+	{
+		$proxy = Config::get('proxy');
+		if (empty($proxy)) {
+			return $c;
+		}
+
+		$proxyData = explode('@', $proxy);
+		if (count($proxyData) > 1) {
+			curl_setopt($c, CURLOPT_PROXY, $proxyData[1]);
+			curl_setopt($c, CURLOPT_PROXYUSERPWD, $proxyData[0]);
+		} else {
+			curl_setopt($c, CURLOPT_PROXY, $proxy);
+		}
+
 		return $c;
 	}
 
