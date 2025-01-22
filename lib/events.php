@@ -26,17 +26,17 @@ class Events
 		TemplateHelpers::publish($arFields, ['event' => self::ADD]);
 	}
 
-	public static function beforeIblockElementUpdateHandler($arFields = [])
+	public static function beforeIBlockElementUpdateHandler($arFields = [])
 	{
 		TemplateHelpers::cacheIblockElement($arFields['ID'], $arFields['IBLOCK_ID']);
 	}
 
-	public static function afterIblockElementUpdateHandler($arFields = [])
+	public static function afterIBlockElementUpdateHandler($arFields = [])
 	{
 		TemplateHelpers::update($arFields, ['event' => self::UPDATE]);
 	}
 
-	public static function afterIblockElementDeleteHandler($arFields = [])
+	public static function afterIBlockElementDeleteHandler($arFields = [])
 	{
 		TemplateHelpers::delete($arFields, ['event' => self::DELETE]);
 	}
