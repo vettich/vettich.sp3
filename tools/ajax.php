@@ -10,6 +10,7 @@ CModule::IncludeModule('vettich.sp3');
 use vettich\sp3\Module;
 use vettich\sp3\Api;
 use vettich\sp3\TemplateHelpers;
+use vettich\sp3\Events;
 
 function _result($data)
 {
@@ -95,6 +96,16 @@ switch ($_GET['method']) {
 
 	case 'unload':
 		_result(TemplateHelpers::unload());
+
+	case 'postFromQueue':
+		if ($_GET['token'] !== Api::token()) {
+			_result(['error' => ['msg' => 'unauthorized']]);
+			break;
+		}
+		$arFields = ['ID' => $_GET['ID'], 'IBLOCK_ID' => $_GET['IBLOCK_ID']];
+		$res = TemplateHelpers::publish($arFields, ['event' => Events::POP_ADD]);
+		_result($res);
+		break;
 
 		// no break
 	default:

@@ -11,6 +11,7 @@ class Api
 	const FROM               = 'bitrix';
 	const SERVER_UNAVAILABLE = -11;
 	const UNLOAD_ENDPOINT    = '/bitrix/tools/vettich.sp3.ajax.php?method=unload';
+	const POST_FROM_QUEUE_ENDPOINT = '/bitrix/tools/vettich.sp3.ajax.php?method=postFromQueue';
 	const RFC3339_EXTENDED   = 'Y-m-d\TH:i:s.uP';
 
 	public static function userId()
@@ -37,7 +38,7 @@ class Api
 		return date(self::RFC3339_EXTENDED, $strtime);
 	}
 
-	private static function setUserData($userId, $token)
+	public static function setUserData($userId, $token)
 	{
 		Config::setConfig([
 			'user_id' => $userId,
@@ -484,5 +485,20 @@ class Api
 		$params = ['url' => TextProcessor::createLink(self::UNLOAD_ENDPOINT, [])];
 		$res    = self::callDelete('cron', $params);
 		return self::resultWrapper($res);
+	}
+
+	public static function addPostToQueue($ID, $IBLOCK_ID)
+	{
+		$queueUrl = self::POST_FROM_QUEUE_ENDPOINT."&ID=$ID&IBLOCK_ID=$IBLOCK_ID&token=".self::token();
+		$queries = ['url' => TextProcessor::createLink($queueUrl, [])];
+		$url = self::buildEndpoint('post-queue', $queries);
+		$c   = self::buildCurl($url, true, ['Content-Type: application/json']);
+		if (!$c) {
+			return false;
+		}
+		curl_setopt($c, CURLOPT_POST, true);
+		curl_setopt($c, CURLOPT_POSTFIELDS, '[]');
+		$result = curl_exec($c);
+		curl_close($c);
 	}
 }

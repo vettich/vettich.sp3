@@ -52,8 +52,9 @@ class TemplateHelpers
 		}
 
 		if ($params['event'] == Events::ADD) {
-			Events::PushPostElemID($arFields['ID'], $arFields['IBLOCK_ID']);
-			Events::RegPageStart();
+			Api::addPostToQueue($arFields['ID'], $arFields['IBLOCK_ID']);
+			// Events::PushPostElemID($arFields['ID'], $arFields['IBLOCK_ID']);
+			// Events::RegPageStart();
 			return;
 		}
 
