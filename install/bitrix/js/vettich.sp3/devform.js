@@ -50,7 +50,7 @@ VettichSP3.Devform.Refresh = function () {
 		success: function(data){
 			BX.closeWait('adm-workarea', show);
 			$('#voptions_overlay').remove();
-			eval(formid + ' = null;');
+			window[formid] = null;
 			$('#'+ formid + '_layout').html(data);
 			$('.js-vform').show();
 			VettichSP3.Devform.HeadingsInit();

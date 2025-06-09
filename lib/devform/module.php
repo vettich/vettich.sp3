@@ -295,23 +295,44 @@ class Module
 	public static function valueFrom($arr, $key, $default=null)
 	{
 		if (($pos = strpos($key, '[')) !== false) {
-			$_key     = substr($key, 0, $pos);
-			$_postkey = substr($key, $pos);
-			$_postkey = str_replace(['[', ']'], ['["', '"]'], $_postkey);
-			eval('$ret = isset($arr["'.$_key.'"]'.$_postkey.') ? $arr["'.$_key.'"]'.$_postkey.' : $default;');
-			return $ret;
-		} else {
-			return isset($arr[$key]) ? $arr[$key] : $default;
+			$mainKey = substr($key, 0, $pos);
+			$path = substr($key, $pos + 1, -1);
+			$keys = explode('][', $path);
+
+			$current = $arr[$mainKey] ?? null;
+			foreach ($keys as $k) {
+				if (!is_array($current) || !array_key_exists($k, $current)) {
+					return $default;
+				}
+				$current = $current[$k];
+			}
+
+			return $current;
 		}
+
+		return $arr[$key] ?? $default;
 	}
 
 	public static function valueTo(&$arr, $key, $value)
 	{
 		if (($pos = strpos($key, '[')) !== false) {
-			$prekey  = substr($key, 0, $pos);
-			$postkey = substr($key, $pos);
-			$postkey = str_replace(['[', ']'], ['["', '"]'], $postkey);
-			eval('$arr["'.$prekey.'"]'.$postkey.' = $value;');
+			$mainKey = substr($key, 0, $pos);
+			$path = substr($key, $pos + 1, -1);
+			$keys = explode('][', $path);
+
+			if (!isset($arr[$mainKey]) || !is_array($arr[$mainKey])) {
+				$arr[$mainKey] = [];
+			}
+
+			$current = &$arr[$mainKey];
+			foreach ($keys as $k) {
+				if (!isset($current[$k]) || !is_array($current[$k])) {
+					$current[$k] = [];
+				}
+				$current = &$current[$k];
+			}
+
+			$current = $value;
 		} else {
 			$arr[$key] = $value;
 		}

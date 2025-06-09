@@ -101,6 +101,7 @@ class Api
 			}
 			$headers[] = 'Token: '.self::token();
 		}
+		$headers[] = 'X-PP-Bitrix-Version: '.Module::version();
 		if (!function_exists('curl_init')) {
 			return false;
 		}
