@@ -380,8 +380,15 @@ class TextProcessor
 
 	public static function createLink($slink, $fields)
 	{
-		$link = $fields['DOMAIN'] ?: $_SERVER['HTTP_HOST'];
-		$link .= SITE_DIR;
+		$domain = $fields['DOMAIN'] ?: $_SERVER['HTTP_HOST'];
+		if (empty($domain)) {
+			// Если домен не задан, берем домен текущего сайта
+			$site = \CSite::GetList()->Fetch();
+			if (!empty($site)) {
+				$domain = $site['SERVER_NAME'];
+			}
+		}
+		$link = $domain.SITE_DIR;
 		if (strpos($link, 'http') !== 0) {
 			if ($_SERVER['HTTPS']) {
 				$link = 'https://' . $link;
