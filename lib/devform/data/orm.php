@@ -73,16 +73,10 @@ class orm extends _data
 			$cl = $this->db;
 			$arV = $this->arValues;
 			unset($arV['ID']);
-			if (is_callable($this->beforeSave)) {
-				call_user_func($this->beforeSave, $this, $arValues);
-			}
 			if ($this->arValues['ID'] > 0) {
 				$result = $cl::update($this->arValues['ID'], $arV);
 			} else {
 				$result = $cl::add($arV);
-			}
-			if (is_callable($this->afterSave)) {
-				call_user_func($this->afterSave, $this, $result);
 			}
 		}
 		if (empty($result)) {

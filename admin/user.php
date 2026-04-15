@@ -1,7 +1,5 @@
 <?php require(__DIR__.'/../include/prolog_authorized_page_before.php'); ?>
 
-<script src="//code-ya.jivosite.com/widget/ogQFVxRJiA" async></script>
-
 <?php
 require(__DIR__.'/../include/prolog_authorized_page_after.php');
 
@@ -30,6 +28,7 @@ if ($days_left < 7) {
 
 \CJSCore::Init(['vettich_sp3_script']);
 
+$username = $user['username'] ?: htmlspecialcharsEx('<anonymous>');
 (new \vettich\sp3\devform\AdminForm('devform', [
 	'pageTitle' => '#.USER_INFO#',
 	'tabs' => [
@@ -37,7 +36,7 @@ if ($days_left < 7) {
 			'name' => '#.USER#',
 			'title' => '#.USER_TITLE#',
 			'params' => [
-				'username' => 'plaintext:#.USERNAME#:'.$user['username'],
+				'username' => 'plaintext:#.USERNAME#:'.$username,
 				'tariff' => [
 					'type' => 'plaintext',
 					'title' => '#.TARIFF_NAME#',
@@ -73,16 +72,5 @@ if ($days_left < 7) {
 	],
 	'data' => null,
 ]))->render();
-?>
 
-<script>
-	var jivo_onLoadCallback = function() {
-		jivo_api.setContactInfo({
-			name: '<?=$user['username']?>',
-			email: '<?=$user['username']?>',
-		});
-	}
-</script>
-
-<?php
 require(__DIR__.'/../include/epilog_authorized_page.php');

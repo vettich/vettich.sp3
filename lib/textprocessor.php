@@ -91,7 +91,7 @@ class TextProcessor
 					$status = 'squareblock';
 					array_push($startStack, $macros_start);
 					$macros_start = $i;
-				} elseif (ctype_space($ch) && $macros_start >= 0) {
+				} elseif ($macros_start >= 0 && preg_match('/^\s$/u', $ch)) {
 					$macros_start = array_pop($startStack) ?: -1;
 				}
 			} elseif ($status == 'figureblock') {

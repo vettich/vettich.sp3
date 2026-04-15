@@ -1,6 +1,6 @@
 <?php
 $module_id = 'vettich.sp3';
-if (!$APPLICATION->GetGroupRight($module_id) > 'D') {
+if ($APPLICATION->GetGroupRight($module_id) < 'R') {
 	return false;
 }
 
@@ -12,6 +12,7 @@ IncludeModuleLangFile(__FILE__);
 /* $GLOBALS['APPLICATION']->SetAdditionalCSS("/bitrix/css/$module_id/menu.css"); */
 /* $GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/$module_id/script.js"); */
 
+use vettich\sp3\Config;
 use vettich\sp3\Module;
 
 $menuName = Module::m('MENU_TEXT', ['#V#' => Module::version()]);
@@ -37,7 +38,6 @@ if (!Module::isAuth()) {
 		'text'		=> Module::m('MENU_START_USE'),
 		'url'		=> '/bitrix/admin/vettich.sp3.start_use.php',
 		'more_url' => [
-			'/bitrix/admin/vettich.sp3.reset_password.php',
 		],
 	];
 } else {
@@ -46,7 +46,6 @@ if (!Module::isAuth()) {
 		'url'		=> '/bitrix/admin/vettich.sp3.user.php',
 		'more_url' => [
 			'/bitrix/admin/vettich.sp3.start_use.php',
-			'/bitrix/admin/vettich.sp3.reset_password.php',
 			'/bitrix/admin/vettich.sp3.tariffs.php',
 			'/bitrix/admin/vettich.sp3.transactions.php',
 			'/bitrix/admin/vettich.sp3.payment_success.php',
@@ -57,7 +56,6 @@ if (!Module::isAuth()) {
 		'text'		=> Module::m('MENU_ACCOUNTS'),
 		'url'		=> '/bitrix/admin/vettich.sp3.accounts_list.php',
 		'more_url' => [
-			'/bitrix/admin/vettich.sp3.accounts_add.php',
 			'/bitrix/admin/vettich.sp3.accounts_edit.php',
 		]
 	];
@@ -81,6 +79,14 @@ $aMenu['items'][] = [
 	'text'		=> Module::m('MENU_HELP_PAGE'),
 	'url'		=> '/bitrix/admin/vettich.sp3.help.php',
 ];
+if (Config::showChangefeedMenu()) {
+	$aMenu['items'][] = [
+		'text'		=> Module::m('MENU_CHANGEFEED'),
+		'url'		=> '/bitrix/admin/vettich.sp3.changefeed.php',
+		'more_url' => [
+		]
+	];
+}
 
 if (Module::hasGroupWrite()) {
 	$aMenu['items'][] = [

@@ -215,7 +215,7 @@ class TemplateHelpers
 				$res        = Api::updatePost($post);
 			}
 		} catch (\Exception $e) {
-			Module::log(['code' => $e->getCode(), 'msg' => $e->getMessage()]);
+			Log::debug(['code' => $e->getCode(), 'msg' => $e->getMessage()]);
 			return;
 		}
 
@@ -252,7 +252,7 @@ class TemplateHelpers
 				db\PostIBlockTable::delete($arPostIBlock['ID']);
 			}
 		} catch (\Exception $e) {
-			Module::log(['code' => $e->getCode(), 'msg' => $e->getMessage()]);
+			Log::debug(['code' => $e->getCode(), 'msg' => $e->getMessage()]);
 			return;
 		}
 	}
@@ -292,7 +292,7 @@ class TemplateHelpers
 			}
 		} catch (\Exception $e) {
 			$error = ['code' => $e->getCode(), 'msg' => $e->getMessage()];
-			Module::log($error);
+			Log::debug($error);
 			return ['status' => 'fail', 'error' => $error];
 		}
 		return ['status' => 'ok', 'results' => $results];
@@ -609,7 +609,7 @@ class TemplateHelpers
 			$x = $padding;
 		} elseif ($foundpieces[2] == 'center') {
 			$x = imagesx($im) / 2 - $stamp_w / 2;
-		} elseif ($foundpieces[2] = 'right') {
+		} elseif ($foundpieces[2] == 'right') {
 			$x = imagesx($im) - $stamp_w - $padding;
 		}
 

@@ -10,18 +10,28 @@ class Api
 {
 	const FROM               = 'bitrix';
 	const SERVER_UNAVAILABLE = -11;
+	/** Endpoint для функционала выгрузки */
 	const UNLOAD_ENDPOINT    = '/bitrix/tools/vettich.sp3.ajax.php?method=unload';
+	/** Endpoint для выгрузки из очереди */
 	const POST_FROM_QUEUE_ENDPOINT = '/bitrix/tools/vettich.sp3.ajax.php?method=postFromQueue';
+	/** Заголовок с одноразовым/короткоживущим hook-токеном (выставляет ParrotPoster при HTTP-вызове Bitrix). */
+	public const PARROTPOSTER_HOOK_TOKEN_HEADER = 'X-ParrotPoster-HookToken';
+	/** Формат даты в RFC3339. */
 	const RFC3339_EXTENDED   = 'Y-m-d\TH:i:s.uP';
-
-	public static function userId()
-	{
-		return Config::get('user_id');
-	}
+	/** Коды ошибок, связанных с сетевыми проблемами. */
+	private const CURL_NETWORK_ERRORS = [
+		CURLE_COULDNT_RESOLVE_HOST,
+		CURLE_COULDNT_CONNECT,
+		CURLE_OPERATION_TIMEDOUT,
+		CURLE_GOT_NOTHING,
+		CURLE_SEND_ERROR,
+		CURLE_RECV_ERROR,
+		CURLE_SSL_CONNECT_ERROR,
+	];
 
 	public static function token()
 	{
-		return Config::get('token');
+		return Config::getToken();
 	}
 
 	public static function toTime($strtime)
@@ -38,17 +48,9 @@ class Api
 		return date(self::RFC3339_EXTENDED, $strtime);
 	}
 
-	public static function setUserData($userId, $token)
-	{
-		Config::setConfig([
-			'user_id' => $userId,
-			'token'   => $token,
-		]);
-	}
-
 	private static function errorMsg($key, $msg)
 	{
-		Module::log("$key.$msg");
+		Log::debug("$key.$msg");
 		$langMess = Module::m("$key.$msg");
 		if (empty($langMess)) {
 			return $msg;
@@ -56,10 +58,13 @@ class Api
 		return $langMess;
 	}
 
-	private static function buildEndpoint($endpoint, $queries = [])
+	private static function buildEndpoint($endpoint, $queries = [], ?string $domain = null)
 	{
-		$url = Config::get('api_uri');
-		$url .= '/'.$endpoint;
+		$domain = $domain ?: DomainSelector::getBestDomain();
+		if (empty($domain)) {
+			return false;
+		}
+		$url = $domain . Config::apiUri() . '/' . $endpoint;
 		if (!is_array($queries)) {
 			$queries = [];
 		}
@@ -80,7 +85,7 @@ class Api
 	private static function decodeResult($res)
 	{
 		$newRes = json_decode($res, true);
-		// Module::log($res);
+		// Log::debug($res);
 		if ($newRes !== null) {
 			return $newRes;
 		}
@@ -99,7 +104,7 @@ class Api
 			if (empty($token)) {
 				return false;
 			}
-			$headers[] = 'Token: '.self::token();
+			$headers[] = 'Token: '.$token;
 		}
 		$headers[] = 'X-PP-Bitrix-Version: '.Module::version();
 		if (!function_exists('curl_init')) {
@@ -112,75 +117,135 @@ class Api
 		curl_setopt($c, CURLOPT_URL, $url);
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
-		curl_setopt($c, CURLOPT_SSL_VERIFYPEER, 0);
-		curl_setopt($c, CURLOPT_SSL_VERIFYHOST, 0);
 		if (!empty($headers)) {
 			curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
 		}
 		return self::applyProxy($c);
 	}
 
-	private static function applyProxy($c)
+	private static function isNetworkCurlError(int $errno): bool
 	{
-		$proxy = Config::get('proxy');
-		if (empty($proxy)) {
-			return $c;
+		return $errno !== 0 && in_array($errno, self::CURL_NETWORK_ERRORS, true);
+	}
+
+	private static function doRequest(string $method, string $endpoint, array $params = [], bool $needAuth = true)
+	{
+		$queries = $params['queries'] ?? [];
+		$data = $params['data'] ?? [];
+		$headers = $params['headers'] ?? [];
+		$flatQueryParams = !empty($params['flat_query_params']);
+
+		$passes = [
+			['forceRefresh' => false],
+			['forceRefresh' => true],
+		];
+
+		$lastDecoded = null;
+
+		foreach ($passes as $pass) {
+			$domains = DomainSelector::getPriorityDomains($pass['forceRefresh']);
+			if (empty($domains)) {
+				$best = DomainSelector::getBestDomain();
+				if (!empty($best)) {
+					$domains = [$best];
+				}
+			}
+
+			foreach ($domains as $domain) {
+				$q = $flatQueryParams
+					? (is_array($queries) ? $queries : [])
+					: self::buildQuery($queries);
+				$url = self::buildEndpoint($endpoint, $q, $domain);
+				if (empty($url)) {
+					continue;
+				}
+
+				$c = self::buildCurl($url, $needAuth, $headers);
+				if (!$c) {
+					return false;
+				}
+
+				$methodUpper = strtoupper($method);
+				if ($methodUpper === 'POST') {
+					$dataEnc = json_encode($data);
+					curl_setopt($c, CURLOPT_POST, true);
+					curl_setopt($c, CURLOPT_POSTFIELDS, $dataEnc);
+				} elseif ($methodUpper === 'DELETE') {
+					curl_setopt($c, CURLOPT_CUSTOMREQUEST, 'DELETE');
+				}
+
+				$result   = curl_exec($c);
+				$errno    = (int)curl_errno($c);
+				$error    = curl_error($c);
+				$httpCode = (int)curl_getinfo($c, CURLINFO_HTTP_CODE);
+				curl_close($c);
+
+				if ($result === false || self::isNetworkCurlError($errno)) {
+					DomainSelector::markDomainError($domain);
+					Log::debug(['api_network_error' => ['domain' => $domain, 'endpoint' => $endpoint, 'errno' => $errno, 'error' => $error]]);
+					continue;
+				}
+
+				if (!empty($params['plain_text_ok'])) {
+					if ($httpCode === 200 && strcasecmp(trim((string)$result), 'OK') === 0) {
+						return ['response' => true];
+					}
+					$lastDecoded = self::decodeResult($result);
+					return $lastDecoded;
+				}
+
+				$decoded = self::decodeResult($result);
+				$lastDecoded = $decoded;
+				return $decoded;
+			}
 		}
 
-		$proxyData = explode('@', $proxy);
-		if (count($proxyData) > 1) {
-			curl_setopt($c, CURLOPT_PROXY, $proxyData[1]);
-			curl_setopt($c, CURLOPT_PROXYUSERPWD, $proxyData[0]);
-		} else {
-			curl_setopt($c, CURLOPT_PROXY, $proxy);
+		if (is_array($lastDecoded)) {
+			return $lastDecoded;
 		}
+
+		return [
+			'error' => [
+				'msg'  => 'server is unavailable',
+				'code' => self::SERVER_UNAVAILABLE,
+			],
+		];
+	}
+
+	private static function applyProxy($c)
+	{
+		// $proxy = Config::get('proxy');
+		// if (empty($proxy)) {
+		// 	return $c;
+		// }
+		//
+		// $proxyData = explode('@', $proxy);
+		// if (count($proxyData) > 1) {
+		// 	curl_setopt($c, CURLOPT_PROXY, $proxyData[1]);
+		// 	curl_setopt($c, CURLOPT_PROXYUSERPWD, $proxyData[0]);
+		// } else {
+		// 	curl_setopt($c, CURLOPT_PROXY, $proxy);
+		// }
 
 		return $c;
 	}
 
 	private static function callGet($endpoint, $queries=[], $needAuth=true)
 	{
-		Module::log(['endpoint' => $endpoint, 'queries' => $queries], ['trace_n' => 3]);
-		$q   = self::buildQuery($queries);
-		$url = self::buildEndpoint($endpoint, $q);
-		$c   = self::buildCurl($url, $needAuth);
-		if (!$c) {
-			return false;
-		}
-		$result = curl_exec($c);
-		curl_close($c);
-		return self::decodeResult($result);
+		Log::debug(['endpoint' => $endpoint, 'queries' => $queries]);
+		return self::doRequest('GET', $endpoint, ['queries' => $queries], $needAuth);
 	}
 
 	private static function callPost($endpoint, $data=[], $needAuth=true)
 	{
-		Module::log(['endpoint' => $endpoint, 'data' => $data], ['trace_n' => 3]);
-		$url = self::buildEndpoint($endpoint);
-		$c   = self::buildCurl($url, $needAuth, ['Content-Type: application/json']);
-		if (!$c) {
-			return false;
-		}
-		$dataEnc = json_encode($data);
-		curl_setopt($c, CURLOPT_POST, true);
-		curl_setopt($c, CURLOPT_POSTFIELDS, $dataEnc);
-		$result = curl_exec($c);
-		curl_close($c);
-		return self::decodeResult($result);
+		Log::debug(['endpoint' => $endpoint, 'data' => $data]);
+		return self::doRequest('POST', $endpoint, ['data' => $data, 'headers' => ['Content-Type: application/json']], $needAuth);
 	}
 
 	private static function callDelete($endpoint, $queries=[], $needAuth=true)
 	{
-		Module::log(['endpoint' => $endpoint, 'queries' => $queries], ['trace_n' => 3]);
-		$q   = self::buildQuery($queries);
-		$url = self::buildEndpoint($endpoint, $q);
-		$c   = self::buildCurl($url, $needAuth);
-		if (!$c) {
-			return false;
-		}
-		curl_setopt($c, CURLOPT_CUSTOMREQUEST, 'DELETE');
-		$result = curl_exec($c);
-		curl_close($c);
-		return self::decodeResult($result);
+		Log::debug(['endpoint' => $endpoint, 'queries' => $queries]);
+		return self::doRequest('DELETE', $endpoint, ['queries' => $queries], $needAuth);
 	}
 
 	private static function filenameWrapper($filepath, $filename)
@@ -193,7 +258,7 @@ class Api
 
 	private static function resultWrapper($res)
 	{
-		Module::log($res, ['trace_n' => 3]);
+		Log::debug($res);
 		if (!is_array($res)) {
 			return ['error' => ['msg' => 'result is empty']];
 		}
@@ -206,58 +271,45 @@ class Api
 		return $result;
 	}
 
-	public static function login($username, $password)
+	/**
+	 * Значение hook-токена из текущего HTTP-запроса (cron / очередь PP → Bitrix).
+	 */
+	public static function hookTokenFromIncomingRequest(): string
 	{
-		$queries = [
-			'username' => $username,
-			'password' => $password,
-			'from'     => self::FROM,
-		];
-		$result = self::callPost('tokens', $queries, false);
-		Module::log($result);
-		if (!empty($result['error'])) {
-			return $result;
+		if (!empty($_SERVER['HTTP_X_PARROTPOSTER_HOOKTOKEN'])) {
+			return trim((string)$_SERVER['HTTP_X_PARROTPOSTER_HOOKTOKEN']);
 		}
-
-		self::setUserData($result['response']['user_id'], $result['response']['token']);
-		return []; // success
+		return '';
 	}
 
-	public static function signup($username, $password)
+	/**
+	 * Проверка hook-токена запросом к API ParrotPoster (тот же Token из config + заголовок hook-токена).
+	 * При ошибке сети или API — false (не выполняем удалённый хук).
+	 *
+	 * @param string|null $hookToken если null — из заголовка {@see PARROTPOSTER_HOOK_TOKEN_HEADER}
+	 */
+	public static function checkHookToken(?string $hookToken = null): bool
 	{
-		$queries = [
-			'username' => $username,
-			'password' => $password,
-			'from'     => self::FROM,
-		];
-		$result = self::callPost('users', $queries, false);
-		Module::log($result);
-		if (!empty($result['error'])) {
-			return $result;
+		$hookToken = $hookToken ?? self::hookTokenFromIncomingRequest();
+		if ($hookToken === '' || strlen($hookToken) > 4096) {
+			return false;
 		}
-		self::setUserData($result['response']['user_id'], $result['response']['token']);
-		return []; // success
-	}
-
-	public static function forgotPassword($username, $callback_url)
-	{
-		$q = [
-			'username'     => $username,
-			'callback_url' => $callback_url,
-			'from'         => self::FROM,
-		];
-		$result = self::callPost('passwords/forgot', $q, false);
-		return self::resultWrapper($result);
-	}
-
-	public static function resetPassword($token, $password)
-	{
-		$queries = [
-			'token'    => $token,
-			'password' => $password,
-		];
-		$result = self::callPost('passwords/new', $queries, false);
-		return self::resultWrapper($result);
+		$siteToken = self::token();
+		if ($siteToken === null || $siteToken === '') {
+			return false;
+		}
+		$endpoint = 'check-hook-token/'.rawurlencode($hookToken);
+		$res      = self::doRequest('GET', $endpoint, ['queries' => [], 'plain_text_ok' => true], false);
+		if ($res === false || !is_array($res) || !empty($res['error'])) {
+			return false;
+		}
+		if (isset($res['response']) && $res['response'] === true) {
+			return true;
+		}
+		if (isset($res['response']) && is_array($res['response']) && !empty($res['response']['valid'])) {
+			return true;
+		}
+		return false;
 	}
 
 	public static function validateToken()
@@ -267,7 +319,7 @@ class Api
 			return ['error' => ['msg' => 'token is empty']];
 		}
 		$result = self::callGet("tokens/$token/valid", [], false);
-		Module::log($result);
+		Log::debug($result);
 		return $result;
 	}
 
@@ -284,9 +336,9 @@ class Api
 			return ['error' => ['msg' => 'token is empty']];
 		}
 		$res = self::callDelete("tokens/$token", [], false);
-		Module::log($res);
+		Log::debug($res);
 		if (empty($res['error'])) {
-			self::setUserData("", "");
+			Config::purgeTokenFromAllStorages();
 		}
 		return $res;
 	}
@@ -380,9 +432,9 @@ class Api
 		}
 
 		// step 1: get upload url and new file id
-		Module::log([$filepath, $filename]);
+		Log::debug([$filepath, $filename]);
 		$res = self::callGet('file_upload_url', ['type' => 'image', 'filename' => $filename]);
-		// Module::log($res);
+		// Log::debug($res);
 		if (!empty($res['error'])) {
 			return $res;
 		}
@@ -488,18 +540,195 @@ class Api
 		return self::resultWrapper($res);
 	}
 
+	/**
+	 * Регистрация URL публикации элемента в очереди ParrotPoster (POST post-queue).
+	 *
+	 * @return bool true при ответе API без error
+	 */
 	public static function addPostToQueue($ID, $IBLOCK_ID)
 	{
-		$queueUrl = self::POST_FROM_QUEUE_ENDPOINT."&ID=$ID&IBLOCK_ID=$IBLOCK_ID&token=".self::token();
-		$queries = ['url' => TextProcessor::createLink($queueUrl, [])];
-		$url = self::buildEndpoint('post-queue', $queries);
-		$c   = self::buildCurl($url, true, ['Content-Type: application/json']);
-		if (!$c) {
+		$id       = (int)$ID;
+		$iblockId = (int)$IBLOCK_ID;
+		if ($id <= 0 || $iblockId <= 0) {
+			Log::debug(['addPostToQueue' => 'invalid_args', 'ID' => $ID, 'IBLOCK_ID' => $IBLOCK_ID]);
 			return false;
 		}
-		curl_setopt($c, CURLOPT_POST, true);
-		curl_setopt($c, CURLOPT_POSTFIELDS, '[]');
-		$result = curl_exec($c);
-		curl_close($c);
+		if (empty(self::token())) {
+			Log::debug(['addPostToQueue' => 'empty_token', 'element_id' => $id]);
+			return false;
+		}
+
+		$queuePath   = self::POST_FROM_QUEUE_ENDPOINT
+			.'&ID='.rawurlencode((string)$id)
+			.'&IBLOCK_ID='.rawurlencode((string)$iblockId);
+		$callbackUrl = TextProcessor::createLink($queuePath, []);
+
+		Log::debug(['endpoint' => 'post-queue', 'element_id' => $id, 'iblock_id' => $iblockId]);
+
+		$res = self::doRequest('POST', 'post-queue', [
+			'queries'           => ['url' => $callbackUrl],
+			'flat_query_params' => true,
+			'data'              => [],
+			'headers'           => ['Content-Type: application/json'],
+		], true);
+
+		if ($res === false || !is_array($res) || !empty($res['error'])) {
+			if (is_array($res) && !empty($res['error'])) {
+				Log::debug(['addPostToQueue' => 'api_error', 'response' => $res]);
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * POST /api/graphql с перебором доменов.
+	 *
+	 * @return array{data: array}|array{error: array{msg: string, code?: int}}
+	 */
+	private static function doGraphqlRequest(string $query, array $variables = [], ?string $bearerToken = null, string $logLabel = 'graphql'): array
+	{
+		if (!function_exists('curl_init')) {
+			return ['error' => ['msg' => 'curl is unavailable']];
+		}
+
+		$payload = ['query' => $query];
+		if ($variables !== []) {
+			$payload['variables'] = $variables;
+		}
+		$body = json_encode($payload, JSON_UNESCAPED_UNICODE);
+
+		$headers = [
+			'Content-Type: application/json',
+			'X-PP-Bitrix-Version: ' . Module::version(),
+		];
+		if ($bearerToken !== null && $bearerToken !== '') {
+			$headers[] = 'Authorization: Bearer ' . $bearerToken;
+		}
+
+		$passes = [
+			['forceRefresh' => false],
+			['forceRefresh' => true],
+		];
+		$lastDecoded = null;
+
+		foreach ($passes as $pass) {
+			$domains = DomainSelector::getPriorityDomains($pass['forceRefresh']);
+			if (empty($domains)) {
+				$best = DomainSelector::getBestDomain();
+				if (!empty($best)) {
+					$domains = [$best];
+				}
+			}
+			foreach ($domains as $domain) {
+				$url = rtrim($domain, '/') . Config::graphqlApiUri();
+				$c   = curl_init();
+				if (!$c) {
+					continue;
+				}
+				curl_setopt($c, CURLOPT_URL, $url);
+				curl_setopt($c, CURLOPT_POST, true);
+				curl_setopt($c, CURLOPT_POSTFIELDS, $body);
+				curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
+				curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
+				$c = self::applyProxy($c);
+
+				$result = curl_exec($c);
+				$errno  = (int)curl_errno($c);
+				$error  = curl_error($c);
+				curl_close($c);
+
+				if ($result === false || self::isNetworkCurlError($errno)) {
+					DomainSelector::markDomainError($domain);
+					Log::debug([$logLabel.'_network' => ['domain' => $domain, 'errno' => $errno, 'error' => $error]]);
+					continue;
+				}
+
+				$decoded = json_decode($result, true);
+				if (!is_array($decoded)) {
+					continue;
+				}
+				$lastDecoded = $decoded;
+
+				if (!empty($decoded['errors'])) {
+					$msg = $decoded['errors'][0]['message'] ?? 'graphql error';
+					return ['error' => ['msg' => $msg]];
+				}
+
+				return ['data' => $decoded['data'] ?? []];
+			}
+		}
+
+		if (is_array($lastDecoded) && !empty($lastDecoded['errors'])) {
+			$msg = $lastDecoded['errors'][0]['message'] ?? 'graphql error';
+			return ['error' => ['msg' => $msg]];
+		}
+
+		return [
+			'error' => [
+				'msg'  => 'server is unavailable',
+				'code' => self::SERVER_UNAVAILABLE,
+			],
+		];
+	}
+
+	/**
+	 * Сессионный ключ для iframe (GraphQL mutation issueSessionKey по сохранённому access token).
+	 *
+	 * @return array{token: string}|array{error: array{msg: string, code?: int}}
+	 */
+	public static function issueSessionKey()
+	{
+		$bearer = self::token();
+		if (empty($bearer)) {
+			return ['error' => ['msg' => 'token is empty']];
+		}
+		$readOnly = !Module::hasGroupWrite();
+		$query    = 'mutation IssueSessionKey($readOnly: Boolean) { issueSessionKey(readOnly: $readOnly) { token } }';
+		$res      = self::doGraphqlRequest($query, ['readOnly' => $readOnly], $bearer, 'issueSessionKey');
+		if (!empty($res['error'])) {
+			return $res;
+		}
+		$sessionToken = $res['data']['issueSessionKey']['token'] ?? null;
+		if (empty($sessionToken)) {
+			return ['error' => ['msg' => 'no session token in response']];
+		}
+		return ['token' => $sessionToken];
+	}
+
+	/**
+	 * OAuth: обмен code из callback URL на токен (GraphQL mutation exchange_code, без Bearer).
+	 *
+	 * @return array{token: string}|array{error: array{msg: string, code?: int}}
+	 */
+	public static function exchangeAuthCode(string $code): array
+	{
+		$code = trim($code);
+		if ($code === '') {
+			return ['error' => ['msg' => 'code is empty']];
+		}
+		if (strlen($code) > 8192) {
+			return ['error' => ['msg' => 'code is too long']];
+		}
+
+		$query = 'mutation ExchangeAuthCode($code: String!) { exchangeCode(code: $code) { token } }';
+		$res   = self::doGraphqlRequest($query, ['code' => $code], null, 'exchangeAuthCode');
+		if (!empty($res['error'])) {
+			return $res;
+		}
+		$data    = $res['data'];
+		$payload = $data['exchangeCode'] ?? null;
+		if (!is_array($payload)) {
+			return ['error' => ['msg' => 'invalid exchange response']];
+		}
+		$token = $payload['token'] ?? null;
+		if ($token === null || $token === '') {
+			return ['error' => ['msg' => 'no token in response']];
+		}
+
+		return [
+			'token' => (string)$token,
+		];
 	}
 }

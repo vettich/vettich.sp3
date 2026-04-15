@@ -4,7 +4,7 @@ CModule::IncludeModule('vettich.sp3');
 use vettich\sp3\Module;
 use vettich\sp3\Api;
 
-require(__DIR__.'/../include/check_curl.php');
+require(__DIR__.'/check_curl.php');
 
 $validateTokenRes = Module::isAuth(true);
 if ($validateTokenRes['error'] &&

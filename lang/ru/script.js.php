@@ -21,3 +21,19 @@ $MESS['VETTICH_SP3_POLITIKA_NEED_CONFIRM']     = 'Подтвердите свое согласие с по
 
 $MESS['VETTICH_SP3_INSTA_ENTER_CODE'] = 'Введите код подтверждения';
 $MESS['VETTICH_SP3_TG_FIELDS_EMPTY'] = 'Заполните все поля';
+
+$MESS['VETTICH_SP3_IFRAME_LOAD_ERROR_HTML'] = '<div class="vettich-sp3-iframe-load-error">
+<p><b>Не удалось загрузить интерфейс ParrotPoster.</b></p>
+<p>Возможные причины: временная недоступность сервиса, ограничения сети или политика безопасности страницы <b>Content-Security-Policy (CSP)</b>, запрещающая встраивание внешних страниц во фрейм.</p>
+<p>Если на сайте настроен CSP, администратору нужно добавить в директиву <code>frame-src</code> домены сервиса ParrotPoster (как в списке зеркал модуля), при необходимости разрешить обращения к API в <code>connect-src</code>.</p>
+</div>';
+
+$MESS['VETTICH_SP3_IFRAME_LOAD_ERROR_CSP_HTML'] = '<div class="vettich-sp3-iframe-load-error vettich-sp3-iframe-csp-detected">
+<p><b>Браузер зафиксировал нарушение Content-Security-Policy (CSP), связанное с ParrotPoster</b> — с высокой вероятностью политика запрещает встраивание интерфейса во фрейм и/или запросы к сервису.</p>
+<p><b>Что сделать администратору сайта:</b></p>
+<p>В директиву <code>frame-src</code> добавьте источники (полные URL с <code>https://</code>), откуда загружается интерфейс:</p>
+#HOSTS#
+<p>При ограничении сетевых запросов добавьте те же источники в <code>connect-src</code> (проверка доступности и работа API).</p>
+<p>Где править: заголовок <code>Content-Security-Policy</code> или мета-тег — настройки веб-сервера (nginx, Apache), WAF, модулей безопасности или Bitrix, если CSP задаётся для административного раздела.</p>
+<p><small>Если сообщение показано ошибочно (ложное срабатывание), всё равно проверьте консоль браузера и список зеркал в настройках модуля.</small></p>
+</div>';

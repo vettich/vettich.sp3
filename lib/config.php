@@ -1,72 +1,172 @@
 <?php
+
 namespace vettich\sp3;
 
+/**
+ * Статические настройки модуля (дефолты в коде, переопределение списка доменов через define VETTICH_SP3_DOMAINS — CSV URL).
+ */
 class Config
 {
-	private $_data            = [];
-	private $_path            = "";
-	private static $_instance = null;
+	private const OPTION_TOKEN = 'api_token';
+	private const OPTION_MENU_SHOW_CHANGEFEED = 'menu_show_changefeed';
 
-	public function __construct()
+	/** Дефолтные endpoint'ы ParrotPoster (если не задан VETTICH_SP3_DOMAINS). */
+	private const DEFAULT_DOMAINS = [
+		'https://parrotposter.com',
+		'https://mirror-pl.parrotposter.com',
+	];
+
+	private const DEFAULT_AVAILABLE_CHECK_URI = '/api/v1/ping';
+	private const DEFAULT_API_URI             = '/api/v1';
+	private const DEFAULT_GRAPHQL_API_URI     = '/api/graphql';
+	private const DEFAULT_FRONT_BASE_URI      = '/plugin/bx';
+	private const DEFAULT_LOG                 = false;
+	private const DEFAULT_REMOTE_LOG          = true;
+
+	private static $tokenMigrated = false;
+
+	/**
+	 * @return string[]
+	 */
+	public static function domains(): array
 	{
-		if (file_exists($p = VETTICH_SP3_DIR.'/local_config.json')) {
-			$this->_path = $p;
-		} else {
-			$this->_path = VETTICH_SP3_DIR.'/config.json';
+		if (defined('VETTICH_SP3_DOMAINS') && is_string(VETTICH_SP3_DOMAINS) && VETTICH_SP3_DOMAINS !== '') {
+			$parts = preg_split('/\s*,\s*/', VETTICH_SP3_DOMAINS, -1, PREG_SPLIT_NO_EMPTY);
+
+			return $parts ? array_values($parts) : self::DEFAULT_DOMAINS;
 		}
-		$this->readConfig();
+
+		return self::DEFAULT_DOMAINS;
 	}
 
-	public static function instance()
+	public static function availableCheckUri(): string
 	{
-		if (self::$_instance == null) {
-			self::$_instance = new Config();
+		return self::DEFAULT_AVAILABLE_CHECK_URI;
+	}
+
+	public static function apiUri(): string
+	{
+		return self::DEFAULT_API_URI;
+	}
+
+	public static function graphqlApiUri(): string
+	{
+		return self::DEFAULT_GRAPHQL_API_URI;
+	}
+
+	public static function frontBaseUri(): string
+	{
+		return self::DEFAULT_FRONT_BASE_URI;
+	}
+
+	public static function logEnabled(): bool
+	{
+		return (bool)self::DEFAULT_LOG;
+	}
+
+	public static function remoteLogEnabled(): bool
+	{
+		return (bool)self::DEFAULT_REMOTE_LOG;
+	}
+
+	/**
+	 * Удаляет ключ token из legacy JSON (config.local.json / config.json), не трогая остальные поля.
+	 */
+	private static function stripTokenFromLegacyConfigFile(string $path): void
+	{
+		if (!is_file($path) || !is_readable($path)) {
+			return;
 		}
-		return self::$_instance;
+		$j = json_decode((string)file_get_contents($path), true);
+		if (!is_array($j) || !array_key_exists('token', $j)) {
+			return;
+		}
+		unset($j['token']);
+		$encoded = json_encode($j, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		if ($encoded === false) {
+			return;
+		}
+		@file_put_contents($path, $encoded."\n", LOCK_EX);
 	}
 
-	private function readConfig()
+	/**
+	 * Очистка токена в COption и в legacy-файлах, чтобы не сработал migrateLegacyTokenIfNeeded с тем же невалидным токеном.
+	 */
+	public static function purgeTokenFromAllStorages(): void
 	{
-		$data = file_get_contents($this->_path);
-		$conf = json_decode($data, true);
-		if (!empty($conf)) {
-			$this->_data = $conf;
+		self::setToken('');
+		self::stripTokenFromLegacyConfigFile(VETTICH_SP3_DIR.'/config.local.json');
+		self::stripTokenFromLegacyConfigFile(VETTICH_SP3_DIR.'/config.json');
+	}
+
+	private static function migrateLegacyTokenIfNeeded(): void
+	{
+		if (self::$tokenMigrated) {
+			return;
+		}
+		self::$tokenMigrated = true;
+
+		if (\COption::GetOptionString(Module::MID, self::OPTION_TOKEN, '') !== '') {
+			return;
+		}
+
+		$paths = [VETTICH_SP3_DIR.'/config.local.json', VETTICH_SP3_DIR.'/config.json'];
+		foreach ($paths as $p) {
+			if (!is_file($p)) {
+				continue;
+			}
+			$j = json_decode((string)file_get_contents($p), true);
+			if (!is_array($j) || empty($j['token']) || !is_string($j['token'])) {
+				continue;
+			}
+			\COption::SetOptionString(Module::MID, self::OPTION_TOKEN, $j['token']);
+			break;
 		}
 	}
 
-	private function saveConfig()
+	public static function getToken(): string
 	{
-		$data = json_encode($this->_data, JSON_PRETTY_PRINT);
-		file_put_contents($this->_path, $data);
+		self::migrateLegacyTokenIfNeeded();
+		return (string)\COption::GetOptionString(Module::MID, self::OPTION_TOKEN, '');
 	}
 
-	public static function setConfig($data)
+	public static function setToken(string $token): void
 	{
-		if (empty($data) || !is_array($data)) {
-			return false;
-		}
-		$i        = self::instance();
-		$i->_data = array_merge($i->_data, $data);
-		$i->saveConfig();
+		\COption::SetOptionString(Module::MID, self::OPTION_TOKEN, $token);
 	}
 
-	public static function getConfig()
+	public static function showChangefeedMenu(): bool
 	{
-		$i = self::instance();
-		return $i->_data;
+		$v = (string)\COption::GetOptionString(Module::MID, self::OPTION_MENU_SHOW_CHANGEFEED, 'Y');
+		return $v !== 'N';
 	}
 
-	public static function set($key, $value)
+	public static function setShowChangefeedMenu(bool $enabled): void
 	{
-		$i              = self::instance();
-		$i->_data[$key] = $value;
-		$i->saveConfig();
+		\COption::SetOptionString(
+			Module::MID,
+			self::OPTION_MENU_SHOW_CHANGEFEED,
+			$enabled ? 'Y' : 'N'
+		);
 	}
 
-	public static function get($key)
+	/**
+	 * Сводка настроек (для отладки)
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function getConfig(): array
 	{
-		$i     = self::instance();
-		$value = $i->_data[$key];
-		return $value;
+		return [
+			'domains'              => self::domains(),
+			'available_check_uri'  => self::availableCheckUri(),
+			'api_uri'              => self::apiUri(),
+			'front_base_uri'       => self::frontBaseUri(),
+			'log'                  => self::logEnabled(),
+			'remote_log'           => self::remoteLogEnabled(),
+			'menu_show_changefeed' => self::showChangefeedMenu(),
+			// 'proxy'                => self::proxy(),
+			'token_set'            => self::getToken() !== '',
+		];
 	}
 }

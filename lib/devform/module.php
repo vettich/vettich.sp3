@@ -400,8 +400,6 @@ class Module
 			curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 			curl_setopt($curl, CURLOPT_POST, true);
 			curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
 			if (is_callable($on)) {
 				call_user_func_array($on, [&$curl, $url, $data]);
 			}
@@ -418,8 +416,6 @@ class Module
 			curl_setopt($curl, CURLOPT_URL, $url);
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
 			if (is_callable($on)) {
 				call_user_func_array($on, [&$curl, $url]);
 			}

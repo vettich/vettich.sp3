@@ -38,14 +38,14 @@ class Log
 
 	public static function log($level, $msg, $options=[])
 	{
-		if (Config::get('log') != true && Config::get('remote_log') != true) {
+		if (!Config::logEnabled() && !Config::remoteLogEnabled()) {
 			return;
 		}
 		$options['trace'] = self::traceFormatted(($options['rm_trace'] ?: 0));
-		if (Config::get('log') == true) {
+		if (Config::logEnabled()) {
 			self::localWrite($level, $msg, $options);
 		}
-		if (Config::get('remote_log') == true && self::isRemote($level)) {
+		if (Config::remoteLogEnabled() && self::isRemote($level)) {
 			self::remoteWrite($level, $msg, $options);
 		}
 	}
@@ -70,10 +70,9 @@ class Log
 	private static function remoteWrite($level, $msg, $options=[])
 	{
 		$data = [
-			'level'   => $level,
-			'trace'   => $options['trace'],
-			'msg'     => var_export($msg, true),
-			'user_id' => Config::get('user_id'),
+			'level' => $level,
+			'trace' => $options['trace'],
+			'msg'   => var_export($msg, true),
 		];
 		Api::sendLog($data);
 	}

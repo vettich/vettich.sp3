@@ -1,52 +1,82 @@
 <?php
 
-define("NO_KEEP_STATISTIC", true);
-define("NOT_CHECK_PERMISSIONS", true);
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
+define('NO_KEEP_STATISTIC', true);
+define('NOT_CHECK_PERMISSIONS', true);
+require_once $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php';
 ini_set('display_errors', false);
 
 CModule::IncludeModule('vettich.sp3');
 
-use vettich\sp3\Module;
 use vettich\sp3\Api;
-use vettich\sp3\TemplateHelpers;
+use vettich\sp3\Config;
 use vettich\sp3\Events;
+use vettich\sp3\Module;
+use vettich\sp3\TemplateHelpers;
 
 function _result($data)
 {
-	// header('Content-Type: application/json');
 	echo json_encode($data);
 	exit;
 }
 
-switch ($_GET['method']) {
-	case 'login':
-		$res = Api::login($_GET['username'], $_GET['password']);
-		if (empty($res['error'])) {
-			Api::createCron();
-		}
-		_result($res);
-		break;
+function ajax_deny($msg, $code = 'FORBIDDEN')
+{
+	_result(['error' => ['msg' => $msg, 'code' => $code]]);
+}
 
-	case 'signup':
-		$res = Api::signup($_GET['username'], $_GET['password']);
-		if (empty($res['error'])) {
-			Api::createCron();
-		}
-		_result($res);
-		break;
+function require_bitrix_sessid()
+{
+	if (!check_bitrix_sessid()) {
+		ajax_deny('sessid', 'SESSID');
+	}
+}
 
-	case 'forgotPassword':
-		$res = Api::forgotPassword($_GET['username'], $_GET['callback_url']);
-		_result($res);
-		break;
+function require_bitrix_user()
+{
+	global $USER;
+	if (!$USER->IsAuthorized()) {
+		ajax_deny('bitrix auth required', 'BITRIX_AUTH');
+	}
+}
 
-	case 'resetPassword':
-		$res = Api::resetPassword($_GET['token'], $_GET['password']);
-		_result($res);
-		break;
+function require_module_read()
+{
+	require_bitrix_sessid();
+	require_bitrix_user();
+	if (!Module::hasGroupRead()) {
+		ajax_deny('module read access denied', 'MODULE_ACCESS');
+	}
+}
+
+function require_module_write()
+{
+	require_bitrix_sessid();
+	require_bitrix_user();
+	if (!Module::hasGroupWrite()) {
+		ajax_deny('module write access denied', 'MODULE_ACCESS');
+	}
+}
+
+function require_parrotposter_hook()
+{
+	if (!Api::checkHookToken()) {
+		_result(['error' => ['msg' => 'unauthorized', 'code' => 'REMOTE_AUTH']]);
+	}
+}
+
+$method = $_GET['method'] ?? $_POST['method'] ?? '';
+
+switch ($method) {
+	case 'auth':
+		require_module_write();
+		Config::setToken(trim((string)($_POST['token'] ?? '')));
+		$validateTokenRes = Api::validateToken();
+		header('Content-Type: text/plain; charset=UTF-8');
+		echo $validateTokenRes['response'] ? 'ok' : 'validate token error';
+		exit;
 
 	case 'logout':
+		require_module_write();
 		$res = Api::logout();
 		if (empty($res['error'])) {
 			Api::deleteCron();
@@ -54,26 +84,15 @@ switch ($_GET['method']) {
 		_result($res);
 		break;
 
-	case 'getConnectUrl':
-		$res = Api::connectUrl($_GET['type'], $_GET['callback']);
-		_result($res);
-		break;
-
-	case 'connect':
-		_result(Api::connect($_GET['type'], $_GET['fields']));
-		break;
-
-	case 'connectInsta':
-		_result(Api::connectInsta($_GET['username'], $_GET['password'], $_GET['proxy'], $_GET['code']));
-		break;
-
 	case 'listTemplates':
+		require_module_read();
 		$res = TemplateHelpers::listTemplates($_GET['IBLOCK_ID']);
 		$res = Module::convertToUtf8($res);
 		_result($res);
 		break;
 
 	case 'publishWithTemplate':
+		require_module_write();
 		$arFilter      = ['IBLOCK_ID' => $_GET['IBLOCK_ID']];
 		$arFilterLogic = ['LOGIC' => 'OR'];
 		if (!empty($_GET['ELEMS'])) {
@@ -82,7 +101,7 @@ switch ($_GET['method']) {
 		if (!empty($_GET['SECTIONS'])) {
 			$arFilterLogic[] = [
 				'SECTION_ID'          => $_GET['SECTIONS'],
-				'INCLUDE_SUBSECTIONS' => true
+				'INCLUDE_SUBSECTIONS' => true,
 			];
 		}
 		if (count($arFilterLogic) == 1) {
@@ -95,19 +114,19 @@ switch ($_GET['method']) {
 		break;
 
 	case 'unload':
+		require_parrotposter_hook();
 		_result(TemplateHelpers::unload());
 
 	case 'postFromQueue':
-		if ($_GET['token'] !== Api::token()) {
-			_result(['error' => ['msg' => 'unauthorized']]);
-			break;
-		}
-		$arFields = ['ID' => $_GET['ID'], 'IBLOCK_ID' => $_GET['IBLOCK_ID']];
-		$res = TemplateHelpers::publish($arFields, ['event' => Events::POP_ADD]);
+		require_parrotposter_hook();
+		$arFields = [
+			'ID'        => (int)$_GET['ID'],
+			'IBLOCK_ID' => (int)$_GET['IBLOCK_ID'],
+		];
+		$res      = TemplateHelpers::publish($arFields, ['event' => Events::POP_ADD]);
 		_result($res);
 		break;
 
-		// no break
 	default:
 		_result(['error' => ['msg' => 'method not found']]);
 }

@@ -9,6 +9,7 @@ $MESS['VETTICH_SP3_ACC_WARN_NOTE'] = '<ul>
 
 $MESS['VETTICH_SP3_SUCCESS'] = 'Успешно';
 $MESS['VETTICH_SP3_FAIL']    = 'Ошибка';
+$MESS['VETTICH_SP3_PP_OAUTH_EXCHANGE_ACCESS_DENIED'] = 'Войдите в административный раздел с правом записи к модулю ParrotPoster.';
 
 $MESS['VETTICH_SP3_VK']           = 'Вконтакте';
 $MESS['VETTICH_SP3_VK_ADD_TITLE'] = 'Авторизация и выбор группы в ВК';
@@ -135,6 +136,9 @@ $MESS['VETTICH_SP3_WEEKDAY_THU'] = 'Чт';
 $MESS['VETTICH_SP3_WEEKDAY_FRI'] = 'Пт';
 $MESS['VETTICH_SP3_WEEKDAY_SAT'] = 'Сб';
 $MESS['VETTICH_SP3_WEEKDAY_SUN'] = 'Вс';
+
+$MESS['VETTICH_SP3_SETTINGS_PROXY'] = 'Прокси';
+$MESS['VETTICH_SP3_SETTINGS_PROXY_TITLE'] = 'Добавьте прокси, если модуль не может подключиться к сервису parrotposter.com';
 
 // from devform
 $MESS['VDF_NAME']                 = 'Имя';

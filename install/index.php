@@ -48,6 +48,12 @@ class vettich_sp3 extends CModule
 	public function DoInstall()
 	{
 		global $DOCUMENT_ROOT, $APPLICATION, $errors, $ver, $GLOBALS;
+		require_once __DIR__.'/requirements_check.php';
+		$vettichSp3ReqErr = vettich_sp3_requirements_error_message();
+		if ($vettichSp3ReqErr !== '') {
+			$APPLICATION->ThrowException($vettichSp3ReqErr);
+			return false;
+		}
 		$GLOBALS['CACHE_MANAGER']->CleanAll();
 		if ($this->InstallDB()
 			&& $this->InstallFiles()
@@ -66,6 +72,9 @@ class vettich_sp3 extends CModule
 		if ($step<2) {
 			$APPLICATION->IncludeAdminFile(GetMessage('VETTICH_SP3_UNINSTALL_TITLE'), $this->MODULE_ROOT_DIR.'/install/unstep.php');
 		} elseif ($step==2) {
+			if (\CModule::IncludeModule($this->MODULE_ID)) {
+				\vettich\sp3\Module::tryLogoutOnUninstall();
+			}
 			if ($this->UnInstallDB([
 					'savedata' => $_REQUEST['savedata'],
 				])
