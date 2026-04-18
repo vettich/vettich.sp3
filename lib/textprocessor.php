@@ -390,7 +390,7 @@ class TextProcessor
 		}
 		$link = $domain.SITE_DIR;
 		if (strpos($link, 'http') !== 0) {
-			if ($_SERVER['HTTPS']) {
+			if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
 				$link = 'https://' . $link;
 			} else {
 				$link = 'http://' . $link;

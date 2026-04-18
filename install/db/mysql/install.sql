@@ -3,7 +3,7 @@ CREATE TABLE `vettich_sp3_template` (
   `IS_ENABLE` varchar(1) NOT NULL,
   `NAME` varchar(255) NOT NULL,
   `IBLOCK_TYPE` varchar(255) NOT NULL,
-  `IBLOCK_ID` varchar(255) NOT NULL,
+  `IBLOCK_ID` int(11) NOT NULL,
   `IS_SECTIONS` varchar(1) NOT NULL,
   `NEED_UTM` varchar(1) NOT NULL,
   `UTM_SOURCE` varchar(255) NOT NULL,
@@ -31,15 +31,20 @@ CREATE TABLE `vettich_sp3_template` (
   `ACCOUNTS` text NOT NULL,
   `PUBLISH` text NOT NULL,
   `UNLOAD_DATETIME` text NOT NULL,
-  PRIMARY KEY (`ID`)
+  PRIMARY KEY (`ID`),
+  KEY `idx_tpl_iblock_auto` (`IBLOCK_ID`, `IS_AUTO`),
+  KEY `idx_tpl_unload` (`UNLOAD_ENABLE`)
 );
 
 CREATE TABLE `vettich_sp3_post_iblock` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `IBLOCK_ID` varchar(255) NOT NULL,
+  `IBLOCK_ID` int(11) NOT NULL,
   `ELEM_ID` int(11) NOT NULL,
   `TEMPLATE_ID` int(11) NOT NULL,
   `POST_ID` varchar(255) NOT NULL,
   `TEMPLATE` text NOT NULL,
-  PRIMARY KEY (`ID`)
+  PRIMARY KEY (`ID`),
+  KEY `idx_pib_iblock_elem` (`IBLOCK_ID`, `ELEM_ID`),
+  KEY `idx_pib_iblock_tpl_elem` (`IBLOCK_ID`, `TEMPLATE_ID`, `ELEM_ID`),
+  KEY `idx_pib_post_id` (`POST_ID`)
 );

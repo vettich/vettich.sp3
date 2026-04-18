@@ -12,6 +12,9 @@ class IBlockHelpers
 	const DATE_TYPE   = 3;
 	const URL_TYPE    = 4;
 
+	/** Максимум записей в in-process кэше элементов (защита от раздувания при массовых операциях). */
+	const CACHE_MAX_ENTRIES = 10;
+
 	private static $_allPropsFor         = [];
 	private static $_allPropsMacrosFor   = [];
 	private static $_iblockFields        = null;
@@ -370,6 +373,21 @@ class IBlockHelpers
 			}
 		}
 		self::$_iblockElementFilled[$arFields['ID']] = $arFields;
+		self::trimIblockElementFilledCache();
+	}
+
+	private static function trimIblockElementFilledCache()
+	{
+		if (count(self::$_iblockElementFilled) > self::CACHE_MAX_ENTRIES) {
+			self::$_iblockElementFilled = array_slice(self::$_iblockElementFilled, -50, null, true);
+		}
+	}
+
+	private static function trimIblockElemIdsCache()
+	{
+		if (count(self::$_iblockElemIds) > self::CACHE_MAX_ENTRIES) {
+			self::$_iblockElemIds = array_slice(self::$_iblockElemIds, -50, null, true);
+		}
 	}
 
 	public static function iblockTypes()
@@ -444,6 +462,7 @@ class IBlockHelpers
 				$ar['filled']                    = $isFill;
 				self::$_iblockElemIds[$ar['ID']] = $ar;
 			}
+			self::trimIblockElemIdsCache();
 		}
 
 		if (is_array($id)) {

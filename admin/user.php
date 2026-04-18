@@ -1,7 +1,5 @@
-<?php require(__DIR__.'/../include/prolog_authorized_page_before.php'); ?>
-
 <?php
-require(__DIR__.'/../include/prolog_authorized_page_after.php');
+require(__DIR__.'/../include/prolog_authorized_page.php');
 
 IncludeModuleLangFile(__FILE__);
 

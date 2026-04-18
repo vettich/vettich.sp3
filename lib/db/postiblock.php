@@ -20,8 +20,8 @@ class PostIBlockTable extends OrmBase
 				'autocomplete' => true
 			]),
 
-			new Entity\StringField('IBLOCK_ID', [
-				'default_value' => '',
+			new Entity\IntegerField('IBLOCK_ID', [
+				'default_value' => 0,
 			]),
 
 			new Entity\IntegerField('ELEM_ID', [

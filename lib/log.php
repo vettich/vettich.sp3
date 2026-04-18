@@ -8,8 +8,6 @@ class Log
 	const WARNING = 'WARNING';
 	const ERROR   = 'ERROR';
 
-	const LOCAL_FILE = 'log.txt';
-
 	public static function debug($msg, $options=[])
 	{
 		self::log(self::DEBUG, $msg, self::addRmTrace($options));
@@ -63,8 +61,10 @@ class Log
 		$date    = date('Y/m/d H:i:s');
 		$trace   = $options['trace'];
 		$text    = "[$level:$date] $trace:\n$text\n";
-		$logfile = $options['logfile'] ?: self::LOCAL_FILE;
-		error_log($text, 3, VETTICH_SP3_DIR.'/'.$logfile);
+		$path = isset($options['logfile']) && is_string($options['logfile']) && $options['logfile'] !== ''
+			? VETTICH_SP3_DIR.'/'.$options['logfile']
+			: Config::logFile();
+		error_log($text, 3, $path);
 	}
 
 	private static function remoteWrite($level, $msg, $options=[])

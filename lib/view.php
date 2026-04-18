@@ -37,6 +37,8 @@ class View
 		if (empty($session['error']) && !empty($session['token'])) {
 			$token = $session['token'];
 		}
+		$ppUnavailable = !empty($session['error']['code'])
+			&& (int)$session['error']['code'] === Api::SERVER_UNAVAILABLE;
 
 		return json_encode(array(
 			'container' => '.pp-iframe-container',
@@ -46,7 +48,9 @@ class View
 			'token' => $token,
 			'lang' => LANGUAGE_ID,
 			'session_result' => $session,
+			'pp_unavailable' => $ppUnavailable,
 			'moduleReadOnly' => !Module::hasGroupWrite() ? 1 : 0,
+			'debug' => Config::iframeEmbedDebug(),
 		), JSON_UNESCAPED_UNICODE);
 	}
 
@@ -145,13 +149,16 @@ class View
 				iframe.contentWindow.postMessage(msg, targetOrigin);
 			}
 		</script>
-		<div class="pp-iframe-container"><?php echo Module::m('IFRAME_LOADING') ?></div>
+		<div class="pp-iframe-container"></div>
 		<script>
-			window.addEventListener('load', () => {
-				VettichSP3.initIframe(<?php echo self::iframe_config($path) ?>)
-			})
+			window.addEventListener('load', function () {
+				VettichSP3.initIframe(<?php echo self::iframe_config($path) ?>);
+			});
 		</script>
 		<style>
+			.pp-iframe-loading-indicator {
+				padding: 0.5em 0 0.75em;
+			}
 			#pp-iframe {
 				width: calc(100% + 16px);
 				height: 76vh;
@@ -162,6 +169,12 @@ class View
 					width: calc(100% + 10px);
 					margin-left: -10px;
 				}
+			}
+			.vettich-sp3-iframe-error-state {
+				max-width: 48rem;
+			}
+			.vettich-sp3-iframe-reload-row {
+				margin-top: 1em;
 			}
 			.vettich-sp3-iframe-load-error {
 				max-width: 48rem;

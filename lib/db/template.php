@@ -33,8 +33,8 @@ class TemplateTable extends OrmBase
 				'default_value' => ''
 			]),
 
-			new Entity\StringField('IBLOCK_ID', [
-				'default_value' => ''
+			new Entity\IntegerField('IBLOCK_ID', [
+				'default_value' => 0,
 			]),
 
 			new Entity\BooleanField('IS_SECTIONS', [

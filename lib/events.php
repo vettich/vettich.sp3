@@ -9,6 +9,8 @@ class Events
 {
 	const ADD     = 'add';
 	const POP_ADD = 'pop_add';
+	/** Синхронная публикация из локальной очереди (IS_AUTO=Y, ошибки API → исключение). */
+	const QUEUE   = 'queue';
 	const UPDATE  = 'update';
 	const DELETE  = 'delete';
 
@@ -97,47 +99,5 @@ class Events
 			'TEXT'        => Module::m('IBLOCK_MENU_SEND'),
 			'ACTION'      => 'VettichSP3.MenuSendWithTemplate('.$q.');',
 		];
-	}
-
-	public static function beforePrologHandler()
-	{
-		$arElem = self::popPostElemID();
-		if (!$arElem) {
-			self::unRegPageStart();
-			return;
-		}
-		$arFields = ['ID' => $arElem[0], 'IBLOCK_ID' => $arElem[1]];
-		TemplateHelpers::publish($arFields, ['event' => self::POP_ADD]);
-	}
-
-	public static function regPageStart()
-	{
-		RegisterModuleDependences('main', 'OnBeforeProlog', 'vettich.sp3', get_class(), 'beforePrologHandler');
-	}
-
-	public static function unRegPageStart()
-	{
-		UnRegisterModuleDependences('main', 'OnBeforeProlog', 'vettich.sp3', get_class(), 'beforePrologHandler');
-	}
-
-	public static function pushPostElemID($ID, $IBLOCK_ID)
-	{
-		$arElems = unserialize(\COption::GetOptionString('vettich.sp3', 'post_elems', ''));
-		if (empty($arElems)) {
-			$arElems = [];
-		}
-		$arElems[] = [$ID, $IBLOCK_ID];
-		\COption::SetOptionString('vettich.sp3', 'post_elems', serialize($arElems));
-	}
-
-	public static function popPostElemID()
-	{
-		$arElems = unserialize(\COption::GetOptionString('vettich.sp3', 'post_elems', ''));
-		if (empty($arElems)) {
-			return null;
-		}
-		$ret = array_shift($arElems);
-		\COption::SetOptionString('vettich.sp3', 'post_elems', serialize($arElems));
-		return $ret;
 	}
 }

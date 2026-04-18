@@ -22,6 +22,17 @@ $MESS['VETTICH_SP3_POLITIKA_NEED_CONFIRM']     = 'Подтвердите свое согласие с по
 $MESS['VETTICH_SP3_INSTA_ENTER_CODE'] = 'Введите код подтверждения';
 $MESS['VETTICH_SP3_TG_FIELDS_EMPTY'] = 'Заполните все поля';
 
+$MESS['VETTICH_SP3_IFRAME_LOADING'] = 'Загрузка...';
+
+$MESS['VETTICH_SP3_IFRAME_RELOAD'] = 'Перезагрузить';
+
+$MESS['VETTICH_SP3_IFRAME_RECONNECTING'] = 'Повторная попытка подключения (#CURRENT# из #TOTAL#)...';
+
+$MESS['VETTICH_SP3_PP_UNAVAILABLE_HTML'] = '<div class="vettich-sp3-iframe-load-error">
+<p><b>Сервис ParrotPoster временно недоступен.</b></p>
+<p>Не удаётся связаться с облаком (сеть или недоступность сервиса). Повторите попытку позже или проверьте настройки модуля и список зеркал.</p>
+</div>';
+
 $MESS['VETTICH_SP3_IFRAME_LOAD_ERROR_HTML'] = '<div class="vettich-sp3-iframe-load-error">
 <p><b>Не удалось загрузить интерфейс ParrotPoster.</b></p>
 <p>Возможные причины: временная недоступность сервиса, ограничения сети или политика безопасности страницы <b>Content-Security-Policy (CSP)</b>, запрещающая встраивание внешних страниц во фрейм.</p>

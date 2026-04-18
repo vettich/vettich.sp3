@@ -8,3 +8,5 @@ use vettich\sp3\View;
 
 $APPLICATION->SetTitle(Module::m('ACCOUNTS_LIST_PAGE'));
 View::embed_front('accounts');
+
+require(__DIR__.'/../include/epilog_authorized_page.php');

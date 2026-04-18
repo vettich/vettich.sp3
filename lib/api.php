@@ -14,6 +14,8 @@ class Api
 	const UNLOAD_ENDPOINT    = '/bitrix/tools/vettich.sp3.ajax.php?method=unload';
 	/** Endpoint для выгрузки из очереди */
 	const POST_FROM_QUEUE_ENDPOINT = '/bitrix/tools/vettich.sp3.ajax.php?method=postFromQueue';
+	/** Callback PP: обработка локальной очереди update/delete (post-queue → отдельный HTTP). */
+	const PROCESS_LOCAL_QUEUE_ENDPOINT = '/bitrix/tools/vettich.sp3.ajax.php?method=processLocalQueue';
 	/** Заголовок с одноразовым/короткоживущим hook-токеном (выставляет ParrotPoster при HTTP-вызове Bitrix). */
 	public const PARROTPOSTER_HOOK_TOKEN_HEADER = 'X-ParrotPoster-HookToken';
 	/** Формат даты в RFC3339. */
@@ -28,6 +30,34 @@ class Api
 		CURLE_RECV_ERROR,
 		CURLE_SSL_CONNECT_ERROR,
 	];
+
+	/** Сколько секунд после «все домены недоступны» не дергать PP (circuit breaker). */
+	private const PP_DOWN_CIRCUIT_TTL_SEC = 30;
+
+	private static function isPpDownCircuitOpen(): bool
+	{
+		$until = (int)(DomainCache::load()['pp_down_until'] ?? 0);
+
+		return $until > time();
+	}
+
+	private static function markPpUnavailableForCircuit(): void
+	{
+		DomainCache::withLock(function (array $state) {
+			$state['pp_down_until'] = time() + self::PP_DOWN_CIRCUIT_TTL_SEC;
+
+			return $state;
+		});
+	}
+
+	private static function clearPpDownCircuit(): void
+	{
+		DomainCache::withLock(function (array $state) {
+			$state['pp_down_until'] = 0;
+
+			return $state;
+		});
+	}
 
 	public static function token()
 	{
@@ -85,10 +115,10 @@ class Api
 	private static function decodeResult($res)
 	{
 		$newRes = json_decode($res, true);
-		// Log::debug($res);
 		if ($newRes !== null) {
 			return $newRes;
 		}
+		Log::debug(['decodeResult', 'json_decode error' => json_last_error_msg(), 'result' => $res]);
 		return [
 			'error' => [
 				'msg'  => 'server is unavailable',
@@ -97,7 +127,7 @@ class Api
 		];
 	}
 
-	private static function buildCurl($url, $needAuth, $headers=[])
+	private static function buildCurl($url, $needAuth, $headers = [], int $timeout = 15, int $connectTimeout = 5)
 	{
 		if ($needAuth == true) {
 			$token = self::token();
@@ -117,6 +147,9 @@ class Api
 		curl_setopt($c, CURLOPT_URL, $url);
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($c, CURLOPT_MAXREDIRS, 3);
+		curl_setopt($c, CURLOPT_TIMEOUT, $timeout);
+		curl_setopt($c, CURLOPT_CONNECTTIMEOUT, $connectTimeout);
 		if (!empty($headers)) {
 			curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
 		}
@@ -130,17 +163,34 @@ class Api
 
 	private static function doRequest(string $method, string $endpoint, array $params = [], bool $needAuth = true)
 	{
+		if (self::isPpDownCircuitOpen()) {
+			Log::debug(['api_pp_down_circuit' => true, 'endpoint' => $endpoint]);
+
+			return [
+				'error' => [
+					'msg'  => 'server is unavailable',
+					'code' => self::SERVER_UNAVAILABLE,
+				],
+			];
+		}
+
 		$queries = $params['queries'] ?? [];
 		$data = $params['data'] ?? [];
 		$headers = $params['headers'] ?? [];
 		$flatQueryParams = !empty($params['flat_query_params']);
+		$timeout = (int)($params['timeout'] ?? 15);
+		$connectTimeout = (int)($params['connect_timeout'] ?? 5);
+		if ($timeout < 1) {
+			$timeout = 15;
+		}
+		if ($connectTimeout < 1) {
+			$connectTimeout = 5;
+		}
 
 		$passes = [
 			['forceRefresh' => false],
 			['forceRefresh' => true],
 		];
-
-		$lastDecoded = null;
 
 		foreach ($passes as $pass) {
 			$domains = DomainSelector::getPriorityDomains($pass['forceRefresh']);
@@ -160,7 +210,7 @@ class Api
 					continue;
 				}
 
-				$c = self::buildCurl($url, $needAuth, $headers);
+				$c = self::buildCurl($url, $needAuth, $headers, $timeout, $connectTimeout);
 				if (!$c) {
 					return false;
 				}
@@ -186,23 +236,26 @@ class Api
 					continue;
 				}
 
+				self::clearPpDownCircuit();
+
+				if ($httpCode >= 500) {
+					Log::debug(['api_5xx' => ['domain' => $domain, 'endpoint' => $endpoint, 'code' => $httpCode]]);
+
+					return self::decodeResult($result);
+				}
+
 				if (!empty($params['plain_text_ok'])) {
 					if ($httpCode === 200 && strcasecmp(trim((string)$result), 'OK') === 0) {
 						return ['response' => true];
 					}
-					$lastDecoded = self::decodeResult($result);
-					return $lastDecoded;
 				}
 
 				$decoded = self::decodeResult($result);
-				$lastDecoded = $decoded;
 				return $decoded;
 			}
 		}
 
-		if (is_array($lastDecoded)) {
-			return $lastDecoded;
-		}
+		self::markPpUnavailableForCircuit();
 
 		return [
 			'error' => [
@@ -230,10 +283,12 @@ class Api
 		return $c;
 	}
 
-	private static function callGet($endpoint, $queries=[], $needAuth=true)
+	private static function callGet($endpoint, $queries = [], $needAuth = true, array $extraParams = [])
 	{
 		Log::debug(['endpoint' => $endpoint, 'queries' => $queries]);
-		return self::doRequest('GET', $endpoint, ['queries' => $queries], $needAuth);
+		$params = array_merge(['queries' => $queries], $extraParams);
+
+		return self::doRequest('GET', $endpoint, $params, $needAuth);
 	}
 
 	private static function callPost($endpoint, $data=[], $needAuth=true)
@@ -267,7 +322,7 @@ class Api
 
 	public static function ping()
 	{
-		$result = self::callGet('ping', [], false);
+		$result = self::callGet('ping', [], false, ['timeout' => 3, 'connect_timeout' => 2]);
 		return $result;
 	}
 
@@ -325,7 +380,7 @@ class Api
 
 	public static function me()
 	{
-		$result = self::callGet('me');
+		$result = self::callGet('me', [], true, ['timeout' => 3, 'connect_timeout' => 2]);
 		return self::resultWrapper($result);
 	}
 
@@ -568,6 +623,7 @@ class Api
 		$res = self::doRequest('POST', 'post-queue', [
 			'queries'           => ['url' => $callbackUrl],
 			'flat_query_params' => true,
+			'plain_text_ok'     => true,
 			'data'              => [],
 			'headers'           => ['Content-Type: application/json'],
 		], true);
@@ -582,14 +638,86 @@ class Api
 	}
 
 	/**
+	 * Регистрация в PP post-queue URL обработки локальной очереди (аналог addPostToQueue без элемента).
+	 * PP вызывает callback отдельным запросом — тяжёлая работа не в хите сохранения ИБ.
+	 *
+	 * @return bool true при ответе API без error
+	 */
+	public static function requestLocalQueueWake()
+	{
+		if (empty(self::token())) {
+			Log::debug(['requestLocalQueueWake' => 'empty_token']);
+			return false;
+		}
+
+		$queuePath   = self::PROCESS_LOCAL_QUEUE_ENDPOINT;
+		$callbackUrl = TextProcessor::createLink($queuePath, []);
+
+		Log::debug(['endpoint' => 'post-queue', 'purpose' => 'local_queue']);
+
+		$res = self::doRequest('POST', 'post-queue', [
+			'queries'           => ['url' => $callbackUrl],
+			'flat_query_params' => true,
+			'plain_text_ok'     => true,
+			'data'              => [],
+			'headers'           => ['Content-Type: application/json'],
+		], true);
+
+		if ($res === false || !is_array($res) || !empty($res['error'])) {
+			if (is_array($res) && !empty($res['error'])) {
+				Log::debug(['requestLocalQueueWake' => 'api_error', 'response' => $res]);
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * POST /api/graphql с перебором доменов.
+	 *
+	 * @param array{
+	 *     bearer_token?: string|null,
+	 *     log_label?: string,
+	 *     curl_timeout?: int,
+	 *     curl_connect_timeout?: int
+	 * } $params
 	 *
 	 * @return array{data: array}|array{error: array{msg: string, code?: int}}
 	 */
-	private static function doGraphqlRequest(string $query, array $variables = [], ?string $bearerToken = null, string $logLabel = 'graphql'): array
+	private static function doGraphqlRequest(string $query, array $variables = [], array $params = []): array
 	{
+		$params += [
+			'bearer_token'          => null,
+			'log_label'             => 'graphql',
+			'curl_timeout'          => 15,
+			'curl_connect_timeout'  => 5,
+		];
+
+		$bearerToken         = $params['bearer_token'];
+		$logLabel            = $params['log_label'];
+		$curlTimeout         = (int)$params['curl_timeout'];
+		$curlConnectTimeout  = (int)$params['curl_connect_timeout'];
+
 		if (!function_exists('curl_init')) {
 			return ['error' => ['msg' => 'curl is unavailable']];
+		}
+
+		if (self::isPpDownCircuitOpen()) {
+			Log::debug(['graphql_pp_down_circuit' => true, 'label' => $logLabel]);
+
+			return [
+				'error' => [
+					'msg'  => 'server is unavailable',
+					'code' => self::SERVER_UNAVAILABLE,
+				],
+			];
+		}
+
+		if ($curlTimeout < 1) {
+			$curlTimeout = 15;
+		}
+		if ($curlConnectTimeout < 1) {
+			$curlConnectTimeout = 5;
 		}
 
 		$payload = ['query' => $query];
@@ -602,7 +730,7 @@ class Api
 			'Content-Type: application/json',
 			'X-PP-Bitrix-Version: ' . Module::version(),
 		];
-		if ($bearerToken !== null && $bearerToken !== '') {
+		if (is_string($bearerToken) && $bearerToken !== '') {
 			$headers[] = 'Authorization: Bearer ' . $bearerToken;
 		}
 
@@ -610,7 +738,6 @@ class Api
 			['forceRefresh' => false],
 			['forceRefresh' => true],
 		];
-		$lastDecoded = null;
 
 		foreach ($passes as $pass) {
 			$domains = DomainSelector::getPriorityDomains($pass['forceRefresh']);
@@ -631,12 +758,16 @@ class Api
 				curl_setopt($c, CURLOPT_POSTFIELDS, $body);
 				curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 				curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
+				curl_setopt($c, CURLOPT_MAXREDIRS, 3);
+				curl_setopt($c, CURLOPT_TIMEOUT, $curlTimeout);
+				curl_setopt($c, CURLOPT_CONNECTTIMEOUT, $curlConnectTimeout);
 				curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
 				$c = self::applyProxy($c);
 
 				$result = curl_exec($c);
 				$errno  = (int)curl_errno($c);
 				$error  = curl_error($c);
+				$httpCode = (int)curl_getinfo($c, CURLINFO_HTTP_CODE);
 				curl_close($c);
 
 				if ($result === false || self::isNetworkCurlError($errno)) {
@@ -645,11 +776,24 @@ class Api
 					continue;
 				}
 
+				self::clearPpDownCircuit();
+
+				if ($httpCode >= 500) {
+					Log::debug([$logLabel.'_5xx' => ['domain' => $domain, 'code' => $httpCode]]);
+					$decoded5xx = json_decode((string)$result, true);
+					if (is_array($decoded5xx) && !empty($decoded5xx['errors'])) {
+						$msg = $decoded5xx['errors'][0]['message'] ?? 'graphql error';
+
+						return ['error' => ['msg' => $msg]];
+					}
+
+					return self::decodeResult($result);
+				}
+
 				$decoded = json_decode($result, true);
 				if (!is_array($decoded)) {
 					continue;
 				}
-				$lastDecoded = $decoded;
 
 				if (!empty($decoded['errors'])) {
 					$msg = $decoded['errors'][0]['message'] ?? 'graphql error';
@@ -660,10 +804,7 @@ class Api
 			}
 		}
 
-		if (is_array($lastDecoded) && !empty($lastDecoded['errors'])) {
-			$msg = $lastDecoded['errors'][0]['message'] ?? 'graphql error';
-			return ['error' => ['msg' => $msg]];
-		}
+		self::markPpUnavailableForCircuit();
 
 		return [
 			'error' => [
@@ -686,7 +827,12 @@ class Api
 		}
 		$readOnly = !Module::hasGroupWrite();
 		$query    = 'mutation IssueSessionKey($readOnly: Boolean) { issueSessionKey(readOnly: $readOnly) { token } }';
-		$res      = self::doGraphqlRequest($query, ['readOnly' => $readOnly], $bearer, 'issueSessionKey');
+		$res      = self::doGraphqlRequest($query, ['readOnly' => $readOnly], [
+			'bearer_token'         => $bearer,
+			'log_label'            => 'issueSessionKey',
+			'curl_timeout'         => 3,
+			'curl_connect_timeout' => 2,
+		]);
 		if (!empty($res['error'])) {
 			return $res;
 		}
@@ -713,7 +859,9 @@ class Api
 		}
 
 		$query = 'mutation ExchangeAuthCode($code: String!) { exchangeCode(code: $code) { token } }';
-		$res   = self::doGraphqlRequest($query, ['code' => $code], null, 'exchangeAuthCode');
+		$res   = self::doGraphqlRequest($query, ['code' => $code], [
+			'log_label' => 'exchangeAuthCode',
+		]);
 		if (!empty($res['error'])) {
 			return $res;
 		}

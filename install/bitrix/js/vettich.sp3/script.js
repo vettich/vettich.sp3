@@ -242,6 +242,7 @@ VettichSP3.initIframe = function (config) {
 	const STORAGE_KEY = "vettichsp3_endpoint";
 
 	// pingPath — быстрый GET (напр. "/api/v1/ping"); pingTimeout — таймаут ping, обычно меньше timeout iframe
+	// extendedHandshakeTimeout — после успешного ping (и по возможности после load iframe) столько мс ждём postMessage pp:ready
 	const {
 		container,
 		endpoints,
@@ -252,6 +253,15 @@ VettichSP3.initIframe = function (config) {
 		timeout = 5000,
 		pingPath,
 		pingTimeout = 2500,
+		extendedHandshakeTimeout = 60000,
+		debug = false,
+		/** Задержка появления «Загрузка…» над iframe (мс), 0 — показывать сразу. */
+		loadingLabelDelayMs = 450,
+		pp_unavailable = false,
+		/** Сколько раз повторить загрузку после неудачи (VPN / NS_BINDING_ABORT и т.п.). 0 — только первая попытка. */
+		iframeAutoRetries = 2,
+		/** Пауза перед следующей автоматической попыткой (мс). */
+		iframeAutoRetryDelayMs = 3000,
 	} = config;
 
 	const el =
@@ -263,6 +273,126 @@ VettichSP3.initIframe = function (config) {
 		console.error("VettichSP3: container not found");
 		return;
 	}
+
+	VettichSP3._lastIframeEmbedConfig = config;
+
+	function iframeReloadButtonLabel() {
+		if (typeof VettichSP3.m !== "function") {
+			return "Перезагрузить";
+		}
+		const t = String(VettichSP3.m("IFRAME_RELOAD") || "").trim();
+		return t && t !== "IFRAME_RELOAD" ? t : "Перезагрузить";
+	}
+
+	function sleep(ms) {
+		return new Promise((resolve) => setTimeout(resolve, ms));
+	}
+
+	/** Показ между автоматическими повторными попытками (после сбоя сети / VPN). */
+	function showReconnectingState(attemptNumber, totalAttempts) {
+		const wrap = document.createElement("div");
+		wrap.className = "pp-iframe-loading-indicator vettich-sp3-iframe-reconnecting";
+		let text = "";
+		if (typeof VettichSP3.m === "function") {
+			const tpl = String(VettichSP3.m("IFRAME_RECONNECTING") || "").trim();
+			if (tpl && tpl !== "IFRAME_RECONNECTING") {
+				text = tpl
+					.replace(/#CURRENT#/g, String(attemptNumber))
+					.replace(/#TOTAL#/g, String(totalAttempts));
+			}
+		}
+		if (!text) {
+			text =
+				"Повторная попытка подключения... (" +
+				attemptNumber +
+				" из " +
+				totalAttempts +
+				")";
+		}
+		wrap.textContent = text;
+		el.replaceChildren(wrap);
+	}
+
+	function showIframeLoadError(messageHtml) {
+		const wrap = document.createElement("div");
+		wrap.className = "vettich-sp3-iframe-error-state";
+		const body = document.createElement("div");
+		body.className = "vettich-sp3-iframe-error-body";
+		body.innerHTML = messageHtml;
+		wrap.appendChild(body);
+		const actions = document.createElement("p");
+		actions.className = "vettich-sp3-iframe-reload-row";
+		const btn = document.createElement("button");
+		btn.type = "button";
+		btn.className = "adm-btn adm-btn-save";
+		btn.textContent = iframeReloadButtonLabel();
+		btn.addEventListener("click", function () {
+			const cfg = VettichSP3._lastIframeEmbedConfig;
+			if (cfg) {
+				VettichSP3.initIframe(cfg);
+			} else {
+				window.location.reload();
+			}
+		});
+		actions.appendChild(btn);
+		wrap.appendChild(actions);
+		el.replaceChildren(wrap);
+	}
+
+	if (pp_unavailable) {
+		let html = "";
+		if (typeof VettichSP3.m === "function") {
+			const t = String(VettichSP3.m("PP_UNAVAILABLE_HTML") || "").trim();
+			if (t && t !== "PP_UNAVAILABLE_HTML") {
+				html = t;
+			}
+		}
+		if (!html) {
+			html =
+				'<div class="vettich-sp3-iframe-load-error"><p><b>Сервис ParrotPoster временно недоступен.</b></p><p>Повторите попытку позже.</p></div>';
+		}
+		showIframeLoadError(html);
+		return;
+	}
+
+	const DBG = "[VettichSP3 iframe]";
+	const dbgOn = Boolean(debug);
+	function dbg(...args) {
+		if (!dbgOn) return;
+		console.log(DBG, ...args);
+	}
+	function dbgWarn(...args) {
+		if (!dbgOn) return;
+		console.warn(DBG, ...args);
+	}
+	function dbgErr(...args) {
+		if (!dbgOn) return;
+		console.error(DBG, ...args);
+	}
+
+	// Текст из lang script.js.php → BX.message → VettichSP3.m (на странице до init не показываем)
+	let loadingHtml = "";
+	if (typeof VettichSP3.m === "function") {
+		const t = String(VettichSP3.m("IFRAME_LOADING") || "").trim();
+		if (t && t !== "IFRAME_LOADING") {
+			loadingHtml = t;
+		}
+	}
+
+	dbg("init", {
+		endpoints: endpoints.length,
+		path,
+		pingPath: pingPath || null,
+		pingTimeout,
+		timeout,
+		extendedHandshakeTimeout,
+		debug: dbgOn,
+		loadingLabelDelayMs,
+		lang,
+		readOnly: !!moduleReadOnly,
+		iframeAutoRetries,
+		iframeAutoRetryDelayMs,
+	});
 
 	// ================================
 	// CSP: securitypolicyviolation (frame-src / child-src / connect-src → наши origin)
@@ -310,6 +440,10 @@ VettichSP3.initIframe = function (config) {
 		}
 		if (cspBlockedUriMatchesOurService(ev.blockedURI)) {
 			cspBlockedOurService = true;
+			dbgWarn("CSP violation (our origin)", {
+				directive: dir,
+				blockedURI: ev.blockedURI,
+			});
 		}
 	}
 
@@ -348,6 +482,7 @@ VettichSP3.initIframe = function (config) {
 	 */
 	async function pingOnce(endpoint, ms) {
 		const url = new URL(pingPath, endpoint).href;
+		const t0 = Date.now();
 
 		const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
 		let timer = null;
@@ -367,18 +502,28 @@ VettichSP3.initIframe = function (config) {
 			});
 		} catch (err) {
 			if (timer) clearTimeout(timer);
+			const dt = Date.now() - t0;
 			if (err?.name === "AbortError" || err?.name === "TypeError" || err?.name === "NetworkError") {
+				dbg("ping", { endpoint, ok: false, ms: dt, reason: err?.name || "network" });
 				return false;
 			}
+			dbg("ping", { endpoint, ok: null, ms: dt, reason: err?.name || String(err) });
 			return null;
 		}
 		if (timer) clearTimeout(timer);
-		return res.ok ? true : false;
+		const dt = Date.now() - t0;
+		const ok = res.ok ? true : false;
+		dbg("ping", { endpoint, ok, ms: dt, status: res.status });
+		return ok;
 	}
 
 	/** Запускает ping по всем endpoint сразу, без await — используется в фоне параллельно с iframe */
 	function startBackgroundPings() {
-		if (!pingPath) return null;
+		if (!pingPath) {
+			dbg("background pings skipped (no pingPath)");
+			return null;
+		}
+		dbg("background pings started", { count: endpoints.length, pingTimeout });
 		const map = Object.create(null);
 		for (let i = 0; i < endpoints.length; i++) {
 			const ep = endpoints[i];
@@ -395,20 +540,22 @@ VettichSP3.initIframe = function (config) {
 
 	function createIframe(src) {
 		const iframe = document.createElement("iframe");
-		iframe.src = src;
-		iframe.id = 'pp-iframe'
+		iframe.id = "pp-iframe";
 		iframe.style.width = "100%";
 		iframe.style.border = "0";
 		iframe.frameborder = "0";
 		iframe.allowtransparency = "true";
+		iframe.src = src;
 		return iframe;
 	}
 
-	function waitForHandshake(origin, timeout) {
+	function waitForHandshake(origin, initialTimeoutMs) {
 		let done = false;
 		let timer = null;
 		let handler = null;
 		let rejectFn = null;
+		let deadline = Date.now() + initialTimeoutMs;
+		const hsStarted = Date.now();
 
 		function cleanup() {
 			if (done) return;
@@ -417,30 +564,59 @@ VettichSP3.initIframe = function (config) {
 			if (timer) clearTimeout(timer);
 		}
 
+		function scheduleTimer() {
+			if (done) return;
+			if (timer) clearTimeout(timer);
+			const ms = Math.max(0, deadline - Date.now());
+			timer = setTimeout(() => {
+				if (done) return;
+				dbg("handshake timeout fired", { origin, sinceHandshakeMs: Date.now() - hsStarted });
+				cleanup();
+				rejectFn(new Error("Handshake timeout"));
+			}, ms);
+		}
+
+		/** Продлевает ожидание postMessage минимум на msFromNow мс от текущего момента (медленная сеть / тяжёлый SPA). */
+		function ensureMinWait(msFromNow) {
+			if (done) return;
+			const minDeadline = Date.now() + msFromNow;
+			if (minDeadline > deadline) {
+				const prev = deadline;
+				deadline = minDeadline;
+				dbg("handshake extend", {
+					origin,
+					minWaitMs: msFromNow,
+					prevDeadlineIn: Math.max(0, prev - Date.now()),
+					newDeadlineIn: Math.max(0, deadline - Date.now()),
+				});
+				scheduleTimer();
+			}
+		}
+
+		dbg("handshake wait", { origin, initialTimeoutMs, firstDeadlineIn: initialTimeoutMs });
+
 		const promise = new Promise((resolve, reject) => {
 			rejectFn = reject;
 
 			handler = function (e) {
 				if (e.origin !== origin) return;
 				if (e.data === "pp:ready") {
+					dbg("postMessage pp:ready", { origin, sinceHandshakeMs: Date.now() - hsStarted });
 					cleanup();
 					resolve();
 				}
 			};
 
 			window.addEventListener("message", handler);
-
-			timer = setTimeout(() => {
-				if (done) return;
-				cleanup();
-				reject(new Error("Handshake timeout"));
-			}, timeout);
+			scheduleTimer();
 		});
 
 		return {
 			promise,
+			ensureMinWait,
 			cancel: () => {
 				if (done) return;
+				dbg("handshake cancel", { origin, sinceHandshakeMs: Date.now() - hsStarted });
 				cleanup();
 				rejectFn(new Error("Handshake aborted"));
 			},
@@ -450,13 +626,56 @@ VettichSP3.initIframe = function (config) {
 	async function tryEndpoint(endpoint, pingPromise) {
 		const url = `${endpoint}${path}?token=${token}&lang=${lang}&read_only=${moduleReadOnly ? 1 : 0}`;
 		const origin = new URL(url).origin;
+		const tryStarted = Date.now();
+
+		dbg("tryEndpoint", { endpoint, origin, hasPing: !!pingPromise });
 
 		const iframe = createIframe(url);
 
-		el.innerHTML = "";
-		el.appendChild(iframe);
+		// Надпись «Загрузка...» над iframe (после loadingLabelDelayMs), скрывается после pp:ready
+		const loadingWrap = loadingHtml
+			? (function () {
+				const w = document.createElement("div");
+				w.className = "pp-iframe-loading-indicator";
+				w.textContent = loadingHtml;
+				return w;
+			})()
+			: null;
 
-		const { promise: hsPromise, cancel: cancelHandshake } = waitForHandshake(origin, timeout);
+		let endpointFinished = false;
+		let loadingLabelTimer = null;
+		if (loadingWrap) {
+			if (loadingLabelDelayMs > 0) {
+				loadingWrap.style.display = "none";
+			}
+			el.replaceChildren(loadingWrap, iframe);
+			if (loadingLabelDelayMs > 0) {
+				loadingLabelTimer = setTimeout(() => {
+					loadingLabelTimer = null;
+					if (!endpointFinished && loadingWrap.isConnected) {
+						loadingWrap.style.display = "";
+					}
+				}, loadingLabelDelayMs);
+			}
+		} else {
+			el.replaceChildren(iframe);
+		}
+
+		const initialHandshakeMs = pingPromise
+			? Math.max(timeout, pingTimeout + 2000)
+			: timeout;
+		const { promise: hsPromise, cancel: cancelHandshake, ensureMinWait } = waitForHandshake(origin, initialHandshakeMs);
+
+		if (pingPromise) {
+			pingPromise.then((p) => {
+				dbg("ping settled for try", { endpoint, result: p });
+				if (endpointFinished || p !== true) {
+					return;
+				}
+				dbg("ping ok → extend handshake", { endpoint });
+				ensureMinWait(extendedHandshakeTimeout);
+			});
+		}
 
 		try {
 			if (pingPromise) {
@@ -470,11 +689,33 @@ VettichSP3.initIframe = function (config) {
 			} else {
 				await hsPromise;
 			}
+			if (loadingLabelTimer) {
+				clearTimeout(loadingLabelTimer);
+				loadingLabelTimer = null;
+			}
+			endpointFinished = true;
+			if (loadingWrap) {
+				loadingWrap.remove();
+			}
+			dbg("tryEndpoint ok", { endpoint, sinceTryMs: Date.now() - tryStarted });
 			return endpoint;
 		} catch (e) {
+			if (loadingLabelTimer) {
+				clearTimeout(loadingLabelTimer);
+				loadingLabelTimer = null;
+			}
+			endpointFinished = true;
+			dbg("tryEndpoint fail", {
+				endpoint,
+				sinceTryMs: Date.now() - tryStarted,
+				error: e && e.message ? e.message : String(e),
+			});
 			cancelHandshake();
 			hsPromise.catch(() => { });
 			iframe.remove();
+			if (loadingWrap) {
+				loadingWrap.remove();
+			}
 			throw e;
 		}
 	}
@@ -485,6 +726,9 @@ VettichSP3.initIframe = function (config) {
 
 	async function resolveEndpoint() {
 		const cached = loadCache();
+		if (cached) {
+			dbg("localStorage cache hit", { cached });
+		}
 
 		// ping всех доменов в фоне (не блокирует первый iframe)
 		const pingByEndpoint = startBackgroundPings();
@@ -494,25 +738,30 @@ VettichSP3.initIframe = function (config) {
 			? [cached, ...endpoints.filter((e) => e !== cached)]
 			: endpoints.slice();
 
+		dbg("resolve order", ordered);
+
 		let lastError = null;
 
 		for (const endpoint of ordered) {
-			console.log('try endpoint', endpoint);
 			try {
 				const pingPromise = pingByEndpoint ? pingByEndpoint[endpoint] : null;
 				const ok = await tryEndpoint(endpoint, pingPromise);
 				saveCache(ok);
+				dbg("endpoint chosen", { endpoint: ok });
 				return ok;
 			} catch (e) {
 				lastError = e;
+				dbg("endpoint skipped", { endpoint, error: e && e.message ? e.message : String(e) });
 
 				// если это был кеш — инвалидируем
 				if (endpoint === cached) {
 					clearCache();
+					dbg("cache cleared (failed cached endpoint)");
 				}
 			}
 		}
 
+		dbg("all endpoints failed", { lastError: lastError && lastError.message });
 		throw lastError || new Error("All endpoints failed");
 	}
 
@@ -520,12 +769,37 @@ VettichSP3.initIframe = function (config) {
 	// Run
 	// ================================
 
-	resolveEndpoint()
-		.catch((e) => {
-			console.error("VettichSP3: iframe load failed", e);
-			el.innerHTML = cspBlockedOurService ? VettichSP3.m('IFRAME_LOAD_ERROR_CSP_HTML') : VettichSP3.m('IFRAME_LOAD_ERROR_HTML');
-		})
-		.then(() => {
-			document.removeEventListener("securitypolicyviolation", onCspViolation);
-		});
+	const autoRetries = Math.max(0, Math.floor(Number(iframeAutoRetries)) || 0);
+	const autoRetryDelay = Math.max(0, Math.floor(Number(iframeAutoRetryDelayMs)) || 0);
+	const totalLoadAttempts = 1 + autoRetries;
+
+	(async function runEmbedWithAutoRetries() {
+		let lastError = null;
+		for (let i = 0; i < totalLoadAttempts; i++) {
+			try {
+				await resolveEndpoint();
+				document.removeEventListener("securitypolicyviolation", onCspViolation);
+				return;
+			} catch (e) {
+				lastError = e;
+				dbgErr("resolveEndpoint failed", e, {
+					attempt: i + 1,
+					totalLoadAttempts,
+				});
+				const hasMore = i < totalLoadAttempts - 1;
+				if (hasMore) {
+					showReconnectingState(i + 2, totalLoadAttempts);
+					if (autoRetryDelay > 0) {
+						await sleep(autoRetryDelay);
+					}
+				}
+			}
+		}
+		dbgErr("resolveEndpoint fatal (all attempts exhausted)", lastError);
+		const errHtml = cspBlockedOurService
+			? VettichSP3.m("IFRAME_LOAD_ERROR_CSP_HTML")
+			: VettichSP3.m("IFRAME_LOAD_ERROR_HTML");
+		showIframeLoadError(errHtml);
+		document.removeEventListener("securitypolicyviolation", onCspViolation);
+	})();
 };

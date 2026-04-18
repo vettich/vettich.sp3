@@ -40,7 +40,7 @@ class DomainCache
 	}
 
 	/**
-	 * @return array{available_domains: array, last_check_domains: int, errors: array<string, array<int, int>>}
+	 * @return array{available_domains: array, last_check_domains: int, errors: array<string, array<int, int>>, pp_down_until: int}
 	 */
 	public static function emptyState(): array
 	{
@@ -48,6 +48,7 @@ class DomainCache
 			'available_domains'  => [],
 			'last_check_domains' => 0,
 			'errors'             => [],
+			'pp_down_until'      => 0,
 		];
 	}
 
@@ -67,6 +68,9 @@ class DomainCache
 		}
 		if (isset($raw['errors']) && is_array($raw['errors'])) {
 			$s['errors'] = $raw['errors'];
+		}
+		if (isset($raw['pp_down_until']) && is_numeric($raw['pp_down_until'])) {
+			$s['pp_down_until'] = (int)$raw['pp_down_until'];
 		}
 
 		return $s;

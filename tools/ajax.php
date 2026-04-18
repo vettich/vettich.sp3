@@ -10,6 +10,7 @@ CModule::IncludeModule('vettich.sp3');
 use vettich\sp3\Api;
 use vettich\sp3\Config;
 use vettich\sp3\Events;
+use vettich\sp3\LocalQueue;
 use vettich\sp3\Module;
 use vettich\sp3\TemplateHelpers;
 
@@ -117,6 +118,7 @@ switch ($method) {
 		require_parrotposter_hook();
 		_result(TemplateHelpers::unload());
 
+	// deprecated from v3.1.2
 	case 'postFromQueue':
 		require_parrotposter_hook();
 		$arFields = [
@@ -125,6 +127,11 @@ switch ($method) {
 		];
 		$res      = TemplateHelpers::publish($arFields, ['event' => Events::POP_ADD]);
 		_result($res);
+		break;
+
+	case 'processLocalQueue':
+		require_parrotposter_hook();
+		_result(LocalQueue::handleHttpProcess());
 		break;
 
 	default:

@@ -44,17 +44,20 @@ class TemplateHelpers
 	 */
 	public static function publish($arFields, $params=[])
 	{
+		$event = isset($params['event']) ? $params['event'] : null;
+
 		if (empty($arFields)
 			or $arFields['ID'] <= 0
 			or (!empty($arFields['WF_PARENT_ELEMENT_ID'])
 				&& $arFields['ID'] != $arFields['WF_PARENT_ELEMENT_ID'])) {
+			if ($event === Events::QUEUE) {
+				throw new \InvalidArgumentException('publish: invalid element');
+			}
 			return false;
 		}
 
-		if ($params['event'] == Events::ADD) {
-			Api::addPostToQueue($arFields['ID'], $arFields['IBLOCK_ID']);
-			// Events::PushPostElemID($arFields['ID'], $arFields['IBLOCK_ID']);
-			// Events::RegPageStart();
+		if ($event == Events::ADD) {
+			LocalQueue::enqueueCreate((int)$arFields['ID'], (int)$arFields['IBLOCK_ID']);
 			return;
 		}
 
@@ -64,7 +67,7 @@ class TemplateHelpers
 			$arTemplates[$params['arTemplate']['ID']] = $params['arTemplate'];
 		} else {
 			$filter = ['IBLOCK_ID' => $arFields['IBLOCK_ID']];
-			if ($params['event'] == Events::ADD || $params['event'] == Events::POP_ADD) {
+			if ($event == Events::POP_ADD || $event == Events::QUEUE) {
 				$filter['IS_AUTO'] = 'Y';
 			}
 
@@ -100,6 +103,12 @@ class TemplateHelpers
 			} else {
 				$result['errors'][] = $res['error'];
 			}
+		}
+
+		if ($event === Events::QUEUE && !empty($result['errors'])) {
+			$err = $result['errors'][0];
+			$msg = is_array($err) && isset($err['msg']) ? (string)$err['msg'] : json_encode($err, JSON_UNESCAPED_UNICODE);
+			throw new \RuntimeException('createPost: '.$msg);
 		}
 
 		return $result;
@@ -168,11 +177,35 @@ class TemplateHelpers
 		self::$_iblockElements[$id] = $elem;
 	}
 
-	public static function update($arFields, $params=[])
+	/**
+	 * Постановка обновления в локальную очередь (без синхронного HTTP в событии ИБ).
+	 */
+	public static function update($arFields, $params = [])
 	{
-		IBlockHelpers::iblockValueFill($arFields, true, false);
+		$wasActive = '';
+		if (isset(self::$_iblockElements[$arFields['ID']]['ACTIVE'])) {
+			$wasActive = (string)self::$_iblockElements[$arFields['ID']]['ACTIVE'];
+		}
+		unset(self::$_iblockElements[$arFields['ID']]);
+		LocalQueue::enqueueUpdate((int)$arFields['ID'], (int)$arFields['IBLOCK_ID'], $wasActive);
+	}
+
+	/**
+	 * Постановка удаления в локальную очередь.
+	 */
+	public static function delete($arFields, $params = [])
+	{
+		LocalQueue::enqueueDelete((int)$arFields['ID'], (int)$arFields['IBLOCK_ID']);
+	}
+
+	/**
+	 * Синхронное обновление постов в PP (вызывается из CAgent по локальной очереди).
+	 */
+	public static function runUpdate($arFields, $params = [])
+	{
 		$found = false;
 		try {
+			IBlockHelpers::iblockValueFill($arFields, true, false);
 			$filter = [
 				'ELEM_ID'   => $arFields['ID'],
 				'IBLOCK_ID' => $arFields['IBLOCK_ID'],
@@ -216,18 +249,26 @@ class TemplateHelpers
 			}
 		} catch (\Exception $e) {
 			Log::debug(['code' => $e->getCode(), 'msg' => $e->getMessage()]);
-			return;
+			throw $e;
 		}
 
-		if (!$found &&
-			$arFields['ACTIVE'] == 'Y' &&
-			isset(self::$_iblockElements[$arFields['ID']]) &&
-			self::$_iblockElements[$arFields['ID']]['ACTIVE'] != $arFields['ACTIVE']) {
-			self::publish($arFields, ['event' => Events::ADD]);
+		if (!$found && $arFields['ACTIVE'] == 'Y') {
+			if (isset($params['queued_was_active'])) {
+				$wa = (string)$params['queued_was_active'];
+				if ($wa !== '' && $wa != $arFields['ACTIVE']) {
+					self::publish($arFields, ['event' => Events::QUEUE]);
+				}
+			} elseif (isset(self::$_iblockElements[$arFields['ID']]) &&
+				self::$_iblockElements[$arFields['ID']]['ACTIVE'] != $arFields['ACTIVE']) {
+				self::publish($arFields, ['event' => Events::QUEUE]);
+			}
 		}
 	}
 
-	public static function delete($arFields, $params=[])
+	/**
+	 * Синхронное удаление постов в PP (вызывается из CAgent по локальной очереди).
+	 */
+	public static function runDelete($arFields, $params = [])
 	{
 		try {
 			$filter = [
@@ -253,7 +294,7 @@ class TemplateHelpers
 			}
 		} catch (\Exception $e) {
 			Log::debug(['code' => $e->getCode(), 'msg' => $e->getMessage()]);
-			return;
+			throw $e;
 		}
 	}
 

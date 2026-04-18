@@ -305,6 +305,17 @@ body.shadow:after {
 	visibility: visible;
 }
 
+/* Подсказка «локальная очередь» на списке постов: выравнивание всплывающего блока относительно (?) */
+.vettich-sp3-local-queue-help.voptions-help .voptions-help-text {
+	left: 50%;
+	margin-left: 0;
+	transform: translateX(-50%);
+	bottom: 100%;
+	margin-bottom: 6px;
+	min-width: 260px;
+	max-width: min(420px, 92vw);
+}
+
 tr.hidden {
 	display: none;
 }

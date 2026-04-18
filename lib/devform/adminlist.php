@@ -458,7 +458,15 @@ class AdminList extends Module
 		}
 		global $adminPage, $adminMenu, $adminChain, $USER, $APPLICATION;
 		require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
+		$this->renderBeforeList();
 		$this->displayFilter();
 		$this->list->DisplayList();
+	}
+
+	/**
+	 * Вывод HTML над таблицей списка (после prolog_admin_after, до фильтра и списка).
+	 */
+	protected function renderBeforeList()
+	{
 	}
 }

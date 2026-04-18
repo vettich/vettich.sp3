@@ -47,13 +47,33 @@ $params = [
 					$value = '-';
 					return;
 				}
-				$rs = \CIBlockElement::GetList([], ['ID' => $value], false, false, ['ID', 'NAME']);
-				if ($ar = $rs->GetNext()) {
-					/* $iblockId = $arRow['extra_fields']['iblock_id']; */
-					$iblockId = $arRow['fields']['extra']['iblock_id'];
-					$iblockType = \CIBlock::GetArrayByID($iblockId, 'IBLOCK_TYPE_ID');
-					$value = "[$value] <a href=\"/bitrix/admin/iblock_element_edit.php?type=$iblockType&IBLOCK_ID=$iblockId&ID=$value\">$ar[NAME]</a>";
+				$elemId = (int) $value;
+				$pref   = \vettich\sp3\PostsAdminList::getIblockElementPrefetch();
+				if (isset($pref[$elemId])) {
+					$ar = $pref[$elemId];
+				} else {
+					$rs = \CIBlockElement::GetList([], ['ID' => $elemId], false, false, ['ID', 'NAME', 'IBLOCK_ID']);
+					$ar = $rs->GetNext(false, false);
+					if (is_array($ar)) {
+						$bid = (int) $ar['IBLOCK_ID'];
+						$ar  = [
+							'NAME'           => (string) $ar['NAME'],
+							'IBLOCK_ID'      => $bid,
+							'IBLOCK_TYPE_ID' => $bid > 0 ? (string) \CIBlock::GetArrayByID($bid, 'IBLOCK_TYPE_ID') : '',
+						];
+					} else {
+						$ar = null;
+					}
 				}
+				if (!is_array($ar)) {
+					return;
+				}
+				$iblockId   = (int) $ar['IBLOCK_ID'];
+				$iblockType = (string) $ar['IBLOCK_TYPE_ID'];
+				$nameEsc    = htmlspecialcharsbx($ar['NAME']);
+				$href       = '/bitrix/admin/iblock_element_edit.php?type='.rawurlencode($iblockType)
+					.'&IBLOCK_ID='.$iblockId.'&ID='.$elemId;
+				$value = '['.$elemId.'] <a href="'.htmlspecialcharsbx($href).'">'.$nameEsc.'</a>';
 			},
 		],
 		'publish_at' => 'datetime:#.POST_PUBLISH_AT#',

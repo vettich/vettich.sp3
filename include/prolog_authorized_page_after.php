@@ -15,6 +15,7 @@ if ($validateTokenRes['error'] &&
 	</div>
 	<?php
 	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
+	exit;
 }
 if ($validateTokenRes['response'] == false) {
 	header("Location: /bitrix/admin/vettich.sp3.start_use.php");

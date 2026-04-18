@@ -13,6 +13,7 @@ class vettich_sp3 extends CModule
 	public $MODULE_GROUP_RIGHTS = 'Y';
 	public $SHOW_SUPER_ADMIN_GROUP_RIGHTS = 'Y';
 	public $MODULE_ROOT_DIR     = '';
+	private const AGENT_LQ = '\vettich\sp3\LocalQueue::retryPpWakeForLocalQueue();';
 
 	public function __construct() {
 		$this->vettich_sp3();
@@ -95,18 +96,31 @@ class vettich_sp3 extends CModule
 		if(!$DB->Query("SELECT 'x' FROM vettich_sp3_template WHERE 1=0", true)) {
 			$errors = $DB->RunSQLBatch($this->MODULE_ROOT_DIR.'/install/db/mysql/install.sql');
 		}
+		if(!$DB->Query("SELECT 'x' FROM vettich_sp3_local_queue WHERE 1=0", true)) {
+			$errors = $DB->RunSQLBatch($this->MODULE_ROOT_DIR.'/install/db/mysql/local_queue.sql');
+		}
 		if($errors !== false) {
 			$APPLICATION->ThrowException(implode("<br>", $errors));
 			return false;
 		}
 
 		COption::SetOptionString($this->MODULE_ID, 'is_enable', 'Y');
+
+		if (class_exists('\CAgent')) {
+			\CAgent::RemoveAgent(self::AGENT_LQ, $this->MODULE_ID);
+			if (!\CAgent::GetList([], ['MODULE_ID' => $this->MODULE_ID, 'NAME' => self::AGENT_LQ])->Fetch()) {
+				\CAgent::AddAgent(self::AGENT_LQ, $this->MODULE_ID, 'N', 60);
+			}
+		}
 		return true;
 	}
 
 	public function UnInstallDB($arParams = [])
 	{
 		global $APPLICATION, $DB;
+		if (class_exists('\CAgent')) {
+			\CAgent::RemoveAgent(self::AGENT_LQ, $this->MODULE_ID);
+		}
 		COption::RemoveOption($this->MODULE_ID);
 		if (!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y") {
 			$errors = $DB->RunSQLBatch($this->MODULE_ROOT_DIR."/install/db/mysql/uninstall.sql");

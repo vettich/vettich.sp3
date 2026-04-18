@@ -21,7 +21,11 @@ class Config
 	private const DEFAULT_GRAPHQL_API_URI     = '/api/graphql';
 	private const DEFAULT_FRONT_BASE_URI      = '/plugin/bx';
 	private const DEFAULT_LOG                 = false;
+	/** Подробные console.log при встраивании iframe (define VETTICH_SP3_IFRAME_DEBUG). */
+	private const DEFAULT_IFRAME_EMBED_DEBUG  = false;
 	private const DEFAULT_REMOTE_LOG          = true;
+	/** Префикс имени локального лога: `{basename}-Y-m-d.log` в каталоге модуля. */
+	private const DEFAULT_LOG_FILE_BASENAME   = 'log';
 
 	private static $tokenMigrated = false;
 
@@ -61,7 +65,41 @@ class Config
 
 	public static function logEnabled(): bool
 	{
+		if (defined('VETTICH_SP3_LOG_ENABLED') && is_bool(VETTICH_SP3_LOG_ENABLED)) {
+			return VETTICH_SP3_LOG_ENABLED;
+		}
 		return (bool)self::DEFAULT_LOG;
+	}
+
+	public static function iframeEmbedDebug(): bool
+	{
+		if (defined('VETTICH_SP3_IFRAME_DEBUG') && is_bool(VETTICH_SP3_IFRAME_DEBUG)) {
+			return VETTICH_SP3_IFRAME_DEBUG;
+		}
+
+		return (bool)self::DEFAULT_IFRAME_EMBED_DEBUG;
+	}
+
+	/**
+	 * Базовое имя файла лога без даты и расширения (например, `debug` → `debug-2026-01-25.log`).
+	 * Переопределение: define('VETTICH_SP3_LOG_BASENAME', 'debug');
+	 */
+	public static function logFileBasename(): string
+	{
+		if (defined('VETTICH_SP3_LOG_BASENAME') && is_string(VETTICH_SP3_LOG_BASENAME) && VETTICH_SP3_LOG_BASENAME !== '') {
+			$base = VETTICH_SP3_LOG_BASENAME;
+		} else {
+			$base = self::DEFAULT_LOG_FILE_BASENAME;
+		}
+		$base = preg_replace('/[^a-zA-Z0-9_-]/', '_', $base);
+
+		return $base !== '' ? $base : self::DEFAULT_LOG_FILE_BASENAME;
+	}
+
+	/** Полный путь к локальному лог-файлу на текущую дату. */
+	public static function logFile(): string
+	{
+		return VETTICH_SP3_DIR.'/'.self::logFileBasename().'-'.date('Y-m-d').'.log';
 	}
 
 	public static function remoteLogEnabled(): bool
@@ -163,6 +201,7 @@ class Config
 			'api_uri'              => self::apiUri(),
 			'front_base_uri'       => self::frontBaseUri(),
 			'log'                  => self::logEnabled(),
+			'log_file'             => self::logFile(),
 			'remote_log'           => self::remoteLogEnabled(),
 			'menu_show_changefeed' => self::showChangefeedMenu(),
 			// 'proxy'                => self::proxy(),
