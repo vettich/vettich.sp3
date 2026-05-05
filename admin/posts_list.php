@@ -4,6 +4,84 @@ require(__DIR__.'/../include/prolog_authorized_page.php');
 IncludeModuleLangFile(__FILE__);
 use vettich\sp3\Module;
 use vettich\sp3\Api;
+use vettich\sp3\LocalQueue;
+use vettich\sp3\View;
+
+const LQ_TOGGLE_ID = 'vettich-sp3-posts-lq-toggle';
+const LQ_DETAIL_ID = 'vettich-sp3-posts-lq-detail';
+
+function showLocalQueueIfExist() {
+	$cnt = LocalQueue::getPendingCount();
+	if ($cnt <= 0) {
+		return;
+	}
+
+	$line = Module::m('LOCAL_QUEUE_LINE', ['#COUNT#' => (string) $cnt]);
+
+	$helpShort = Module::m('LOCAL_QUEUE_HELP_SHORT');
+	$detail    = Module::m('LOCAL_QUEUE_HELP_DETAIL');
+	$toggleHint = Module::m('LOCAL_QUEUE_TOGGLE_HINT');
+
+	$helpShortEsc = htmlspecialcharsbx($helpShort);
+	$detailHtml   = $detail;
+	$lineEsc      = htmlspecialcharsbx($line);
+	$toggleHintEsc = htmlspecialcharsbx($toggleHint);
+
+	?>
+	<div class="adm-info-message-wrap" style="margin:0 0 14px; overflow: unset">
+		<div class="adm-info-message vettich-sp3-local-queue-notice" style="display:block">
+			<span class="vettich-sp3-local-queue-line" style="display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px">
+				<span
+					id="<?= LQ_TOGGLE_ID ?>"
+					class="vettich-sp3-local-queue-toggle"
+					role="button"
+					tabindex="0"
+					style="cursor:pointer;border-bottom:1px dotted rgba(0,0,0,.35);font-weight:600"
+					title="<?= $toggleHintEsc ?>"
+				><?= $lineEsc ?></span>
+				<span class="voptions-help vettich-sp3-local-queue-help" style="vertical-align:middle">
+					<span class="voptions-help-btn" title="<?= $toggleHintEsc ?>"></span>
+					<span class="voptions-help-text"><?= $helpShortEsc ?></span>
+				</span>
+			</span>
+			<div id="<?= LQ_DETAIL_ID ?>" class="vettich-sp3-local-queue-detail" style="display:none;margin-top:10px;line-height:1.45;max-width:52rem">
+				<?= $detailHtml ?>
+			</div>
+		</div>
+	</div>
+	<script>
+	BX.ready(function () {
+		var t = BX('<?= \CUtil::JSEscape(LQ_TOGGLE_ID) ?>');
+		var d = BX('<?= \CUtil::JSEscape(LQ_DETAIL_ID) ?>');
+		if (!t || !d) {
+			return;
+		}
+		function toggle() {
+			d.style.display = (d.style.display === 'none' || d.style.display === '') ? 'block' : 'none';
+		}
+		BX.bind(t, 'click', function (e) { e.preventDefault(); toggle(); });
+		BX.bind(t, 'keydown', function (e) {
+			if (e.keyCode === 13 || e.keyCode === 32) {
+				e.preventDefault();
+				toggle();
+			}
+		});
+	});
+	</script>
+	<?
+}
+
+require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
+showLocalQueueIfExist();
+
+if ($_GET['prev_version'] != 'Y') {
+	$APPLICATION->SetTitle(Module::m('POSTS_LIST_PAGE'));
+
+	View::embed_front('posts');
+
+	require(__DIR__.'/../include/epilog_authorized_page.php');
+	exit;
+}
 
 CModule::IncludeModule('iblock');
 

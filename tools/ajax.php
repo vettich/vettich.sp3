@@ -92,6 +92,13 @@ switch ($method) {
 		_result($res);
 		break;
 
+	case 'refreshSessionToken':
+		require_module_read();
+		header('Content-Type: application/json; charset=UTF-8');
+		$res = Api::issueSessionKey();
+		echo json_encode($res);
+		exit;
+
 	case 'publishWithTemplate':
 		require_module_write();
 		$arFilter      = ['IBLOCK_ID' => $_GET['IBLOCK_ID']];

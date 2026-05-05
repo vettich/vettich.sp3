@@ -1,0 +1,51 @@
+.pp-iframe-loading-indicator {
+	padding: 0.5em 0 0.75em;
+}
+#pp-iframe {
+	width: calc(100% + 16px);
+	height: 76vh;
+	margin-left: -16px;
+}
+@media screen and (max-width: 782px) {
+	#pp-iframe {
+		width: calc(100% + 10px);
+		margin-left: -10px;
+	}
+}
+.vettich-sp3-iframe-error-state {
+	max-width: 48rem;
+}
+.vettich-sp3-iframe-reload-row {
+	margin-top: 1em;
+}
+.vettich-sp3-iframe-load-error {
+	max-width: 48rem;
+	line-height: 1.45;
+}
+.vettich-sp3-iframe-load-error code {
+	font-size: 0.9em;
+}
+.vettich-sp3-csp-hosts {
+	margin: 0.5em 0 1em 1.25em;
+}
+.pp-iframe-container {
+	padding-left: 8px;
+}
+.pp-parent-modal-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 100050;
+	pointer-events: none;
+}
+.pp-parent-modal-backdrop__segment {
+	position: fixed;
+	pointer-events: auto;
+	box-sizing: border-box;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+}
+.pp-iframe-container.pp-iframe-container--modal-open {
+	position: relative;
+	z-index: 100051;
+}

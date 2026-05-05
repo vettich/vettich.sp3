@@ -40,7 +40,7 @@ class View
 		$ppUnavailable = !empty($session['error']['code'])
 			&& (int)$session['error']['code'] === Api::SERVER_UNAVAILABLE;
 
-		return json_encode(array(
+		return array(
 			'container' => '.pp-iframe-container',
 			'endpoints' => Config::domains(),
 			'path' => Config::frontBaseUri() .'/'. $path,
@@ -51,7 +51,7 @@ class View
 			'pp_unavailable' => $ppUnavailable,
 			'moduleReadOnly' => !Module::hasGroupWrite() ? 1 : 0,
 			'debug' => Config::iframeEmbedDebug(),
-		), JSON_UNESCAPED_UNICODE);
+		);
 	}
 
 	private static function menu_list() {
@@ -62,131 +62,21 @@ class View
 
 	public static function embed_front($path)
 	{
-		\CJSCore::Init(['vettich_sp3_script']);
+		\CJSCore::Init(['vettich_sp3_view_embed']);
+		$embedInit = json_encode(array(
+			'allowedOrigins' => self::allowed_iframe_origins(),
+			'menuItems' => self::menu_list(),
+			'iframeConfig' => self::iframe_config($path),
+		), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 ?>
 		<script>
-			const PP_ALLOWED_ORIGINS = <?php echo json_encode(self::allowed_iframe_origins(), JSON_UNESCAPED_SLASHES) ?>;
-
-			function ppOriginAllowed(origin) {
-				return PP_ALLOWED_ORIGINS.indexOf(origin) !== -1;
-			}
-
-			window.addEventListener('message', (event) => {
-				if (!ppOriginAllowed(event.origin)) {
-					return;
+			BX.ready(function () {
+				if (window.VettichSP3ViewEmbed && typeof window.VettichSP3ViewEmbed.init === 'function') {
+					window.VettichSP3ViewEmbed.init(<?php echo $embedInit ?>);
 				}
-				if (!event.data || typeof event.data.type !== 'string') {
-					return;
-				}
-				const fn = pp_message_commands[event.data.type];
-				fn && fn(event.data);
 			});
-
-			const pp_message_commands = {
-				resize(data) {
-					const iframe = document.getElementById('pp-iframe');
-					iframe.style.height = `${data.height}px`;
-				},
-				prepare_callback() {
-					pp_send_message('prepare_callback_result', {
-						url: location.href
-					});
-				},
-				goto(data) {
-					const items = <?php echo json_encode(self::menu_list()) ?>;
-					const url = items[data.url] ?? data.url;
-					location.href = url
-				},
-				login(data) {
-					const url = '/bitrix/tools/vettich.sp3.ajax.php';
-					const body = new URLSearchParams({
-						method: 'auth',
-						token: String(data.token ?? ''),
-					});
-					if (typeof BX !== 'undefined' && BX.bitrix_sessid) {
-						body.set('sessid', BX.bitrix_sessid());
-					}
-					fetch(url, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-						body: body.toString(),
-						credentials: 'same-origin',
-					})
-						.then((resp) => {
-							console.log(resp);
-							resp.text()
-								.then((data) => {
-									if (data == 'ok') {
-										location.href = '/bitrix/admin/vettich.sp3.user.php';
-									} else {
-										pp_send_message('login_result', {error: data});
-									}
-								})
-								.catch(() => pp_send_message('login_result', {error: true}))
-						})
-						.catch(() => pp_send_message('login_result', {error: true}))
-				},
-			};
-
-			function pp_send_message(type, data) {
-				const msg = {
-					type,
-					...(data || {})
-				};
-				const iframe = document.getElementById('pp-iframe');
-				if (!iframe || !iframe.contentWindow || !iframe.src) {
-					return;
-				}
-				let targetOrigin;
-				try {
-					targetOrigin = new URL(iframe.src, window.location.href).origin;
-				} catch (e) {
-					return;
-				}
-				if (!ppOriginAllowed(targetOrigin)) {
-					return;
-				}
-				iframe.contentWindow.postMessage(msg, targetOrigin);
-			}
 		</script>
 		<div class="pp-iframe-container"></div>
-		<script>
-			window.addEventListener('load', function () {
-				VettichSP3.initIframe(<?php echo self::iframe_config($path) ?>);
-			});
-		</script>
-		<style>
-			.pp-iframe-loading-indicator {
-				padding: 0.5em 0 0.75em;
-			}
-			#pp-iframe {
-				width: calc(100% + 16px);
-				height: 76vh;
-				margin-left: -16px;
-			}
-			@media screen and (max-width: 782px) {
-				#pp-iframe {
-					width: calc(100% + 10px);
-					margin-left: -10px;
-				}
-			}
-			.vettich-sp3-iframe-error-state {
-				max-width: 48rem;
-			}
-			.vettich-sp3-iframe-reload-row {
-				margin-top: 1em;
-			}
-			.vettich-sp3-iframe-load-error {
-				max-width: 48rem;
-				line-height: 1.45;
-			}
-			.vettich-sp3-iframe-load-error code {
-				font-size: 0.9em;
-			}
-			.vettich-sp3-csp-hosts {
-				margin: 0.5em 0 1em 1.25em;
-			}
-		</style>
 <?php
 	}
 }
