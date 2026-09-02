@@ -49,6 +49,7 @@ should_exclude() {
 		dev/*|dev) return 0 ;;
 		vendor/*|vendor) return 0 ;;
 		scripts/*|scripts) return 0 ;;
+		bin/*|bin) return 0 ;;
 		.git/*) return 0 ;;
 		*.zip) return 0 ;;
 		Makefile) return 0 ;;

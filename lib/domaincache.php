@@ -4,6 +4,9 @@ namespace vettich\sp3;
 
 /**
  * Один JSON-файл в bitrix/cache: результаты ping доменов и учёт ошибок запросов.
+ *
+ * available_domains[]: {domain, ping, available, fail_streak, last_ok, last_error_kind}.
+ * Старые записи без fail_streak/last_ok допустимы — DomainSelector нормализует их при чтении.
  */
 class DomainCache
 {

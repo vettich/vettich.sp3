@@ -14,6 +14,7 @@ class vettich_sp3 extends CModule
 	public $SHOW_SUPER_ADMIN_GROUP_RIGHTS = 'Y';
 	public $MODULE_ROOT_DIR     = '';
 	private const AGENT_LQ = '\vettich\sp3\LocalQueue::retryPpWakeForLocalQueue();';
+	private const AGENT_DOMAINS = '\vettich\sp3\DomainSelector::agentRefreshDomains();';
 
 	public function __construct() {
 		$this->vettich_sp3();
@@ -111,6 +112,10 @@ class vettich_sp3 extends CModule
 			if (!\CAgent::GetList([], ['MODULE_ID' => $this->MODULE_ID, 'NAME' => self::AGENT_LQ])->Fetch()) {
 				\CAgent::AddAgent(self::AGENT_LQ, $this->MODULE_ID, 'N', 60);
 			}
+			\CAgent::RemoveAgent(self::AGENT_DOMAINS, $this->MODULE_ID);
+			if (!\CAgent::GetList([], ['MODULE_ID' => $this->MODULE_ID, 'NAME' => self::AGENT_DOMAINS])->Fetch()) {
+				\CAgent::AddAgent(self::AGENT_DOMAINS, $this->MODULE_ID, 'N', 60);
+			}
 		}
 		return true;
 	}
@@ -120,6 +125,7 @@ class vettich_sp3 extends CModule
 		global $APPLICATION, $DB;
 		if (class_exists('\CAgent')) {
 			\CAgent::RemoveAgent(self::AGENT_LQ, $this->MODULE_ID);
+			\CAgent::RemoveAgent(self::AGENT_DOMAINS, $this->MODULE_ID);
 		}
 		COption::RemoveOption($this->MODULE_ID);
 		if (!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y") {

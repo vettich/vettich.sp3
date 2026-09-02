@@ -246,12 +246,15 @@ class Api
 
 				if (!empty($params['plain_text_ok'])) {
 					if ($httpCode === 200 && strcasecmp(trim((string)$result), 'OK') === 0) {
+						DomainSelector::markDomainSuccess($domain);
+
 						return ['response' => true];
 					}
 				}
 
-				$decoded = self::decodeResult($result);
-				return $decoded;
+				DomainSelector::markDomainSuccess($domain);
+
+				return self::decodeResult($result);
 			}
 		}
 
@@ -794,6 +797,8 @@ class Api
 				if (!is_array($decoded)) {
 					continue;
 				}
+
+				DomainSelector::markDomainSuccess($domain);
 
 				if (!empty($decoded['errors'])) {
 					$msg = $decoded['errors'][0]['message'] ?? 'graphql error';

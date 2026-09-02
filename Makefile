@@ -26,4 +26,7 @@ list-update-files:
 	@chmod +x scripts/build-bitrix-update.sh
 	@LIST_ONLY=1 ./scripts/build-bitrix-update.sh
 
-.PHONY: update-version list-update-files
+test:
+	php bin/test-bx-domains.php
+
+.PHONY: update-version list-update-files test
