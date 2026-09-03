@@ -7,4 +7,5 @@ namespace vettich\sp3\devform\types;
 class html extends _type
 {
 	public $content = '<div id="{id}">{value}</div>';
+	protected $escapeValueInTemplate = false;
 }

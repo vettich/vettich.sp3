@@ -42,8 +42,8 @@ class multiselect extends _type
 		foreach ($this->options as $key => $opt) {
 			$repls = [
 				'{selected}' => in_array($key, $value) ? 'selected' : '',
-				'{name}' => $opt,
-				'{value}' => $key,
+				'{name}' => htmlspecialcharsbx((string)self::mess($opt)),
+				'{value}' => htmlspecialcharsbx((string)$key),
 			];
 			$html_options .= str_replace(
 				array_keys($repls),

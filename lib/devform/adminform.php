@@ -114,6 +114,13 @@ class AdminForm extends Module
 		if ($isDontSave or empty($_POST) or empty($this->datas)) {
 			return;
 		}
+		if (!check_bitrix_sessid()) {
+			$this->errorMessage = 'sessid';
+			return;
+		}
+		if (!$this->groupRightIsWrite) {
+			return;
+		}
 		$arValues = [];
 		foreach ((array)$this->tabs as $tab) {
 			$arValues = array_merge($arValues, _type::getValuesFromPost($tab->params));
@@ -161,11 +168,16 @@ class AdminForm extends Module
 	{
 		$arResult = [];
 
-		if (isset($_GET['back_url'])) {
+		$back = (string)($_GET['back_url'] ?? '');
+		if ($back === '' || $back[0] !== '/' || strpos($back, '//') === 0 || strpos($back, '\\') !== false) {
+			$back = '';
+		}
+
+		if ($back !== '') {
 			$arResult['back'] = [
 				'TEXT'  => \GetMessage('VDF_BACK_LIST'),
 				'TITLE' => GetMessage('VDF_BACK_LIST_TITLE'),
-				'LINK'  => $_GET['back_url'],
+				'LINK'  => htmlspecialcharsbx($back),
 				'ICON'  => 'btn_list',
 			];
 		}
@@ -178,7 +190,7 @@ class AdminForm extends Module
 				'LINK'  => $_SERVER['SCRIPT_NAME'].'?'.http_build_query($get),
 				'ICON'  => 'btn_new',
 			];
-			if (isset($_GET['back_url'])) {
+			if ($back !== '') {
 				unset($get['ID']);
 				unset($get['action']);
 				unset($get['action_button']);
@@ -190,14 +202,13 @@ class AdminForm extends Module
 					'action_button' => 'delete',
 					/* 'sessid'        => bitrix_sessid(), */
 				];
-				$url = $_GET['back_url'];
-				$url .= (strpos($url, '?') ? '&' : '?').http_build_query($get);
+				$jsUrl = \CUtil::JSEscape($back.(strpos($back, '?') ? '&' : '?').http_build_query($get));
 				$arResult['delete'] = [
 					'TEXT' => GetMessage('VDF_LIST_DELETE'),
 					'TITLE' => GetMessage('VDF_LIST_DELETE_TITLE'),
 					'LINK' => 'javascript:if(confirm("'
 						.GetMessage('VDF_LIST_DELETE_CONFIRM2')
-						.'")) window.location="'.$url.'";',
+						.'")) window.location="'.$jsUrl.'";',
 					'ICON' => 'btn_delete',
 				];
 			}

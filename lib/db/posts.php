@@ -186,8 +186,13 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 		if (is_array($image) && isset($image['tmp_name'])) {
 			$pathinfo = \Bitrix\Main\UI\Uploader\Uploader::getPaths($image['tmp_name']);
 			$img_path = $pathinfo['tmp_name'];
-		} elseif (is_string($image)) {
-			$img_path = $_SERVER['DOCUMENT_ROOT'].$image;
+		} elseif (is_string($image) && $image !== '' && $image[0] === '/') {
+			$root = realpath($_SERVER['DOCUMENT_ROOT']) ?: '';
+			$full = realpath($_SERVER['DOCUMENT_ROOT'].$image);
+			$upload = realpath($_SERVER['DOCUMENT_ROOT'].'/upload');
+			if ($full && $root && $upload && strpos($full, $upload) === 0) {
+				$img_path = $full;
+			}
 		}
 		return $img_path;
 	}

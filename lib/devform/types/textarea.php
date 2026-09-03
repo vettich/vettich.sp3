@@ -37,11 +37,11 @@ class textarea extends _type
 				if (empty($value['items'])) {
 					continue;
 				}
-				$res .= "<span data-value=\"$key\">$value[label]</span>";
+				$res .= '<span data-value="'.htmlspecialcharsbx((string)$key).'">'.htmlspecialcharsbx((string)$value['label']).'</span>';
 				$res .= self::renderItems($value['items']);
 				continue;
 			}
-			$res .= "<div data-value=\"$key\">$value</div>";
+			$res .= '<div data-value="'.htmlspecialcharsbx((string)$key).'">'.htmlspecialcharsbx((string)$value).'</div>';
 		}
 		return $res;
 	}

@@ -52,6 +52,29 @@ class Module
 		return !empty($token);
 	}
 
+	/**
+	 * Предупреждение об истёкшем тарифе внутри #adm-workarea (после prolog_admin_after).
+	 */
+	public static function showTariffExpiredNotice()
+	{
+		static $shown = false;
+		if ($shown) {
+			return;
+		}
+		global $userTariffExpired;
+		if (empty($userTariffExpired)) {
+			return;
+		}
+		$shown = true;
+		?>
+		<div class="adm-info-message-wrap" style="margin:0 0 14px">
+			<div class="adm-info-message" style="display:block">
+				<?=self::m('TARIFF_EXPIRED')?>
+			</div>
+		</div>
+		<?php
+	}
+
 	public static function convertToSiteCharset($data)
 	{
 		global $APPLICATION;
@@ -92,6 +115,17 @@ class Module
 		return self::hasGroupRight('W');
 	}
 
+	public static function ensureParrotPosterOAuthState(): string
+	{
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+		$state = (string)$session->get('vettich_sp3_oauth_state');
+		if ($state === '') {
+			$state = bin2hex(random_bytes(16));
+			$session->set('vettich_sp3_oauth_state', $state);
+		}
+		return $state;
+	}
+
 	/**
 	 * Callback OAuth ParrotPoster: GET ?code=… → GraphQL exchange_code → сохранение токена, cron.
 	 * Вызывать только из vettich.sp3.start_use.php, до проверки PP-токена.
@@ -107,6 +141,14 @@ class Module
 		if (!$USER->IsAuthorized() || !self::hasGroupWrite()) {
 			return self::m('PP_OAUTH_EXCHANGE_ACCESS_DENIED');
 		}
+
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+		$expected = (string)$session->get('vettich_sp3_oauth_state');
+		$got = (string)($_GET['state'] ?? '');
+		if ($expected === '' || !hash_equals($expected, $got)) {
+			return self::m('PP_OAUTH_EXCHANGE_ACCESS_DENIED');
+		}
+		$session->remove('vettich_sp3_oauth_state');
 
 		$res = Api::exchangeAuthCode($_GET['code']);
 		if (!empty($res['error'])) {

@@ -177,9 +177,10 @@ class TemplateTable extends OrmBase
 				'default_value' => []
 			]))->configureUnserializeCallback(function ($value) {
 				try {
-					return \Bitrix\Main\Web\Json::decode($value);
+					$decoded = \Bitrix\Main\Web\Json::decode($value);
+					return is_array($decoded) ? $decoded : [];
 				} catch (\Exception $ex) {
-					return unserialize($value);
+					return \vettich\sp3\Tools::unserializeArray($value);
 				}
 			});
 

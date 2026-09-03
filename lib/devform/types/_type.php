@@ -32,6 +32,7 @@ abstract class _type extends \vettich\sp3\devform\Module
 	public $is_saved = true;
 	public $actions = [];
 	public $data = null;
+	protected $escapeValueInTemplate = true;
 
 	public function __construct($id, $args = [])
 	{
@@ -146,16 +147,19 @@ abstract class _type extends \vettich\sp3\devform\Module
 			$value = self::mess($value);
 		}
 
+		$safeValue = ($this->escapeValueInTemplate && is_string($value))
+			? htmlspecialcharsbx($value)
+			: $value;
 		$replaces_def = [
 			'{content}' => $this->content,
 			// '{title}' => $this->title . (isset($this->params['required']) ? ' <font color="red">*</font>' : ''),
 			'{params}' => $this->renderParams(),
 			'{help}' => $this->renderHelp(),
 			'{title}' => $this->renderTitle($this->title, $this->params),
-			'{default_value}' => $this->default_value,
-			'{value}' => $value,
-			'{name}' => $this->name,
-			'{id}' => str_replace(['][', ']', '['], ['-', '', '-'], $this->id),
+			'{default_value}' => htmlspecialcharsbx((string)$this->default_value),
+			'{value}' => $safeValue,
+			'{name}' => htmlspecialcharsbx((string)$this->name),
+			'{id}' => htmlspecialcharsbx(str_replace(['][', ']', '['], ['-', '', '-'], $this->id)),
 		];
 		foreach ($replaces_def as $key => $value) {
 			if (isset($replaces[$key])) {

@@ -72,6 +72,7 @@ function showLocalQueueIfExist() {
 }
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
+Module::showTariffExpiredNotice();
 showLocalQueueIfExist();
 
 if ($_GET['prev_version'] != 'Y') {
@@ -113,7 +114,7 @@ $params = [
 				$tpl = '<img src="{value}" width=40 height=40 /> ';
 				$value = '';
 				foreach ($arRow['fields']['image_urls'] as $url) {
-					$value .= str_replace('{value}', $url, $tpl);
+					$value .= str_replace('{value}', htmlspecialcharsbx((string)$url), $tpl);
 				}
 			},
 		],

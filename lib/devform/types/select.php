@@ -68,7 +68,7 @@ class select extends _type
 		foreach ($options as $key => $opt) {
 			if (is_array($opt)) {
 				$repls = [
-					'{label}' => self::mess($opt['label'] ?: $opt['name']),
+					'{label}' => htmlspecialcharsbx((string)self::mess($opt['label'] ?: $opt['name'])),
 					'{options}' => self::renderOptions($opt['options'] ?: $opt['items'], $value),
 				];
 				if (empty($repls['{options}'])) {
@@ -83,8 +83,8 @@ class select extends _type
 			}
 			$repls = [
 				'{selected}' => ($value == $key) ? 'selected' : '',
-				'{name}' => self::mess($opt),
-				'{value}' => $key,
+				'{name}' => htmlspecialcharsbx((string)self::mess($opt)),
+				'{value}' => htmlspecialcharsbx((string)$key),
 				'{option_params}' => '',
 			];
 			$html_options .= str_replace(

@@ -32,10 +32,8 @@ ini_set('display_errors', false);
 $res = Api::me();
 $user = $res['response'] ?: [];
 $userTariffExpired = (strtotime($user['tariff']['expiry_at']) - strtotime('now')) < 0;
-if ($userTariffExpired) {
-	?><div class="adm-info-message" style="display:block">
-		<?=Module::m('TARIFF_EXPIRED')?>
-	</div><?php
+if ($prolog_admin_after !== false) {
+	Module::showTariffExpiredNotice();
 }
 
 /* \CJSCore::Init(['vettich_sp3_script']); */

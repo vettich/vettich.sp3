@@ -42,6 +42,7 @@ class AdminList extends Module
 	protected $hideFilters    = false;
 	protected $idKey          = 'ID';
 	protected $actions        = ['edit', 'delete'];
+	protected $groupRightIsWrite = true;
 
 	/**
 	 * @param string $pageTitle
@@ -94,6 +95,13 @@ class AdminList extends Module
 		if (isset($args['actions'])) {
 			$this->actions = $args['actions'];
 		}
+		if (isset($args['groupRightIsWrite'])) {
+			$this->groupRightIsWrite = $args['groupRightIsWrite'];
+		} elseif (in_array('delete', $this->actions) || in_array('edit', $this->actions)) {
+			$this->groupRightIsWrite = true;
+		} else {
+			$this->groupRightIsWrite = false;
+		}
 
 		$this->list = new CAdminList($this->sTableID, $this->sort);
 
@@ -141,6 +149,9 @@ class AdminList extends Module
 
 	public function doGroupActions()
 	{
+		if (!$this->groupRightIsWrite) {
+			return;
+		}
 		if (($arID = $this->list->GroupAction())) {
 			if ($_REQUEST['action_target']=='selected') {
 				$arID = [];
@@ -172,6 +183,9 @@ class AdminList extends Module
 
 	public function doEditAction()
 	{
+		if (!$this->groupRightIsWrite) {
+			return;
+		}
 		if ($this->list->EditAction()) {
 			foreach ((array)$_REQUEST['FIELDS'] as $id => $arField) {
 				$arField[$this->idKey] = $id;
@@ -451,7 +465,9 @@ class AdminList extends Module
 	{
 		$this->list->AddFooter($this->getFooter());
 		$this->list->AddAdminContextMenu($this->getContextMenu());
-		$this->list->AddGroupActionTable(['delete'=>true]);
+		if ($this->groupRightIsWrite) {
+			$this->list->AddGroupActionTable(['delete'=>true]);
+		}
 		$this->list->CheckListMode();
 		if (!!$this->pageTitle) {
 			$GLOBALS['APPLICATION']->SetTitle($this->pageTitle);
@@ -468,5 +484,6 @@ class AdminList extends Module
 	 */
 	protected function renderBeforeList()
 	{
+		\vettich\sp3\Module::showTariffExpiredNotice();
 	}
 }

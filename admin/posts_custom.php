@@ -9,9 +9,15 @@ use vettich\sp3\Module;
 use vettich\sp3\FormHelpers;
 use vettich\sp3\IBlockHelpers;
 
+Module::showTariffExpiredNotice();
+
 CModule::IncludeModule('iblock');
 
 if (isset($_POST['_save'])) {
+	global $APPLICATION;
+	if (!check_bitrix_sessid() || !Module::hasGroupWrite()) {
+		$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
+	}
 	if (empty($_POST['_ACCOUNTS'])) {
 		?>
 		<div class="adm-info-message" style="display:block">
@@ -19,19 +25,26 @@ if (isset($_POST['_save'])) {
 		</div>
 		<?php
 	} else {
-		$arTemplate = [];
-		foreach ($_POST as $key => $value) {
-			if (!is_string($key) || $key[0] != '_') {
-				continue;
-			}
-			$newKey = substr($key, 1);
-			$arTemplate[$newKey] = $value;
+		$arTemplate = [
+			'ID' => 0,
+			'DOMAIN' => $_POST['_DOMAIN'] ?? '',
+			'NEED_UTM' => $_POST['_NEED_UTM'] ?? 'N',
+			'UTM_SOURCE' => $_POST['_UTM_SOURCE'] ?? '',
+			'UTM_MEDIUM' => $_POST['_UTM_MEDIUM'] ?? '',
+			'UTM_CAMPAIGN' => $_POST['_UTM_CAMPAIGN'] ?? '',
+			'UTM_TERM' => $_POST['_UTM_TERM'] ?? '',
+			'UTM_CONTENT' => $_POST['_UTM_CONTENT'] ?? '',
+			'QUEUE_ELEMENT_UPDATE' => $_POST['_QUEUE_ELEMENT_UPDATE'] ?? 'N',
+			'QUEUE_ELEMENT_DELETE' => $_POST['_QUEUE_ELEMENT_DELETE'] ?? 'N',
+			'QUEUE_DUPLICATE' => $_POST['_QUEUE_DUPLICATE'] ?? 'N',
+			'ACCOUNTS' => [],
+		];
+		if (isset($_POST['_PUBLISH']) && is_array($_POST['_PUBLISH'])) {
+			$arTemplate['PUBLISH'] = $_POST['_PUBLISH'];
 		}
-		$arTemplate['ACCOUNTS'] = [];
 		foreach ($_POST['_ACCOUNTS'] as $id => $v) {
 			$arTemplate['ACCOUNTS'][] = $id;
 		}
-		$arTemplate['ID'] = 0;
 		$arFilter = ['IBLOCK_ID' => $_POST['IBLOCK_ID']];
 		foreach ($_POST['ELEMS'] as $id => $v) {
 			$arFilter['ID'][] = $id;

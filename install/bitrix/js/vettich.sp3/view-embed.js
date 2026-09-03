@@ -266,8 +266,18 @@
 				pp_send_message('modal_close_result', {});
 			},
 			prepare_callback: function () {
+				var callbackUrl = location.href;
+				if (iframeConfig.oauthState) {
+					try {
+						var u = new URL(location.href);
+						u.searchParams.set('state', iframeConfig.oauthState);
+						callbackUrl = u.toString();
+					} catch (e) {
+						callbackUrl = location.pathname + '?state=' + encodeURIComponent(iframeConfig.oauthState);
+					}
+				}
 				pp_send_message('prepare_callback_result', {
-					url: location.href,
+					url: callbackUrl,
 				});
 			},
 			goto: function (data) {

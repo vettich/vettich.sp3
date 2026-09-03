@@ -16,11 +16,15 @@ class FormHelpers
 		foreach ($accList as $t => $accounts) {
 			$accountsMap = [];
 			foreach ($accounts as $account) {
+				$pic = (string)$account['photo'];
+				if (!preg_match('#^https?://#i', $pic)) {
+					$pic = '';
+				}
 				$name = TextProcessor::replace(self::ACC_NAME, [
-					'PIC'             => $account['photo'],
-					'TYPE'            => $account['type'],
-					'LINK'            => $account['link'],
-					'NAME'            => $account['name'],
+					'PIC'             => htmlspecialcharsbx($pic),
+					'TYPE'            => htmlspecialcharsbx((string)$account['type']),
+					'LINK'            => htmlspecialcharsbx((string)$account['link']),
+					'NAME'            => htmlspecialcharsbx((string)$account['name']),
 					'OPEN_IN_NEW_TAB' => Module::m('OPEN_IN_NEW_TAB'),
 				]);
 				$accountsMap[$account['id']] = $name;

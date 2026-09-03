@@ -51,6 +51,7 @@ class View
 			'pp_unavailable' => $ppUnavailable,
 			'moduleReadOnly' => !Module::hasGroupWrite() ? 1 : 0,
 			'debug' => Config::iframeEmbedDebug(),
+			'oauthState' => $path === 'auth' ? Module::ensureParrotPosterOAuthState() : '',
 		);
 	}
 

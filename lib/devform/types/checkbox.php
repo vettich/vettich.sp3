@@ -81,8 +81,8 @@ class checkbox extends _type
 			foreach ($this->options as $key => $opt) {
 				$repls = [
 					'{checked}' => in_array($key, $value) ? 'checked' : '',
-					'{label}' => self::mess($opt),
-					'{value}' => $key,
+					'{label}' => htmlspecialcharsbx((string)self::mess($opt)),
+					'{value}' => htmlspecialcharsbx((string)$key),
 					'{params}' => $this->renderParams(),
 				];
 				$html_options .= str_replace(

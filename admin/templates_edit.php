@@ -7,6 +7,7 @@ use vettich\sp3\Module;
 use vettich\sp3\FormHelpers;
 use vettich\sp3\IBlockHelpers;
 use vettich\sp3\TextProcessor;
+use vettich\sp3\Tools;
 use vettich\sp3\devform\types;
 
 CModule::IncludeModule('iblock');
@@ -117,8 +118,8 @@ $params['NAME_AUTO'] = 'hidden::value='.$name_auto;
 
 if (!$iblock_id) {
 	if (!empty($_POST) && $_POST['needDecodeFromHidden'] != 'Y') {
-		$_POST['_CONDITIONS'] = htmlspecialcharsEx(serialize($_POST['_CONDITIONS']));
-		$_POST['_PUBLISH']    = htmlspecialcharsEx(serialize($_POST['_PUBLISH']));
+		$_POST['_CONDITIONS'] = Tools::encodeHiddenArray($_POST['_CONDITIONS']);
+		$_POST['_PUBLISH']    = Tools::encodeHiddenArray($_POST['_PUBLISH']);
 	}
 	$params += [
 		'_DOMAIN'              => 'hidden',
@@ -129,8 +130,8 @@ if (!$iblock_id) {
 	];
 } else {
 	if ($_POST['needDecodeFromHidden'] == 'Y') {
-		$_POST['_CONDITIONS'] = unserialize(htmlspecialcharsBack($_POST['_CONDITIONS']));
-		$_POST['_PUBLISH']    = unserialize(htmlspecialcharsBack($_POST['_PUBLISH']));
+		$_POST['_CONDITIONS'] = Tools::decodeHiddenArray($_POST['_CONDITIONS']);
+		$_POST['_PUBLISH']    = Tools::decodeHiddenArray($_POST['_PUBLISH']);
 	}
 	$needUTM = ($_POST['_NEED_UTM'] == 'Y' || (empty($_POST) && $data->get('_NEED_UTM') == 'Y'));
 	$params += [

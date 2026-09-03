@@ -30,10 +30,10 @@ if ($issetID) {
 	$row = vettich\sp3\db\PostIBlockTable::getRow(['filter' => ['POST_ID' => $_GET['id']]]);
 	if (!empty($row['IBLOCK_ID']) && !empty($row['ELEM_ID'])) {
 		$iblockName = CIBlock::GetArrayByID($row['IBLOCK_ID'], 'NAME');
-		$iblockIDValue = "[$row[IBLOCK_ID]] <a href=\"/bitrix/admin/iblock_edit.php?type=$iblockType&ID=$row[IBLOCK_ID]\">$iblockName</a>";
+		$iblockIDValue = '['.(int)$row['IBLOCK_ID'].'] <a href="/bitrix/admin/iblock_edit.php?type='.htmlspecialcharsbx((string)$iblockType).'&ID='.(int)$row['IBLOCK_ID'].'">'.htmlspecialcharsbx((string)$iblockName).'</a>';
 		$rs = CIBlockElement::GetList([], ['ID' => $row['ELEM_ID']], false, false, ['ID', 'NAME']);
 		if ($ar = $rs->GetNext()) {
-			$elemValue = "[$row[ELEM_ID]] <a href=\"/bitrix/admin/iblock_element_edit.php?type=$iblockType&IBLOCK_ID=$iblockID&ID=$row[ELEM_ID]\">$ar[NAME]</a>";
+			$elemValue = '['.(int)$row['ELEM_ID'].'] <a href="/bitrix/admin/iblock_element_edit.php?type='.htmlspecialcharsbx((string)$iblockType).'&IBLOCK_ID='.(int)$row['IBLOCK_ID'].'&ID='.(int)$row['ELEM_ID'].'">'.htmlspecialcharsbx((string)$ar['NAME']).'</a>';
 		}
 		$tabGeneralParams = [
 			'iblock' => [
@@ -77,7 +77,7 @@ if (!$issetID) {
 			$tpl = '<img src="{src}" width=40 height=40 /> ';
 			$value = '';
 			foreach ((array)$urls as $url) {
-				$value .= str_replace('{src}', $url, $tpl);
+				$value .= str_replace('{src}', htmlspecialcharsbx((string)$url), $tpl);
 			}
 			$replaces['{value}'] = $value;
 			if (empty($urls)) {
@@ -125,15 +125,16 @@ if ($issetID) {
 		$name = '&lt;unknown&gt;';
 		if (!empty($acc)) {
 			$name = TextProcessor::replace('<a class="vettich-sp3-acc-link" href="#LINK#" target="_blank" title="#OPEN_IN_NEW_TAB#"><span class="vettich-sp3-social-icon #TYPE#"><img src="#PIC#"></span><span>#NAME#</span></a>', [
-				'PIC' => $acc['photo'],
-				'TYPE' => $acc['type'],
-				'LINK' => $acc['link'],
-				'NAME' => $acc['name'],
+				'PIC' => htmlspecialcharsbx((string)$acc['photo']),
+				'TYPE' => htmlspecialcharsbx((string)$acc['type']),
+				'LINK' => htmlspecialcharsbx((string)$acc['link']),
+				'NAME' => htmlspecialcharsbx((string)$acc['name']),
 				'OPEN_IN_NEW_TAB' => Module::m('OPEN_IN_NEW_TAB'),
 			]);
 		}
 		/* var_dump([$id, $ar, $acc, $name]); */
-		$link = '<a href="'.$ar['link'].'" target="_blank">'.$ar['link'].'</a>';
+		$href = htmlspecialcharsbx((string)$ar['link']);
+		$link = '<a href="'.$href.'" target="_blank">'.$href.'</a>';
 		$results[] = [
 			'type' => 'plaintext',
 			'title' => $name,
