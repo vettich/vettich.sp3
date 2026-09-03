@@ -3,6 +3,7 @@ namespace vettich\sp3\db;
 
 use vettich\sp3\Module;
 use vettich\sp3\Api;
+use vettich\sp3\Tools;
 
 class Posts extends \vettich\sp3\devform\data\ArrayList
 {
@@ -121,13 +122,46 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 
 	public static function checkImageMime($imagePath)
 	{
-		$mime = mime_content_type($imagePath);
-		return in_array($mime, ['image/png', 'image/jpeg', 'image/webp']);
+		$mime = Tools::getFileMime($imagePath);
+		return $mime && \in_array($mime, [
+			'image/png',
+			'image/jpeg',
+			'image/webp',
+			'image/jpg',
+			'image/pjpeg',
+			'image/gif',
+		], true);
+	}
+
+	/**
+	 * Allow image / video / audio / common documents for FILE property uploads.
+	 */
+	public static function checkMediaMime($filePath)
+	{
+		$mime = Tools::getFileMime($filePath);
+		if (!$mime) {
+			return false;
+		}
+		if (self::checkImageMime($filePath)) {
+			return true;
+		}
+		if (strpos($mime, 'video/') === 0 || strpos($mime, 'audio/') === 0) {
+			return true;
+		}
+		return \in_array($mime, [
+			'application/pdf',
+			'application/msword',
+			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			'application/zip',
+			'application/x-zip-compressed',
+			'text/plain',
+			'text/csv',
+		], true);
 	}
 
 	public static function checkImageSize($imagePath)
 	{
-		return filesize($imagePath) <= self::MAX_IMAGE_SIZE;
+		return \filesize($imagePath) <= self::MAX_IMAGE_SIZE;
 	}
 
 	private static function uploadImages($imagesField)
@@ -135,7 +169,7 @@ class Posts extends \vettich\sp3\devform\data\ArrayList
 		$images = [];
 		foreach ($imagesField as $image) {
 			$img_path = self::getImagePath($image);
-			$res      = Api::uploadFile($img_path, Module::convertToUtf8(basename($img_path)));
+			$res      = Api::uploadFile($img_path, Module::convertToUtf8(\basename($img_path)));
 			if (empty($res['error'])) {
 				$images[] = $res['response']['file_id'];
 			}

@@ -142,4 +142,94 @@ class Tools
 			return null;
 		}
 	}
+
+	/**
+	 * Encode array for hidden form field (JSON + htmlspecialcharsEx).
+	 *
+	 * @param mixed $value
+	 * @return string
+	 */
+	public static function encodeHiddenArray($value)
+	{
+		if (!is_array($value)) {
+			$value = [];
+		}
+		return htmlspecialcharsEx(\Bitrix\Main\Web\Json::encode($value));
+	}
+
+	/**
+	 * Decode hidden form field: JSON first, then safe PHP serialize legacy.
+	 *
+	 * @param mixed $raw
+	 * @return array
+	 */
+	public static function decodeHiddenArray($raw)
+	{
+		if (is_array($raw)) {
+			return $raw;
+		}
+		$s = htmlspecialcharsBack((string)$raw);
+		if ($s === '' || $s === 'null') {
+			return [];
+		}
+		try {
+			$decoded = \Bitrix\Main\Web\Json::decode($s);
+			if (is_array($decoded)) {
+				return $decoded;
+			}
+		} catch (\Exception $ex) {
+			// fall through to legacy PHP serialize
+		}
+		return self::unserializeArray($s);
+	}
+
+	/**
+	 * Safe PHP unserialize into array only (no object instantiation).
+	 *
+	 * @param mixed $value
+	 * @return array
+	 */
+	public static function unserializeArray($value)
+	{
+		if (!is_string($value) || $value === '') {
+			return [];
+		}
+		if (function_exists('CheckSerializedData') && !CheckSerializedData($value)) {
+			return [];
+		}
+		$data = @unserialize($value, ['allowed_classes' => false]);
+		return is_array($data) ? $data : [];
+	}
+
+	/**
+	 * MIME-тип файла без обязательного расширения fileinfo.
+	 *
+	 * @return string|null
+	 */
+	public static function getFileMime($path)
+	{
+		if (empty($path) || !\is_readable($path)) {
+			return null;
+		}
+		if (\class_exists('\finfo', false)) {
+			$finfo = new \finfo(FILEINFO_MIME_TYPE);
+			$mime  = $finfo->file($path);
+			if ($mime !== false && $mime !== '') {
+				return $mime;
+			}
+		}
+		if (\function_exists('mime_content_type')) {
+			$mime = \mime_content_type($path);
+			if ($mime !== false) {
+				return $mime;
+			}
+		}
+		if (\function_exists('getimagesize')) {
+			$info = @\getimagesize($path);
+			if ($info !== false && !empty($info['mime'])) {
+				return $info['mime'];
+			}
+		}
+		return null;
+	}
 }

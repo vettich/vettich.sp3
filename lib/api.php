@@ -311,7 +311,8 @@ class Api
 		if (version_compare(PHP_VERSION, '5.6.0', '<')) {
 			return '@'.$filepath;
 		}
-		return new \CURLFile($filepath, mime_content_type($filepath), $filename);
+		$mime = Tools::getFileMime($filepath) ?: 'application/octet-stream';
+		return new \CURLFile($filepath, $mime, $filename);
 	}
 
 	private static function resultWrapper($res)
@@ -491,7 +492,18 @@ class Api
 
 		// step 1: get upload url and new file id
 		Log::debug([$filepath, $filename]);
-		$res = self::callGet('file_upload_url', ['type' => 'image', 'filename' => $filename]);
+		$uploadType = 'image';
+		$mime = Tools::getFileMime($filepath);
+		if (is_string($mime)) {
+			if (strpos($mime, 'video/') === 0) {
+				$uploadType = 'video';
+			} elseif (strpos($mime, 'audio/') === 0) {
+				$uploadType = 'audio';
+			} elseif (strpos($mime, 'image/') !== 0) {
+				$uploadType = 'file';
+			}
+		}
+		$res = self::callGet('file_upload_url', ['type' => $uploadType, 'filename' => $filename]);
 		// Log::debug($res);
 		if (!empty($res['error'])) {
 			return $res;

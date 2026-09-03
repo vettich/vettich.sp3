@@ -515,7 +515,7 @@ class TemplateHelpers
 			foreach ((array)$files as $filepath) {
 				$filepath = Module::convertToUtf8($filepath);
 				$isRemote = substr($filepath, 0, 4) == 'http';
-				if (!$isRemote && (!db\Posts::checkImageMime($filepath) or !db\Posts::checkImageSize($filepath))) {
+				if (!$isRemote && (!db\Posts::checkMediaMime($filepath) or !db\Posts::checkImageSize($filepath))) {
 					continue;
 				}
 				$imgpath = self::watemarkImage($filepath, $fields['TEMPLATE_ID']);
