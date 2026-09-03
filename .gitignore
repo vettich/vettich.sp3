@@ -4,5 +4,6 @@ log*.txt
 local_config.json
 *.local.json
 
+/versions/
 /vendor/
 /dev/
