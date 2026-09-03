@@ -1,5 +1,8 @@
 .php_cs.cache
 log*.txt
+*.log
 local_config.json
+*.local.json
 
 /vendor/
+/dev/

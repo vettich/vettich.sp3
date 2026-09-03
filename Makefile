@@ -12,11 +12,14 @@
 #   UPDATER_MODE=none make update-version
 #   UPDATER_MODE=full WRITE_UPDATER=1 make update-version
 #   SKIP_UPDATER=1 make update-version
+#   make lint
+#   PHP_VERSIONS=8.1 make lint
 
 UPDATE_BASE ?=
 UPDATE_ZIP ?= changes.zip
 UPDATER_MODE ?= auto
-export UPDATE_BASE UPDATE_ZIP UPDATER_MODE WRITE_UPDATER SKIP_UPDATER LIST_ONLY
+PHP_VERSIONS ?=
+export UPDATE_BASE UPDATE_ZIP UPDATER_MODE WRITE_UPDATER SKIP_UPDATER LIST_ONLY PHP_VERSIONS
 
 update-version:
 	@chmod +x scripts/build-bitrix-update.sh
@@ -29,4 +32,8 @@ list-update-files:
 test:
 	php bin/test-bx-domains.php
 
-.PHONY: update-version list-update-files test
+lint:
+	@chmod +x scripts/php-lint-docker.sh
+	@./scripts/php-lint-docker.sh
+
+.PHONY: update-version list-update-files test lint
