@@ -27,7 +27,7 @@ $arIblockTypes = ['' => Module::m('IBLOCK_TYPE_SELECT')];
 $rsIblockTypes = CIBlockType::GetList();
 while ($ar = $rsIblockTypes->Fetch()) {
 	if ($arIBType = CIBlockType::GetByIDLang($ar["ID"], LANG)) {
-		$arIblockTypes["$ar[ID]"] = "[$ar[ID]] ".htmlspecialcharsEx($arIBType["NAME"]);
+		$arIblockTypes["$ar[ID]"] = "[$ar[ID]] ".$arIBType["NAME"];
 	}
 }
 

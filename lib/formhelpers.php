@@ -31,9 +31,10 @@ class FormHelpers
 			}
 
 			$tabParams[] = new checkbox($id, [
-				'title'    => Module::m(strtoupper($t)),
-				'options'  => $accountsMap,
-				'multiple' => true,
+				'title'        => Module::m(strtoupper($t)),
+				'options'      => $accountsMap,
+				'multiple'     => true,
+				'escapeLabels' => false,
 			]);
 
 			/* if (in_array($t, ['insta', 'tg', 'fb'])) { */

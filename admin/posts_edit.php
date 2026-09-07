@@ -37,12 +37,12 @@ if ($issetID) {
 		}
 		$tabGeneralParams = [
 			'iblock' => [
-				'type' => 'plaintext',
+				'type' => 'html',
 				'title' => '#.IBLOCK#',
 				'value' => $iblockIDValue,
 			],
 			'iblock_elem' => [
-				'type' => 'plaintext',
+				'type' => 'html',
 				'title' => '#.IBLOCK_ELEM#',
 				'value' => $elemValue,
 			],
@@ -135,13 +135,21 @@ if ($issetID) {
 		/* var_dump([$id, $ar, $acc, $name]); */
 		$href = htmlspecialcharsbx((string)$ar['link']);
 		$link = '<a href="'.$href.'" target="_blank">'.$href.'</a>';
-		$results[] = [
-			'type' => 'plaintext',
-			'title' => $name,
-			'value' => $ar['success'] ?
-				($ar['link'] ? $link : Module::m('SUCCESS')) :
-				($ar['error_formatted'] ?: Module::m('FAIL')),
-		];
+		if ($ar['success'] && $ar['link']) {
+			$results[] = [
+				'type' => 'html',
+				'title' => $name,
+				'value' => $link,
+			];
+		} else {
+			$results[] = [
+				'type' => 'plaintext',
+				'title' => $name,
+				'value' => $ar['success'] ?
+					Module::m('SUCCESS') :
+					($ar['error_formatted'] ?: Module::m('FAIL')),
+			];
+		}
 	}
 	if (empty($results)) {
 		$results[] = [

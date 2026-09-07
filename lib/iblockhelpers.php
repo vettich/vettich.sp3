@@ -140,10 +140,10 @@ class IBlockHelpers
 				['ACTIVE'=> 'Y', 'IBLOCK_ID'=>$iblockId]
 			);
 			while ($prop_fields = $rsProperties->GetNext()) {
-				$str                               = "[PROPERTY_$prop_fields[CODE]] <b>$prop_fields[NAME]</b>";
-				$str                               = str_replace("'", '"', $str);
-				$str                               = str_replace(["\"", '&quot;', '&#34;'], "'", $str);
-				$propKey                           = 'PROPERTY_'.$prop_fields['CODE'];
+				$code                              = (string)($prop_fields['~CODE'] ?? $prop_fields['CODE']);
+				$name                              = (string)($prop_fields['~NAME'] ?? $prop_fields['NAME']);
+				$str                               = '[PROPERTY_'.$code.'] '.$name;
+				$propKey                           = 'PROPERTY_'.$code;
 				$arProps[self::ANY_TYPE][$propKey] = $str;
 				// var_dump($prop_fields);
 

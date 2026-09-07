@@ -6,6 +6,7 @@ namespace vettich\sp3\devform\types;
 */
 class group extends _type
 {
+	protected $escapeValueInTemplate = false;
 	public $template = '<tr><td colspan=2><table width="100%"><tr id="{id}-wrap" {params}><td width="20%"><label for="{id}">{title}{help}</label></td><td>{content}</td></tr></table></td></tr>';
 	public $inlineTemplateBegin = '<table><tr>';
 	public $inlineTemplateEnd = '</tr></table>';

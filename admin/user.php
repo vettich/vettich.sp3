@@ -26,7 +26,22 @@ if ($days_left < 7) {
 
 \CJSCore::Init(['vettich_sp3_script']);
 
-$username = $user['username'] ?: htmlspecialcharsEx('<anonymous>');
+$dateEsc = htmlspecialcharsbx(date('d.m.Y', $expiry_at));
+$colorEsc = htmlspecialcharsbx($color);
+if ($days_left <= 0) {
+	$expiryHtml = '<span style="color: '.$colorEsc.'">'.$dateEsc.'</span> ('
+		.htmlspecialcharsbx(Module::m('EXPIRED_AT_VALUE'))
+		.', <a href="/bitrix/admin/vettich.sp3.tariffs.php">'
+		.htmlspecialcharsbx(Module::m('EXPIRED_RENEW'))
+		.'</a>)';
+} else {
+	$expiryHtml = '<span style="color: '.$colorEsc.'">'.$dateEsc.'</span> ('
+		.htmlspecialcharsbx(Module::m('EXPIRY_AT_VALUE', [
+			'#days#' => (string) (int) $days_left,
+		]))
+		.')';
+}
+
 (new \vettich\sp3\devform\AdminForm('devform', [
 	'pageTitle' => '#.USER_INFO#',
 	'tabs' => [
@@ -34,7 +49,11 @@ $username = $user['username'] ?: htmlspecialcharsEx('<anonymous>');
 			'name' => '#.USER#',
 			'title' => '#.USER_TITLE#',
 			'params' => [
-				'username' => 'plaintext:#.USERNAME#:'.$username,
+				'username' => [
+					'type' => 'plaintext',
+					'title' => '#.USERNAME#',
+					'value' => $user['username'] ?: '<anonymous>',
+				],
 				'tariff' => [
 					'type' => 'plaintext',
 					'title' => '#.TARIFF_NAME#',
@@ -49,13 +68,9 @@ $username = $user['username'] ?: htmlspecialcharsEx('<anonymous>');
 					]),
 				],
 				'expiry_at' => [
-					'type' => 'plaintext',
+					'type' => 'html',
 					'title' => '#.EXPIRY_AT#',
-					'value' => Module::m($days_left <= 0 ? 'EXPIRED_AT_VALUE' : 'EXPIRY_AT_VALUE', [
-						'#date#' => date('d.m.Y', $expiry_at),
-						'#days#' => $days_left,
-						'#color#' => $color,
-					]),
+					'value' => $expiryHtml,
 				],
 				'tariff_list' => [
 					'type' => 'link',

@@ -16,11 +16,15 @@ class checkbox extends _type
 	public $multiple = false;
 	public $options = null;
 	public $keys = ['true' => 'Y', 'false' => 'N'];
+	public $escapeLabels = true;
 
 	public function __construct($id, $args=[])
 	{
 		if (isset($args['label'])) {
 			$this->label = $args['label'];
+		}
+		if (array_key_exists('escapeLabels', $args)) {
+			$this->escapeLabels = (bool)$args['escapeLabels'];
 		}
 		if (isset($args['keys'])) {
 			$this->keys = $args['keys'];
@@ -79,9 +83,13 @@ class checkbox extends _type
 			}
 			$html_options = '';
 			foreach ($this->options as $key => $opt) {
+				$label = (string)self::mess($opt);
+				if ($this->escapeLabels) {
+					$label = htmlspecialcharsbx($label);
+				}
 				$repls = [
 					'{checked}' => in_array($key, $value) ? 'checked' : '',
-					'{label}' => htmlspecialcharsbx((string)self::mess($opt)),
+					'{label}' => $label,
 					'{value}' => htmlspecialcharsbx((string)$key),
 					'{params}' => $this->renderParams(),
 				];
